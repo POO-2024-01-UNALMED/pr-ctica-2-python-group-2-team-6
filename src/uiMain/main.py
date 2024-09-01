@@ -4,6 +4,652 @@ import datetime
 from datetime import datetime
 import random
 
+# Funcionalidad 3
+def dejar_restaurante():
+    encendido = True
+    while encendido:
+        print("""¿Algún cliente desea dejar un restaurante?
+        1. Sí.
+        2. No.
+        Escriba un número para elegir su opción.""")
+        
+        eleccion = int(input())
+        
+        if eleccion == 1:
+            limpiar_pantalla()
+            print("Ingrese el número de cédula del cliente que va a dejar el restaurante")
+            cedula = int(input())
+            cliente = buscar_cliente_por_cedula(cedula)  # Asumiendo que `buscar_cliente_por_cedula` es un método que devuelve el cliente
+            mesa = cliente.get_mesa()  # Asumiendo que `get_mesa` devuelve la mesa del cliente
+            cobrar_factura(mesa)
+            encendido = False
+            
+        elif eleccion == 2:
+            limpiar_pantalla()
+            menu_principal()
+            encendido = False
+            
+        else:
+            limpiar_pantalla()
+            print("Ingrese un número válido [1 - 2].")
+
+def cobrar_factura(mesa):
+    encendido = True
+    while encendido:
+        print("Interacción 1.")
+        valor_factura = 0
+        
+        for cliente in mesa.get_clientes():  # Asumiendo que `get_clientes` devuelve la lista de clientes en la mesa
+            valor_factura += cliente.get_factura().calcular_valor()  # Asumiendo que `calcular_valor` devuelve el valor de la factura
+            
+        print(f"El valor de la factura es: {valor_factura}")
+        print("""¿Desea agregar propina?
+        1. Sí.
+        2. No.
+        Escriba un número para elegir su opción.""")
+        
+        eleccion = int(input())
+        
+        if eleccion == 1:
+            print("Por favor ingrese el valor de la propina.")
+            propina = int(input())
+            valor_factura += propina
+            mesa.set_valor_total(valor_factura)  # Asumiendo que `set_valor_total` establece el valor total en la mesa
+            print(f"El valor de la factura con propina es: {valor_factura}")
+            separar_factura(mesa)  # Asumiendo que `separar_factura` es un método que divide la factura
+            liberar_mesa(mesa)  # Asumiendo que `liberar_mesa` es un método que libera la mesa
+            encendido = False
+            
+        elif eleccion == 2:
+            print(f"El valor de la factura sin propina es: {valor_factura}")
+            mesa.set_valor_total(valor_factura)
+            separar_factura(mesa)
+            liberar_mesa(mesa)
+            encendido = False
+            
+        else:
+            print("Número no válido.")
+
+def separar_factura(mesa):
+    encendido = True
+    while encendido:
+        print("¿Desea separar la factura?")
+        print("""
+            1. Sí.
+            2. No.
+            Escriba un número para elegir su opción.""")
+        eleccion = int(input())
+
+        if eleccion == 1:
+            print("Por favor ingrese el número de personas que van a pagar la factura.")
+            numero_personas = int(input())
+
+            if numero_personas == len(mesa.get_clientes()):
+                print("¿Todos desean pagar el mismo monto?")
+                print("""
+                    1. Sí.
+                    2. No.
+                    Escriba un número para elegir su opción.""")
+                eleccion2 = int(input())
+
+                if eleccion2 == 1:
+                    valor_factura = mesa.get_valor_total()
+                    valor_por_persona = valor_factura // numero_personas
+                    print(f"El valor por persona es: {valor_por_persona}")
+                    
+                    clientes_pagadores = mesa.get_clientes()
+
+                    for cliente_pagador in clientes_pagadores:
+                        escoger_metodo_pago(cliente_pagador)
+                        valor_final_por_persona = aplicar_descuentos_cuenta(cliente_pagador, valor_por_persona)
+                        transaccion_confirmada = False
+                        while not transaccion_confirmada:
+                            print(f"Descuento por afiliación: {valor_por_persona - valor_final_por_persona}")
+                            print(f"¿Desea confirmar la transacción con un valor de: {valor_final_por_persona}?")
+                            print("""
+                                1. Sí.
+                                2. No.
+                                Escriba un número para elegir su opción.""")
+                            confirmacion = int(input())
+                            if confirmacion == 1:
+                                print("Transacción confirmada.")
+                                cliente_pagador.get_factura().pagar()
+                                mesa.set_valor_total(mesa.get_valor_total() - valor_por_persona)
+                                transaccion_confirmada = True
+                            elif confirmacion == 2:
+                                continue
+                            else:
+                                print("Número no válido.")
+
+                    if mesa.get_valor_total() == 0:
+                        print("La factura ha sido pagada. ¡Esperamos que vuelvan pronto!")
+                
+                elif eleccion2 == 2:
+                    print("Cada persona pagará lo que consumió.")
+                    for cliente in mesa.get_clientes():
+                        print(f"{cliente.get_nombre()} debe pagar: {cliente.get_factura().get_valor()}")
+                        escoger_metodo_pago(cliente)
+                        valor_final_factura = aplicar_descuentos_cuenta(cliente, cliente.get_factura().get_valor())
+                        transaccion_confirmada = False
+                        while not transaccion_confirmada:
+                            print(f"¿Desea confirmar la transacción con un valor de: {valor_final_factura}?")
+                            print("""
+                                1. Sí.
+                                2. No.
+                                Escriba un número para elegir su opción.""")
+                            confirmacion = int(input())
+                            if confirmacion == 1:
+                                print("Transacción confirmada.")
+                                cliente.get_factura().pagar()
+                                mesa.set_valor_total(mesa.get_valor_total() - cliente.get_factura().get_valor())
+                                transaccion_confirmada = True
+                            elif confirmacion == 2:
+                                continue
+                            else:
+                                print("Número no válido.")
+
+                    if mesa.get_valor_total() == 0:
+                        print("La factura ha sido pagada. ¡Esperamos que vuelvan pronto!")
+                
+            else:
+                clientes_pagadores = []
+                personas_procesadas = 0
+                while mesa.get_valor_total() > 0 and personas_procesadas < numero_personas:
+                    for j in range(numero_personas):
+                        print("Ingrese la cédula de la persona que pagará la factura.")
+                        cedula = int(input())
+                        
+                        cliente_pagador = None
+                        for cliente in mesa.get_clientes():
+                            if cliente.get_cedula() == cedula:
+                                cliente_pagador = cliente
+                                clientes_pagadores.append(cliente)
+                                break
+
+                        if cliente_pagador:
+                            print("Ingrese la cantidad que desea pagar.")
+                            valor = int(input())
+                            if valor > mesa.get_valor_total():
+                                print("El valor ingresado es mayor al valor de la factura.")
+                            else:
+                                escoger_metodo_pago(cliente_pagador)
+                                valor_final_persona = aplicar_descuentos_cuenta(cliente_pagador, valor)
+                                mesa.set_valor_total(mesa.get_valor_total() - valor + (valor - valor_final_persona))
+                                print(f"El pago final fue: {valor_final_persona}")
+                                print(f"El valor restante de la factura es: {mesa.get_valor_total()}")
+                            
+                            personas_procesadas += 1
+                            if mesa.get_valor_total() <= 0:
+                                break
+                        else:
+                            print("Cédula no válida.")
+
+                if mesa.get_valor_total() != 0:
+                    print("La factura aún no ha sido pagada.")
+                    print("Seleccione el cliente que pagará la factura.")
+                    for i, cliente in enumerate(clientes_pagadores, start=1):
+                        print(f"{i}. {cliente.get_nombre()}")
+                    
+                    cliente_a_pagar = int(input()) - 1
+                    print(f"Debe pagar el total restante de: {mesa.get_valor_total()}")
+                    print("¿Desea confirmar la transacción?")
+                    print("""
+                        1. Sí.
+                        2. No.
+                        Escriba un número para elegir su opción.""")
+                    confirmacion = int(input())
+                    if confirmacion == 1:
+                        print("Transacción confirmada.")
+                        mesa.set_valor_total(0)
+                    else:
+                        print("Número no válido.")
+                
+                print("La factura ha sido pagada.")
+
+            encendido = False
+        
+        elif eleccion == 2:
+            print("Ingrese la cédula del cliente que realizará el pago.")
+            cedula_cliente = int(input())
+            for cliente in mesa.get_clientes():
+                if cliente.get_cedula() == cedula_cliente:
+                    escoger_metodo_pago(cliente)
+                    valor_final_factura = aplicar_descuentos_cuenta(cliente, mesa.get_valor_total())
+                    transaccion_confirmada = False
+                    while not transaccion_confirmada:
+                        print(f"¿Desea confirmar la transacción con un valor de: {valor_final_factura}?")
+                        print("""
+                            1. Sí.
+                            2. No.
+                            Escriba un número para elegir su opción.""")
+                        confirmacion = int(input())
+                        if confirmacion == 1:
+                            print("Transacción confirmada.")
+                            for clientes in mesa.get_clientes():
+                                clientes.get_factura().pagar()
+                            mesa.set_valor_total(0)
+                            transaccion_confirmada = True
+                        elif confirmacion == 2:
+                            continue
+                        else:
+                            print("Número no válido.")
+
+                if mesa.get_valor_total() == 0:
+                    print("La factura ha sido pagada. ¡Esperamos que vuelvan pronto!")
+
+            encendido = False
+        
+        else:
+            print("Número no válido.")
+
+def escoger_metodo_pago(cliente_pagador):
+    print(f"Por favor escoja el método de pago: {cliente_pagador.get_nombre()}")
+    print("""
+        1. Efectivo.
+        2. Tarjeta.
+        3. Cheque.
+        Escriba un número para elegir su opción.""")
+    
+    metodo_pago = int(input())
+    metodos_pago = []
+    
+    if metodo_pago == 1:
+        cliente_pagador.get_factura().set_metodo_pago("Efectivo")
+        metodos_pago.append("Efectivo")
+    elif metodo_pago == 2:
+        cliente_pagador.get_factura().set_metodo_pago("Tarjeta")
+        metodos_pago.append("Tarjeta")
+    elif metodo_pago == 3:
+        cliente_pagador.get_factura().set_metodo_pago("Cheque")
+        metodos_pago.append("Cheque")
+    else:
+        print("Número no válido")
+        escoger_metodo_pago(cliente_pagador)
+
+def liberar_mesa(mesa):
+    encendido = True
+    while encendido:
+        print("Interacción 2.")
+        print("¿Algún cliente desea reservar nuevamente?")
+        print("""
+            1. Sí.
+            2. No.
+            Escriba un número para elegir su opción.""")
+        
+        eleccion = int(input())
+        if eleccion == 1:
+            print("¿Cuántos clientes desean hacer una reservación?")
+            numero_clientes = int(input())
+            for _ in range(numero_clientes):
+                print("Ingrese la cédula del cliente que desea reservar.")
+                cedula = int(input())
+                for cliente in mesa.get_clientes():
+                    if cliente.get_cedula() == cedula:
+                        if cliente.get_afiliacion() != Cliente.Afiliacion.NINGUNA:
+                            reservar_mesa()
+                        else:
+                            print("¿Desea afiliarse?")
+                            print("""
+                                1. Sí.
+                                2. No.
+                                Escriba un número para elegir su opción.""")
+                            
+                            eleccion2 = int(input())
+                            if eleccion2 == 1:
+                                print("¿Qué nivel de afiliación desea?")
+                                print("""
+                                    1. Estrellita.
+                                    2. Estrella.
+                                    3. Super estrellota.
+                                    Escriba un número para elegir su opción.""")
+                                
+                                nivel_afiliacion = int(input())
+                                if nivel_afiliacion == 1:
+                                    transaccion_confirmada = False
+                                    while not transaccion_confirmada:
+                                        print("¿Desea confirmar la transacción con un valor de: 35.900?")
+                                        print("""
+                                            1. Sí.
+                                            2. No.
+                                            Escriba un número para elegir su opción.""")
+                                        
+                                        confirmacion = int(input())
+                                        if confirmacion == 1:
+                                            print("Transacción confirmada.")
+                                            cliente.set_afiliacion(Cliente.Afiliacion.ESTRELLITA)
+                                            transaccion_confirmada = True
+                                        elif confirmacion == 2:
+                                            print("Afiliación no confirmada.")
+                                        else:
+                                            print("Número no válido.")
+                                elif nivel_afiliacion == 2:
+                                    transaccion_confirmada = False
+                                    while not transaccion_confirmada:
+                                        print("¿Desea confirmar la transacción con un valor de: 48.900?")
+                                        print("""
+                                            1. Sí.
+                                            2. No.
+                                            Escriba un número para elegir su opción.""")
+                                        
+                                        confirmacion = int(input())
+                                        if confirmacion == 1:
+                                            print("Transacción confirmada.")
+                                            cliente.set_afiliacion(Cliente.Afiliacion.ESTRELLA)
+                                            transaccion_confirmada = True
+                                        elif confirmacion == 2:
+                                            print("Afiliación no confirmada.")
+                                        else:
+                                            print("Número no válido.")
+                                elif nivel_afiliacion == 3:
+                                    transaccion_confirmada = False
+                                    while not transaccion_confirmada:
+                                        print("¿Desea confirmar la transacción con un valor de: 65.900?")
+                                        print("""
+                                            1. Sí.
+                                            2. No.
+                                            Escriba un número para elegir su opción.""")
+                                        
+                                        confirmacion = int(input())
+                                        if confirmacion == 1:
+                                            print("Transacción confirmada.")
+                                            cliente.set_afiliacion(Cliente.Afiliacion.SUPERESTRELLOTA)
+                                            transaccion_confirmada = True
+                                        elif confirmacion == 2:
+                                            print("Afiliación no confirmada.")
+                                        else:
+                                            print("Número no válido.")
+                                else:
+                                    print("Número no válido.")
+                                reservar_mesa()
+                            elif eleccion2 == 2:
+                                reservar_mesa()
+        elif eleccion == 2:
+            for cliente in mesa.get_clientes():
+                if cliente.get_afiliacion() == Cliente.Afiliacion.NINGUNA:
+                    print(f"{cliente.get_nombre()}, ¿desea afiliarse?")
+                    print("""
+                        1. Sí.
+                        2. No.
+                        Escriba un número para elegir su opción.""")
+                    
+                    eleccion3 = int(input())
+                    if eleccion3 == 1:
+                        print("¿Qué nivel de afiliación desea?")
+                        print("""
+                            1. Estrellita.
+                            2. Estrella.
+                            3. Super estrellota.
+                            Escriba un número para elegir su opción.""")
+                        
+                        nivel_afiliacion = int(input())
+                        if nivel_afiliacion == 1:
+                            transaccion_confirmada = False
+                            while not transaccion_confirmada:
+                                print("¿Desea confirmar la transacción con un valor de: 35.900?")
+                                print("""
+                                    1. Sí.
+                                    2. No.
+                                    Escriba un número para elegir su opción.""")
+                                
+                                confirmacion = int(input())
+                                if confirmacion == 1:
+                                    print("Transacción confirmada.")
+                                    cliente.set_afiliacion(Cliente.Afiliacion.ESTRELLITA)
+                                    transaccion_confirmada = True
+                                elif confirmacion == 2:
+                                    print("Afiliación no confirmada.")
+                                else:
+                                    print("Número no válido.")
+                        elif nivel_afiliacion == 2:
+                            transaccion_confirmada = False
+                            while not transaccion_confirmada:
+                                print("¿Desea confirmar la transacción con un valor de: 48.900?")
+                                print("""
+                                    1. Sí.
+                                    2. No.
+                                    Escriba un número para elegir su opción.""")
+                                
+                                confirmacion = int(input())
+                                if confirmacion == 1:
+                                    print("Transacción confirmada.")
+                                    cliente.set_afiliacion(Cliente.Afiliacion.ESTRELLA)
+                                    transaccion_confirmada = True
+                                elif confirmacion == 2:
+                                    print("Afiliación no confirmada.")
+                                else:
+                                    print("Número no válido.")
+                        elif nivel_afiliacion == 3:
+                            transaccion_confirmada = False
+                            while not transaccion_confirmada:
+                                print("¿Desea confirmar la transacción con un valor de: 65.900?")
+                                print("""
+                                    1. Sí.
+                                    2. No.
+                                    Escriba un número para elegir su opción.""")
+                                
+                                confirmacion = int(input())
+                                if confirmacion == 1:
+                                    print("Transacción confirmada.")
+                                    cliente.set_afiliacion(Cliente.Afiliacion.SUPERESTRELLOTA)
+                                    transaccion_confirmada = True
+                                elif confirmacion == 2:
+                                    print("Afiliación no confirmada.")
+                                else:
+                                    print("Número no válido.")
+                        else:
+                            print("Número no válido.")
+                    elif eleccion3 == 2:
+                        pass
+                calificar_restaurante(cliente)
+        mesa.set_clientes(None)
+        for cliente in mesa.get_clientes():
+            cliente.set_mesa(None)
+            cliente.set_factura(None)
+
+def calificar_restaurante(cliente):
+    print(f"Por favor {cliente.get_nombre()} califique el restaurante con una nota del 1 al 5.")
+    calificacion = float(input())
+    
+    if 1 <= calificacion <= 5:
+        print("Gracias por su calificación.")
+        cliente.get_mesa().get_restaurante().set_calificacion(calificacion)
+    else:
+        print("Ingrese una calificación válida.")
+    
+    print("¿Desea añadir una reseña?")
+    print("""
+        1. Sí.
+        2. No.
+        Escriba un número para elegir su opción.""")
+    
+    eleccion = int(input())
+    
+    if eleccion == 1:
+        print("Por favor ingrese su reseña.")
+        resena = input()
+        cliente.get_mesa().get_restaurante().anadir_reserva(resena)
+        
+        if cliente.get_afiliacion() is not None:
+            cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 1)
+            print("Gracias por su reseña. Obtuvo un punto extra por ayudarnos a mejorar.")
+        else:
+            print("Gracias por su reseña.")
+    
+    elif eleccion != 2:
+        print("Número no válido.")
+    
+    print("Ingrese una calificación para su plato entre 1 y 5.")
+    calificacion_plato = float(input())
+    
+    for plato in cliente.get_factura().get_pedido().get_platos():
+        if 1 <= calificacion_plato <= 5:
+            if calificacion_plato >= 4.5:
+                cliente.agregar_plato_favorito(plato)
+            if calificacion_plato >= 3:
+                cliente.get_reserva().set_satisfaccion(True)
+            plato.set_calificacion(calificacion_plato)
+            Cliente.despedida(cliente)  # Caso #1 Ligadura dinámica
+            print("Gracias por su calificación.")
+            actualizar_platos(plato, cliente.get_mesa())
+            actualizar_menu(cliente.get_mesa())
+        else:
+            print("Ingrese una calificación válida.")
+
+def actualizar_platos(plato_calificado, mesa):
+    if plato_calificado.get_calificacion() >= 4.5 and plato_calificado.get_cantidad_calificaciones() >= 3:
+        mesa.get_restaurante().agregar_plato_recomendado(plato_calificado)
+        plato_calificado.set_recomendado(True)
+        nuevo_precio = int(plato_calificado.get_precio() + (plato_calificado.get_precio() * 0.2))
+        plato_calificado.set_precio(nuevo_precio)
+    
+    if plato_calificado.get_calificacion() <= 3.7 and plato_calificado.get_cantidad_calificaciones() >= 3:
+        mesa.get_restaurante().agregar_plato_descuento(plato_calificado)
+        nuevo_precio = int(plato_calificado.get_precio() - (plato_calificado.get_precio() * 0.15))
+        plato_calificado.set_precio(nuevo_precio)
+
+
+def actualizar_menu(mesa):
+    restaurante = mesa.get_restaurante()
+    
+    for plato in restaurante.get_platos_recomendados():
+        if plato.get_pedidos_recomendados() >= 2:
+            if plato.get_calificacion() <= 4.5:
+                restaurante.eliminar_plato_recomendado(plato)
+                nuevo_precio = int(plato.get_precio() - (plato.get_precio() * 0.2))
+                plato.set_precio(nuevo_precio)
+    
+    for plato in restaurante.get_platos_descuento():
+        if plato.get_pedidos_recomendados() >= 2:
+            if plato.get_calificacion() < 3.7:
+                restaurante.eliminar_plato(plato)
+                print(f"El plato {plato.get_nombre()} ha sido eliminado del menú.")
+                print("¿Qué desea hacer?")
+                print("""
+                    1. Añadir otro plato.
+                    2. Traer un plato de otra sede.
+                    Escriba un número para elegir su opción.""")
+                eleccion = int(input())
+                
+                if eleccion == 1:
+                    plato_nuevo = crear_plato()
+                    restaurante.agregar_plato(plato_nuevo)
+                    print("Se ha añadido un nuevo plato al menú.")
+                elif eleccion == 2:
+                    mejores_platos = Utilidad.listado_platos_calificacion()
+                    while True:
+                        print("¿Cuál de los platos presentados desea agregar al menú del restaurante?")
+                        eleccion_plato = int(input())
+                        if eleccion_plato < 1 or eleccion_plato > len(mejores_platos):
+                            print(f"Ingrese un valor válido [1 - {len(mejores_platos)}].")
+                        else:
+                            restaurante.get_menu().append(mejores_platos[eleccion_plato - 1])
+                            print("Nuevo plato añadido al menú.")
+                            break
+                else:
+                    print("Número no válido.")
+            else:
+                restaurante.eliminar_plato_descuento(plato)
+                nuevo_precio = int(plato.get_precio() + (plato.get_precio() * 0.15))
+                plato.set_precio(nuevo_precio)
+    
+    return restaurante
+
+def aplicar_descuentos_cuenta(cliente, valor_por_persona):
+    valor_final = 0
+    
+    if cliente.get_afiliacion() != "NINGUNA":
+        valor_final = valor_por_persona
+        print("Se aplicaron descuentos por su nivel de afiliación.")
+        
+        if cliente.get_afiliacion() == "ESTRELLITA":
+            metodo_pago = cliente.get_factura().get_metodo_pago()
+            if metodo_pago == "Efectivo":
+                if cliente.get_factura().get_valor() < 30000:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.05))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 1)
+                else:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.07))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 2)
+            elif metodo_pago == "Tarjeta":
+                if cliente.get_factura().get_valor() < 30000:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.03))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 1)
+                else:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.05))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 2)
+            elif metodo_pago == "Cheque":
+                if cliente.get_factura().get_valor() < 30000:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.02))
+                    cliente.set_puntos_acumulados(0)
+                else:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.03))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 1)
+            elif metodo_pago == "Puntos":
+                pass
+        
+        elif cliente.get_afiliacion() == "ESTRELLA":
+            metodo_pago = cliente.get_factura().get_metodo_pago()
+            if metodo_pago == "Efectivo":
+                if cliente.get_factura().get_valor() < 30000:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.07))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 2)
+                else:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.15))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 4)
+            elif metodo_pago == "Tarjeta":
+                if cliente.get_factura().get_valor() < 30000:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.08))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 2)
+                else:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.15))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 4)
+            elif metodo_pago == "Cheque":
+                if cliente.get_factura().get_valor() < 30000:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.02))
+                    cliente.set_puntos_acumulados(0)
+                else:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.1))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 1)
+            elif metodo_pago == "Puntos":
+                pass
+        
+        elif cliente.get_afiliacion() == "SUPERESTRELLOTA":
+            metodo_pago = cliente.get_factura().get_metodo_pago()
+            if metodo_pago == "Efectivo":
+                if cliente.get_factura().get_valor() < 30000:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.1))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 6)
+                else:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.2))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 8)
+            elif metodo_pago == "Tarjeta":
+                if cliente.get_factura().get_valor() < 30000:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.15))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 6)
+                else:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.25))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 8)
+            elif metodo_pago == "Cheque":
+                if cliente.get_factura().get_valor() < 30000:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.05))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 1)
+                else:
+                    valor_final = int(valor_por_persona - (valor_por_persona * 0.08))
+                    cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 2)
+            elif metodo_pago == "Puntos":
+                pass
+    
+    else:
+        valor_final = valor_por_persona
+    
+    if cliente.get_puntos_acumulados() >= 10:
+        print("Felicidades, ha obtenido un descuento de 10.000 por sus puntos acumulados.")
+        valor_final -= 10000
+        cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() - 10)
+    
+    return valor_final
+
+# Funcionalidad 4
 def agregarSede():
     restaurante = Restaurante()
     encendido = True
