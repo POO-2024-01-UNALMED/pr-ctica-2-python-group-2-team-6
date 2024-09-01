@@ -4,6 +4,330 @@ import datetime
 from datetime import datetime
 import random
 
+##Funcionalidad 2 
+
+##Cuerpo de la funcionalidad
+
+def ordenar_comida():
+    encendido1 = True
+    while encendido1:
+        print("""
+            ¿Desea ordenar comida?
+            1. Sí.
+            2. No.
+            Escriba un número para elegir su opción.""")
+        
+        eleccion1 = Utilidad.read_int()
+        if eleccion1 == 1:
+            Utilidad.limpiar_pantalla()
+            print("Ciudades:")
+            Utilidad.listado_ciudades()
+            print("Escriba un número para elegir la ciudad.\nEn caso de no encontrar la ciudad requerida escriba 0.")
+            eleccion2 = Utilidad.read_int()
+            
+            if eleccion2 > len(Ciudad.get_ciudades()) or eleccion2 < 0:
+                print(f"Ingrese un número válido [1 - {len(Ciudad.get_ciudades())}].")
+            else:
+                Utilidad.limpiar_pantalla()
+                if eleccion2 != 0:  # Si se encuentra la ciudad
+                    ciudad = Ciudad.get_ciudades()[eleccion2 - 1]
+                    if not ciudad.get_restaurantes():  # Si la ciudad no tiene restaurantes
+                        print("Esta ciudad no tiene restaurantes.")
+                        ordenar_comida()
+                    else:  # Si la ciudad tiene zonas
+                        encendido2 = True
+                        while encendido2:
+                            Utilidad.limpiar_pantalla()
+                            print(f"Zonas de {ciudad.get_nombre()}:")
+                            zonas_con_restaurante = Utilidad.listado_zonas_con_restaurante_ciudad(ciudad)
+                            print("Escriba un número para elegir la zona.")
+                            eleccion3 = Utilidad.read_int()
+                            
+                            if eleccion3 > len(zonas_con_restaurante) or eleccion3 < 1:  # Si no se encuentra la zona
+                                print(f"Ingrese un número válido [1 - {len(zonas_con_restaurante)}].")
+                            else:  # Si se encuentra la zona
+                                Utilidad.limpiar_pantalla()
+                                zona = zonas_con_restaurante[eleccion3 - 1]
+                                encendido3 = True
+                                while encendido3:
+                                    Utilidad.limpiar_pantalla()
+                                    print(f"Restaurantes de {zona.get_nombre()}:")
+                                    Utilidad.listado_restaurantes_zona(zona)
+                                    print("Escriba un número para elegir el restaurante.")
+                                    eleccion4 = Utilidad.read_int()
+                                    
+                                    if eleccion4 > len(zona.get_restaurantes()) or eleccion4 < 1:  # Si no se encuentra el restaurante
+                                        print(f"Ingrese un número válido [1 - {len(zona.get_restaurantes())}].")
+                                    else:  # Si se encuentra el restaurante
+                                        # Interacción #1
+                                        clientes = establecer_cliente(zona.get_restaurantes()[eleccion4 - 1])
+                                        pedidos = hacer_comida(clientes)
+                                        asignar_factura(pedidos)
+                                        encendido3 = False
+                                encendido2 = False
+                else:  # Si no se encuentra la ciudad
+                    print("Lo sentimos, pero estas son las únicas ciudades donde tenemos restaurantes de nuestra cadena.")
+                    print("""
+                        ¿Desea elegir otra ciudad?
+                        1. Sí.
+                        2. No.
+                        Escriba un número para elegir su opción.""")
+                    eleccion4 = Utilidad.read_int()
+                    
+                    if eleccion4 == 1:
+                        ordenar_comida()
+                    else:
+                        menu_principal()
+                encendido1 = False
+        elif eleccion1 == 2:
+            Utilidad.limpiar_pantalla()
+            menu_principal()
+            encendido1 = False
+        else:
+            Utilidad.limpiar_pantalla()
+            print("Ingrese un número válido [1 - 2].")
+
+##Interacción 1
+
+def establecer_cliente(restaurante):
+    clientes = []
+    print("Ingrese el número de cédula de la persona que desea ordenar:")
+    cedula = Utilidad.read_int()
+    cliente = Cliente(cedula)
+
+    existe_cliente = Utilidad.existe_cliente(cliente)
+
+    if existe_cliente:
+        nuevo_cliente = Utilidad.cliente_cedula(cliente)
+        print(nuevo_cliente)
+        if nuevo_cliente == cliente:  # Si el cliente no tiene reserva
+            print(f"El cliente con cédula {cedula} no está registrado en el restaurante indicado.")
+            print("Para continuar tendrá que brindarnos algunos datos adicionales.")
+            print("Ingrese el nombre del cliente:")
+            nombre = Utilidad.capitalize(Utilidad.read_string())
+            cliente.set_nombre(nombre)
+            clientes.append(cliente)
+            restaurante.get_clientes().append(cliente)
+            cliente.set_restaurante(restaurante)
+            mesa = Mesa()
+            for mesa_restaurante in restaurante.get_mesas():
+                if not mesa_restaurante.get_clientes():
+                    cliente.set_mesa(mesa_restaurante)
+                    mesa_restaurante.set_clientes([cliente])
+                    mesa = mesa_restaurante
+            clientes = mesa.get_clientes()
+
+        else:  # Si el cliente tiene reserva
+            encendido1 = True
+            mesa = Mesa()
+            while encendido1:
+                print("Ingrese el código de reserva:")
+                codigo_reserva = Utilidad.read_int()
+                for reserva in restaurante.get_historial_reservas():
+                    if reserva.get_codigo_reserva() == codigo_reserva:
+                        nuevo_cliente.set_reserva(reserva)
+                        clientes.append(nuevo_cliente)
+                        mesa = nuevo_cliente.get_mesa()
+                        mesa.set_clientes(clientes)
+                        print(f"Por favor diríjase a la mesa {mesa.get_num_mesa()}.")
+                        encendido1 = False
+                        break
+                if not encendido1:
+                    continue
+                else:
+                    print("El código de reserva ingresado no es válido.")
+                    print("Por favor, ingrese un código de reserva válido.")
+    
+            clientes = mesa.get_clientes()
+
+    else:
+        mesa = Mesa()
+        print(f"El cliente con cédula {cedula} no está registrado en ningún restaurante.")
+        print("Para continuar tendrá que brindarnos algunos datos adicionales.")
+        print("Ingrese el nombre del cliente:")
+        nombre = Utilidad.capitalize(Utilidad.read_string())
+        cliente.set_nombre(nombre)
+        clientes.append(cliente)
+        Cliente.get_clientes().append(cliente)
+        restaurante.get_clientes().append(cliente)
+        cliente.set_restaurante(restaurante)
+        for mesa_restaurante in restaurante.get_mesas():
+            if not mesa_restaurante.get_clientes():
+                cliente.set_mesa(mesa_restaurante)
+                mesa_restaurante.set_clientes([cliente])
+                mesa = mesa_restaurante
+    
+        clientes = mesa.get_clientes()
+
+    print(len(clientes))
+    return clientes
+
+##Interacción 2
+
+def hacer_comida(clientes):
+    Utilidad.limpiar_pantalla()
+
+    trabajadores = clientes[0].get_restaurante().get_trabajadores()
+
+    # Buscar Trabajador especialidad Cocinero, especialidad Mesero
+    cocinero = None
+    mesero = None
+
+    for trabajador in trabajadores:
+        if trabajador.get_tipo() == Trabajador.Tipo.COCINERO:
+            cocinero = trabajador
+        if trabajador.get_tipo() == Trabajador.Tipo.MESERO:
+            mesero = trabajador
+
+    mesero.set_mesa(clientes[0].get_mesa())
+    clientes[0].get_mesa().set_mesero(mesero)
+
+    pedido_dummy = Pedido()
+
+    pedidos = hacer_pedido(mesero.get_mesa().get_clientes(), pedido_dummy)
+
+    for pedido in pedidos:
+        pedido.set_mesero(mesero)
+        pedido.set_restaurante(clientes[0].get_restaurante())
+
+        platos_cocinados = cocinero.cocinar(pedido)
+
+        if len(platos_cocinados) != len(pedido.get_platos()):
+            print("Algun(os) plato(s) del pedido no ha(n) podido ser cocinado(s) debido a la falta de ingredientes")
+            print("Se le descontará de la factura.")
+            pedido.set_platos(platos_cocinados)
+
+    return pedidos
+
+def platos_menu(tipo, cliente):
+    platos = []
+    pedido = Pedido()
+    if tipo == "Entrada":
+        print("Entradas Disponibles\n")
+        for plato in cliente.get_restaurante().get_menu():
+            if plato.get_tipo() == "Entrada":
+                platos.append(plato)
+    elif tipo == "Plato fuerte":
+        print("Platos fuertes Disponibles\n")
+        for plato in cliente.get_restaurante().get_menu():
+            if plato.get_tipo() == "Plato Fuerte":
+                platos.append(plato)
+    elif tipo == "Bebida":
+        print("Bebidas Disponibles\n")
+        for plato in cliente.get_restaurante().get_menu():
+            if plato.get_tipo() == "Bebida":
+                platos.append(plato)
+    elif tipo == "Postre":
+        print("Postres Disponibles\n")
+        for plato in cliente.get_restaurante().get_menu():
+            if plato.get_tipo() == "Postre":
+                platos.append(plato)
+    elif tipo == "Infantil":
+        print("Menú infantil\n")
+        for plato in cliente.get_restaurante().get_menu():
+            if plato.get_tipo() == "Infantil":
+                platos.append(plato)
+    elif tipo == "Ninguno":
+        print("Menú General\n")
+        for plato in cliente.get_restaurante().get_menu():
+            platos.append(plato)
+
+    for plato in cliente.get_platos_favoritos():
+        if plato in cliente.get_restaurante().get_menu():
+            platos.append(plato)
+
+    if not platos:
+        print("No contamos con platos de este tipo por el momento.")
+    else:
+        for idx, plato in enumerate(platos):
+            print(f"{idx + 1}. {plato}")
+
+        num_plato = int(Utilidad.read_string())
+        cantidad = int(Utilidad.read_string())
+
+        for _ in range(cantidad):
+            plato_pedido = platos[num_plato - 1]
+            plato_pedido.aumentar_veces_pedido()
+            pedido.agregar_plato(plato_pedido)
+            print(f"Su Pedido hasta ahora\n{pedido}\n")
+
+    return pedido
+
+def hacer_pedido(clientes, pedido):
+    pedidos = []
+    for cliente in clientes:
+        pedido_cliente = Pedido()
+        encendido2 = True
+        while encendido2:
+            print("Seleccione una opción:\n1. Entradas.\n2. Platos Fuertes.\n3. Bebidas.\n4. Postres.\n5. Menú Infantil.\n6. Todos.\n7. Terminar.")
+
+            opcion = int(Utilidad.read_string())
+            encendido2 = True
+            if opcion == 1:
+                Utilidad.limpiar_pantalla()
+                pedido = platos_menu("Entrada", cliente)
+                if pedido.get_platos():
+                    pedido_cliente.get_platos().extend(pedido.get_platos())
+            elif opcion == 2:
+                Utilidad.limpiar_pantalla()
+                pedido = platos_menu("Plato fuerte", cliente)
+                if pedido.get_platos():
+                    pedido_cliente.get_platos().extend(pedido.get_platos())
+            elif opcion == 3:
+                Utilidad.limpiar_pantalla()
+                pedido = platos_menu("Bebida", cliente)
+                if pedido.get_platos():
+                    pedido_cliente.get_platos().extend(pedido.get_platos())
+            elif opcion == 4:
+                Utilidad.limpiar_pantalla()
+                pedido = platos_menu("Postre", cliente)
+                if pedido.get_platos():
+                    pedido_cliente.get_platos().extend(pedido.get_platos())
+            elif opcion == 5:
+                Utilidad.limpiar_pantalla()
+                pedido = platos_menu("Infantil", cliente)
+                if pedido.get_platos():
+                    pedido_cliente.get_platos().extend(pedido.get_platos())
+            elif opcion == 6:
+                Utilidad.limpiar_pantalla()
+                pedido = platos_menu("Ninguno", cliente)
+                if pedido.get_platos():
+                    pedido_cliente.get_platos().extend(pedido.get_platos())
+            else:
+                if not pedido_cliente.get_platos():
+                    print("Ingrese un valor válido [1 - 6]")
+                else:
+                    print("Fin pedido")
+                    encendido2 = False
+
+        pedidos.append(pedido_cliente)
+        cliente.set_pedido(pedido_cliente)
+
+    return pedidos
+
+##Interaccion 3
+
+def asignar_factura(pedidos):
+    mesero = pedidos[0].get_mesero()
+    mesa = mesero.get_mesa()
+
+    for i, pedido in enumerate(pedidos):
+        valor_factura = 0
+        factura = Factura(pedido, valor_factura)
+        mesa.get_facturas().append(factura)
+        mesa.get_clientes()[i].set_factura(factura)
+
+        for plato in pedido.get_platos():
+            factura.aumentar_valor(plato.get_precio())
+
+        print(factura)
+
+    mesero.aumentar_ganancias_extra(5000)
+
+    Utilidad.limpiar_pantalla()
+
+    return mesa.get_facturas()
+
 # Funcionalidad 3
 def dejar_restaurante():
     encendido = True
