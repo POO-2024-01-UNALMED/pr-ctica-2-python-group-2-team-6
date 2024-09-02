@@ -1,8 +1,485 @@
 from utilidad import Utilidad
-from gestorAplicacion import *
+
+from gestorAplicacion.Entorno.casilla import Casilla
+from gestorAplicacion.Entorno.ciudad import Ciudad
+from gestorAplicacion.Entorno.mesa import Mesa
+from gestorAplicacion.Entorno.zona import Zona
+from gestorAplicacion.Gestion.cargamento import Cargamento
+from gestorAplicacion.Gestion.evento import Evento
+from gestorAplicacion.Gestion.factura import Factura
+from gestorAplicacion.Gestion.ingrediente import Ingrediente
+from gestorAplicacion.Gestion.pedido import Pedido
+from gestorAplicacion.Gestion.plato import Plato
+from gestorAplicacion.Gestion.reserva import Reserva
+from gestorAplicacion.Gestion.restaurante import Restaurante
+from gestorAplicacion.Usuario.cliente import Cliente
+from gestorAplicacion.Usuario.persona import Persona
+from gestorAplicacion.Usuario.trabajador import Trabajador
 import datetime
 from datetime import datetime
 import random
+
+#Funcionalidad 1
+#Interacción 1
+def reservarMesa():
+    encendido1 = True
+    while encendido1:
+        print("""
+                ¿Desea reservar una mesa?
+                1. Sí.
+                2. No.
+                Escriba un número para elegir su opción.""")
+        eleccion1 = Utilidad.readInt()
+
+        if eleccion1 == 1:
+            # Utilidad.limpiar_pantalla()
+            print("Ciudades:")
+            Utilidad.listado_ciudades()
+            print("Escriba un número para elegir la ciudad.\nEn caso de no encontrar la ciudad requerida escriba 0.")
+            eleccion2 = Utilidad.readInt()
+
+            if eleccion2 > len(Ciudad.get_ciudades()) or eleccion2 < 0:
+                print(f"Ingrese un número válido [1 - {len(Ciudad.get_ciudades())}].")
+            else:
+                # Utilidad.limpiar_pantalla()
+                if eleccion2 != 0:
+                    ciudad = Ciudad.get_ciudades()[eleccion2 - 1]
+                    if not ciudad.get_restaurantes():
+                        print("Esta ciudad no tiene restaurantes.")
+                        reservarMesa()
+                    else:
+                        encendido2 = True
+                        while encendido2:
+                            # Utilidad.limpiar_pantalla()
+                            print(f"Zonas de {ciudad.get_nombre()}:")
+                            zonas_con_restaurante = Utilidad.listado_zonas_con_restaurante_ciudad(ciudad)
+                            print("Escriba un número para elegir la zona.")
+                            eleccion3 = Utilidad.readInt()
+
+                            if eleccion3 > len(zonas_con_restaurante) or eleccion3 < 1:
+                                print(f"Ingrese un número válido [1 - {len(zonas_con_restaurante)}].")
+                            else:
+                                # Utilidad.limpiar_pantalla()
+                                zona = zonas_con_restaurante[eleccion3 - 1]
+                                encendido3 = True
+                                while encendido3:
+                                    # Utilidad.limpiar_pantalla()
+                                    print(f"Restaurantes de {zona.get_nombre()}:")
+                                    Utilidad.listado_restaurantes_zona(zona)
+                                    print("Escriba un número para elegir el restaurante.")
+                                    eleccion4 = Utilidad.readInt()
+
+                                    if eleccion4 > len(zona.get_restaurantes()) or eleccion4 < 1:
+                                        print(f"Ingrese un número válido [1 - {len(zona.get_restaurantes())}].")
+                                    else:
+                                        cliente = seleccionMesa(zona.get_restaurantes()[eleccion4 - 1])
+                                        restaurante = extras_reserva(cliente)
+                                        pago_anticipado(restaurante)
+                                        encendido3 = False
+                                encendido2 = False
+                else:
+                    print("Lo sentimos, pero estas son las únicas ciudades donde tenemos restaurantes de nuestra cadena.")
+                    print("""
+                            ¿Desea elegir otra ciudad?
+                            1. Sí.
+                            2. No.
+                            Escriba un número para elegir su opción.""")
+                    eleccion4 = Utilidad.readInt()
+                    if eleccion4 == 1:
+                        reservarMesa()
+                    else:
+                        pass
+                        # menu_principal()
+                encendido1 = False
+        elif eleccion1 == 2:
+            # Utilidad.limpiar_pantalla()
+            # menu_principal()
+            encendido1 = False
+        else:
+            # Utilidad.limpiar_pantalla()
+            print("Ingrese un número válido [1 - 2].")
+
+def seleccionMesa(restaurante):
+    clientes = []
+    print("Ingrese el nombre del cliente:")
+    nombre = input().capitalize()
+    print("Ingrese la cédula del cliente:")
+    cedula = Utilidad.readInt()
+    print("Ingrese la placa del vehículo del cliente (en caso de no tener escribir 0):")
+    placa_vehiculo = input()
+    cliente = Cliente(nombre, cedula, placa_vehiculo, Factura())
+
+    if Utilidad.existe_cliente(cliente):
+        cliente = Utilidad.cliente_cedula(cliente)
+    else:
+        restaurante.get_clientes().append(cliente)
+    
+    clientes.append(cliente)
+
+    print("Ingrese la cantidad de acompañantes del cliente:")
+    print("Ingrese la cantidad de acompañantes. No debe ser mayor a 6.\nEn caso de ingresar un número mayor a 6, este será ignorado y se establecerá en 6.")
+    num_acompanantes = Utilidad.readInt()
+    
+    if num_acompanantes > 0:
+        num_acompanantes = min(num_acompanantes, 6)
+        for i in range(num_acompanantes):
+            print(f"Ingrese el nombre del acompañante #{i + 1}:")
+            nombre_acompanante = input()
+            print(f"Ingrese la cédula del acompañante #{i + 1}:")
+            cedula_acompanante = Utilidad.readInt()
+            acompanante = Cliente(nombre_acompanante, cedula_acompanante)
+            if Utilidad.existe_cliente(acompanante):
+                acompanante = Utilidad.cliente_cedula(acompanante)
+            else:
+                restaurante.get_clientes().append(acompanante)
+            clientes.append(acompanante)
+
+    for cliente1 in clientes:
+        cliente1.set_restaurante(restaurante)
+
+    tipo_mesa = False
+    print("¿Qué tipo de mesa quiere usar?\n1. Estándar.\n2. VIP.")
+    eleccion1 = Utilidad.readInt()
+    
+    if eleccion1 == 1:
+        if not any(mesa.is_vip() == tipo_mesa for mesa in restaurante.get_mesas()):
+            print("Lo sentimos, pero no hay mesas estándar, la mesa tendrá que ser VIP.")
+            tipo_mesa = True
+    elif eleccion1 == 2:
+        tipo_mesa = True
+        if not any(mesa.is_vip() == tipo_mesa for mesa in restaurante.get_mesas()):
+            print("Lo sentimos, pero no hay mesas VIP, la mesa tendrá que ser estándar.")
+            tipo_mesa = False
+    else:
+        print("Debido a que ingresó un dato erróneo se le asignó una mesa estándar.")
+
+    mesas_elegidas = []
+    print("Tiene preferencia por estar cerca de:\n1. Puerta.\n2. Ventana.\n3. Ninguna.")
+    eleccion2 = Utilidad.readInt()
+
+    if eleccion2 in [1, 2]:
+        mesas_elegidas = Utilidad.calcular_distancia(restaurante, eleccion2, tipo_mesa)
+    elif eleccion2 == 3:
+        for mesa in restaurante.get_mesas():
+            mesa.set_distancia_puerta(0)
+            mesa.set_distancia_ventana(0)
+    else:
+        print("Debido a que ingresó un dato erróneo se asume que no tiene ninguna preferencia.")
+
+    encendido1 = True
+    while encendido1:
+        fecha_elegida = seleccionFecha(restaurante, tipo_mesa, mesas_elegidas)
+        Utilidad.limpiar_pantalla()
+        print(f"Mesas disponibles para el día {fecha_elegida[2]}/{fecha_elegida[1]}/{fecha_elegida[0]}:")
+
+        mesas_disponibles = []
+        for mesa in restaurante.get_mesas():
+            for fecha in mesa.get_fechas_disponibles():
+                if (fecha[0] == fecha_elegida[0] and fecha[1] == fecha_elegida[1] and
+                        fecha[2] == fecha_elegida[2] and mesa.is_vip() == tipo_mesa and len(fecha) > 3):
+                    print(f"Mesa #{mesa.get_num_mesa()}")
+
+        if mesas_elegidas:
+            print("Según sus preferencias se le recomienda elegir las mesas con el número:")
+            for num_mesa in mesas_elegidas:
+                print(f"#{num_mesa}")
+
+        print("¿Alguna de las mesas disponibles le es conveniente?\n1. Sí.\n2. No.")
+        eleccion4 = Utilidad.readInt()
+
+        if eleccion4 == 1:
+            print("Ingrese el número de la mesa de su preferencia.")
+            num_mesa = Utilidad.readInt()
+            mesa_elegida = next((mesa for mesa in restaurante.get_mesas() if mesa.get_num_mesa() == num_mesa), None)
+
+            if not mesa_elegida:
+                print("Ingresó un número inválido. Se le asignará una mesa aleatoria.")
+                mesa_elegida = next(mesa for mesa in restaurante.get_mesas() if mesa.get_num_mesa() == mesas_elegidas[0])
+
+            Utilidad.limpiar_pantalla()
+            indice_fecha_elegida = next(i for i, fecha in enumerate(mesa_elegida.get_fechas_disponibles())
+                                        if fecha[1] == fecha_elegida[1] and fecha[2] == fecha_elegida[2])
+
+            mesa_elegida.set_ultima_fecha_reserva(indice_fecha_elegida)
+
+            print("Horarios disponibles para la mesa seleccionada:")
+            for i in range(3, len(mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida])):
+                print(f"{i-2}. {mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida][i]}:00.")
+
+            print("¿Alguno de los horarios disponibles le es conveniente?\n1. Sí.\n2. No.")
+            eleccion5 = Utilidad.readInt()
+
+            if eleccion5 == 1:
+                encendido2 = True
+                while encendido2:
+                    print(f"Ingrese el horario de su preferencia. [1 - {len(mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida]) - 3}].")
+                    hora_elegida = Utilidad.readInt()
+
+                    if hora_elegida < 1 or hora_elegida > len(mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida]) - 3:
+                        print(f"Ingrese un número válido [1 - {len(mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida]) - 3}].")
+                    else:
+                        fecha_elegida.append(mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida][hora_elegida + 2])
+                        reserva = Reserva(clientes, fecha_elegida)
+                        reserva.set_restaurante(restaurante)
+                        mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida].pop(hora_elegida + 2)
+                        restaurante.get_historial_reservas().append(reserva)
+
+                        for cliente1 in clientes:
+                            cliente1.set_reserva(reserva)
+                            cliente1.set_mesa(mesa_elegida)
+                            cliente1.set_factura(Factura(Pedido()))
+
+                        print(f"Mesa Elegida: {mesa_elegida.get_fechas_disponibles()}")
+                        print(restaurante.get_historial_reservas())
+                        print("Su reserva ha sido exitosa")
+                        encendido1 = False
+                        encendido2 = False
+            else:
+                print("¿Desea elegir una fecha diferente?\n1. Sí.\n2. No.")
+                seguir1 = Utilidad.readInt()
+                if seguir1 != 1:
+                    encendido1 = False
+        else:
+            print("¿Desea elegir una fecha diferente?\n1. Sí.\n2. No.")
+            seguir2 = Utilidad.readInt()
+            if seguir2 != 1:
+                encendido1 = False
+
+    print(restaurante)
+    return cliente
+
+def seleccionFecha(restaurante, tipo_mesa, mesas_elegidas):
+    elecciones = []
+    anios = []
+    meses = []
+
+    for fechas_mes in restaurante.get_fechas_disponibles():
+        if fechas_mes[0] not in anios:
+            anios.append(fechas_mes[0])
+
+    print("Años disponibles:")
+    for i, anio in enumerate(anios):
+        print(f"{i + 1}. {anio}.")
+
+    print(f"Escriba un número para elegir su opción [1 - {len(anios)}].")
+    eleccion1 = Utilidad.readInt()
+
+    encendido2 = True
+    while encendido2:
+        print("Meses disponibles:")
+        i = 1
+        for fechas_mes in restaurante.get_fechas_disponibles():
+            if anios[eleccion1 - 1] == fechas_mes[0]:
+                print(f"{i}. {fechas_mes[1]}.")
+                meses.append(fechas_mes[1])
+                i += 1
+
+        print(f"Escriba un número para elegir su opción [1 - {i - 1}].")
+        eleccion2 = Utilidad.readInt()
+
+        if 1 <= eleccion2 <= len(meses):
+            encendido2 = False
+        else:
+            print("Ingrese un número válido")
+
+    encendido3 = True
+    indice_mes = 0
+    while encendido3:
+        print("Días disponibles:")
+        for i, fechas in enumerate(restaurante.get_fechas_disponibles()):
+            if meses[eleccion2 - 1] == fechas[1]:
+                indice_mes = i
+                break
+
+        for i in range(2, len(restaurante.get_fechas_disponibles()[indice_mes])):
+            print(f"{i - 1}. {restaurante.get_fechas_disponibles()[indice_mes][i]}.")
+
+        print(f"Escriba un número para elegir su opción [1 - {len(restaurante.get_fechas_disponibles()[indice_mes]) - 2}].")
+        eleccion3 = Utilidad.readInt()
+
+        if 1 <= eleccion3 <= len(restaurante.get_fechas_disponibles()[indice_mes]) - 2:
+            encendido3 = False
+        else:
+            print("Ingrese un número válido")
+
+    elecciones.extend([anios[eleccion1 - 1], meses[eleccion2 - 1], restaurante.get_fechas_disponibles()[indice_mes][eleccion3 + 1]])
+    print(elecciones)
+    return elecciones
+
+def extras_reserva(cliente):
+    restaurante = cliente.get_restaurante()
+    print("Desde la cadena de restaurantes ofrecemos los servicios de reserva de parqueadero y decoraciones para la mesa. Elija un servicio en caso de necesitarlo:")
+    print("1. Reserva de Parqueadero.\n2. Decoraciones para la mesa.\n3. No desea ningún servicio extra.")
+    eleccion = Utilidad.read_int()
+
+    if eleccion == 1:
+        print("Reserva de Parqueadero")
+        placa = ""
+        cargo_extra1 = 0
+        if cliente.get_afiliacion() == Cliente.Afiliacion.NINGUNA:
+            print("El servicio tiene un coste de $10.000. ¿Desea reservar el parqueadero?\n1. Sí.\n2. No.")
+            eleccion2 = Utilidad.read_int()
+            if eleccion2 == 1:
+                cargo_extra1 = 10000
+                indice_celda = restaurante.get_parqueadero().index(False)
+                print(f"Su celda de parqueo es la número: #{indice_celda + 1}")
+                if cliente.get_placa_vehiculo() == "Ninguna":
+                    print("Ingrese la placa del vehículo:")
+                    placa = Utilidad.read_string()
+                    cliente.set_placa_vehiculo(placa)
+                else:
+                    placa = cliente.get_placa_vehiculo()
+                print(f"Parqueadero reservado con éxito para el vehículo con placa: {placa}.")
+            else:
+                extras_reserva(cliente)
+        else:
+            if cliente.get_placa_vehiculo() == "Ninguna":
+                print("Ingrese la placa del vehículo:")
+                placa = Utilidad.read_string()
+                cliente.set_placa_vehiculo(placa)
+            else:
+                placa = cliente.get_placa_vehiculo()
+            for i in range(len(restaurante.get_parqueadero())):
+                if not restaurante.get_parqueadero()[i]:
+                    print(f"Parqueadero reservado con éxito para el vehículo con placa: {placa}.")
+                    break
+            print("Parqueadero reservado con éxito.")
+        cliente.get_factura().aumentar_valor(cargo_extra1)
+
+    elif eleccion == 2:
+        print("Decoraciones para la mesa")
+        if cliente.get_afiliacion() != Cliente.Afiliacion.NINGUNA:
+            print("Obtuvo un 15% de descuento en las decoraciones para mesa. El costo es de $42.500")
+        else:
+            print("El costo de las decoraciones es de $50.000")
+        print("¿Desea decorar la mesa?\n1. Sí.\n2. No.")
+        eleccion3 = Utilidad.read_int()
+        if eleccion3 == 1:
+            encendido1 = False
+            while not encendido1:
+                cargo_extra2 = 0
+                print("Disponemos de los siguientes paquetes de decoración:\n1. Cena romántica (30000$).\n2. Graduación (1200$ + 5000$ por cada comensal).\n3. Descubrimiento (1200$ + 6000$ por cada comensal).")
+                eleccion4 = Utilidad.read_int()
+                if eleccion4 == 1:
+                    restaurante.restar_de_bodega(Utilidad.indice_bodega_items("rosa", restaurante), 1)
+                    restaurante.restar_de_bodega(Utilidad.indice_bodega_items("vela", restaurante), 3)
+                    restaurante.restar_de_bodega_ingrediente(Utilidad.indice_bodega_ingredientes("vino blanco", restaurante), 1)
+                    cargo_extra2 = 30000
+                elif eleccion4 == 2:
+                    restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo negro", restaurante), 3)
+                    restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo dorado", restaurante), 3)
+                    restaurante.restar_de_bodega(Utilidad.indice_bodega_items("birrete", restaurante), cliente.get_mesa().get_clientes().size())
+                    cargo_birretes = 5000 * cliente.get_mesa().get_clientes().size()
+                    cargo_extra2 = 1200 + cargo_birretes
+                elif eleccion4 == 3:
+                    print("Seleccione el género del bebé:\n1. Niño.\n2. Niña.")
+                    eleccion5 = Utilidad.read_int()
+                    if eleccion5 == 1:
+                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo azul", restaurante), 3)
+                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo blanco", restaurante), 3)
+                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("angel varon", restaurante), cliente.get_mesa().get_clientes().size())
+                    else:
+                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo rosado", restaurante), 3)
+                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo blanco", restaurante), 3)
+                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("angel femenino", restaurante), cliente.get_mesa().get_clientes().size())
+                    cargo_angeles = 6000 * cliente.get_mesa().get_clientes().size()
+                    cargo_extra2 = 1200 + cargo_angeles
+                else:
+                    print("Ingrese un dato válido [1 - 3]")
+                    encendido1 = True
+
+                cliente.get_factura().aumentar_valor(cargo_extra2)
+                print(cliente.get_factura())
+        else:
+            extras_reserva(cliente)
+
+    elif eleccion == 3:
+        print("No desea ningún servicio extra.")
+
+    else:
+        print("Ingrese un número válido.")
+        extras_reserva(cliente)
+
+    return restaurante
+
+
+def pago_anticipado(restaurante):
+    reserva = restaurante.get_historial_reservas()[-1]
+    clientes = reserva.get_clientes()
+    factura = clientes[0].get_factura()
+
+    print("¿Desea pagar ya mismo su reserva?\n1. Sí.\n2. No.")
+    eleccion1 = Utilidad.read_int()
+
+    if eleccion1 == 1:
+        if clientes[0].get_afiliacion() == Cliente.Afiliacion.NINGUNA:
+            print("¿Desea afiliarse al restaurante? Hacerlo le daría un descuento extra por ser un nuevo socio\n1. Sí.\n2. No.")
+            eleccion2 = Utilidad.read_int()
+            if eleccion2 == 1:
+                factura.aumentar_valor(13500)  # Aplicar 10% de descuento al valor de la reserva.
+                pagar_reserva(restaurante, reserva, clientes, factura)
+            else:
+                factura.aumentar_valor(15000)
+                pagar_reserva(restaurante, reserva, clientes, factura)
+        else:
+            factura.set_valor(14300)  # Aplicar 5% de descuento al valor de la reserva.
+            pagar_reserva(restaurante, reserva, clientes, factura)
+        clientes[0].get_factura().set_pago_preconsumo(True)
+
+    else:
+        factura.aumentar_valor(15000)
+        print("Al realizar el pago postconsumo se solicitará una propina porcentual obligatoria.")
+        print("¿Teniendo esto en cuenta, desea continuar sin realizar el pago?\n1. Sí.\n2. No.")
+        eleccion6 = Utilidad.read_int()
+        if eleccion6 == 1:
+            confirmar_reserva(restaurante, reserva, clientes)
+        else:
+            pago_anticipado(restaurante)
+
+
+def pagar_reserva(restaurante, reserva, clientes, factura):
+    if confirmar_reserva(restaurante, reserva, clientes):
+        escoger_metodo_pago(clientes[0])
+        encendido1 = True
+        while encendido1:
+            factura.calcular_valor()
+            print(f"¿Desea confirmar la transacción con un valor de: {factura.get_valor()}?")
+            print("1. Sí.\n2. No.\nEscriba un número para elegir su opción.")
+            eleccion3 = Utilidad.read_int()
+            if eleccion3 == 1:
+                print("Transacción confirmada.")
+                clientes[0].get_factura().set_valor(0)
+                encendido1 = False
+            else:
+                encendido1 = False
+                print("Ingrese un valor válido [1 - 2].")
+
+def confirmar_reserva(restaurante, reserva, clientes):
+    confirmada = False
+    fecha_intento = datetime.now()
+    restaurante.get_intentos_reserva().append([fecha_intento.get_year(), fecha_intento.get_month_value(), fecha_intento.get_day_of_month()])
+    
+    print("Resumen de su reserva:")
+    print(reserva)
+    print("¿Desea confirmar su reserva?\n1. Sí.\n2. No.")
+    eleccion1 = Utilidad.read_int()
+
+    if eleccion1 == 1:
+        confirmada = True
+        print("Reserva confirmada.")
+        print(f"Su código de reserva es: {reserva.get_codigo_reserva()}")
+    else:
+        print("Reserva cancelada.")
+        mesa_reserva = clientes[0].get_mesa()
+        fecha_reserva = mesa_reserva.get_fechas_disponibles()[mesa_reserva.get_ultima_fecha_reserva()]
+        fecha_reserva.append(reserva.get_fecha()[3])
+        mesa_reserva.set_clientes(None)
+        mesa_reserva.set_ultima_fecha_reserva(0)
+        for cliente in clientes:
+            cliente.reset_datos_reserva()
+        restaurante.get_historial_reservas().remove(reserva)
+
+    return confirmada
 
 ##Funcionalidad 2 
 
@@ -17,18 +494,18 @@ def ordenar_comida():
             2. No.
             Escriba un número para elegir su opción.""")
         
-        eleccion1 = Utilidad.read_int()
+        eleccion1 = Utilidad.readInt()
         if eleccion1 == 1:
-            Utilidad.limpiar_pantalla()
+            # Utilidad.limpiar_pantalla()
             print("Ciudades:")
             Utilidad.listado_ciudades()
             print("Escriba un número para elegir la ciudad.\nEn caso de no encontrar la ciudad requerida escriba 0.")
-            eleccion2 = Utilidad.read_int()
+            eleccion2 = Utilidad.readInt()
             
             if eleccion2 > len(Ciudad.get_ciudades()) or eleccion2 < 0:
                 print(f"Ingrese un número válido [1 - {len(Ciudad.get_ciudades())}].")
             else:
-                Utilidad.limpiar_pantalla()
+                # Utilidad.limpiar_pantalla()
                 if eleccion2 != 0:  # Si se encuentra la ciudad
                     ciudad = Ciudad.get_ciudades()[eleccion2 - 1]
                     if not ciudad.get_restaurantes():  # Si la ciudad no tiene restaurantes
@@ -37,24 +514,24 @@ def ordenar_comida():
                     else:  # Si la ciudad tiene zonas
                         encendido2 = True
                         while encendido2:
-                            Utilidad.limpiar_pantalla()
+                            # Utilidad.limpiar_pantalla()
                             print(f"Zonas de {ciudad.get_nombre()}:")
                             zonas_con_restaurante = Utilidad.listado_zonas_con_restaurante_ciudad(ciudad)
                             print("Escriba un número para elegir la zona.")
-                            eleccion3 = Utilidad.read_int()
+                            eleccion3 = Utilidad.readInt()
                             
                             if eleccion3 > len(zonas_con_restaurante) or eleccion3 < 1:  # Si no se encuentra la zona
                                 print(f"Ingrese un número válido [1 - {len(zonas_con_restaurante)}].")
                             else:  # Si se encuentra la zona
-                                Utilidad.limpiar_pantalla()
+                                # Utilidad.limpiar_pantalla()
                                 zona = zonas_con_restaurante[eleccion3 - 1]
                                 encendido3 = True
                                 while encendido3:
-                                    Utilidad.limpiar_pantalla()
+                                    # Utilidad.limpiar_pantalla()
                                     print(f"Restaurantes de {zona.get_nombre()}:")
                                     Utilidad.listado_restaurantes_zona(zona)
                                     print("Escriba un número para elegir el restaurante.")
-                                    eleccion4 = Utilidad.read_int()
+                                    eleccion4 = Utilidad.readInt()
                                     
                                     if eleccion4 > len(zona.get_restaurantes()) or eleccion4 < 1:  # Si no se encuentra el restaurante
                                         print(f"Ingrese un número válido [1 - {len(zona.get_restaurantes())}].")
@@ -72,19 +549,20 @@ def ordenar_comida():
                         1. Sí.
                         2. No.
                         Escriba un número para elegir su opción.""")
-                    eleccion4 = Utilidad.read_int()
+                    eleccion4 = Utilidad.readInt()
                     
                     if eleccion4 == 1:
                         ordenar_comida()
                     else:
-                        menu_principal()
+                        # menu_principal()
+                        pass
                 encendido1 = False
         elif eleccion1 == 2:
-            Utilidad.limpiar_pantalla()
-            menu_principal()
+            # Utilidad.limpiar_pantalla()
+            # menu_principal()
             encendido1 = False
         else:
-            Utilidad.limpiar_pantalla()
+            # Utilidad.limpiar_pantalla()
             print("Ingrese un número válido [1 - 2].")
 
 ##Interacción 1
@@ -92,7 +570,7 @@ def ordenar_comida():
 def establecer_cliente(restaurante):
     clientes = []
     print("Ingrese el número de cédula de la persona que desea ordenar:")
-    cedula = Utilidad.read_int()
+    cedula = Utilidad.readInt()
     cliente = Cliente(cedula)
 
     existe_cliente = Utilidad.existe_cliente(cliente)
@@ -104,7 +582,7 @@ def establecer_cliente(restaurante):
             print(f"El cliente con cédula {cedula} no está registrado en el restaurante indicado.")
             print("Para continuar tendrá que brindarnos algunos datos adicionales.")
             print("Ingrese el nombre del cliente:")
-            nombre = Utilidad.capitalize(Utilidad.read_string())
+            nombre = input().capitalize()
             cliente.set_nombre(nombre)
             clientes.append(cliente)
             restaurante.get_clientes().append(cliente)
@@ -122,7 +600,7 @@ def establecer_cliente(restaurante):
             mesa = Mesa()
             while encendido1:
                 print("Ingrese el código de reserva:")
-                codigo_reserva = Utilidad.read_int()
+                codigo_reserva = Utilidad.readInt()
                 for reserva in restaurante.get_historial_reservas():
                     if reserva.get_codigo_reserva() == codigo_reserva:
                         nuevo_cliente.set_reserva(reserva)
@@ -145,7 +623,7 @@ def establecer_cliente(restaurante):
         print(f"El cliente con cédula {cedula} no está registrado en ningún restaurante.")
         print("Para continuar tendrá que brindarnos algunos datos adicionales.")
         print("Ingrese el nombre del cliente:")
-        nombre = Utilidad.capitalize(Utilidad.read_string())
+        nombre = input().capitalize()
         cliente.set_nombre(nombre)
         clientes.append(cliente)
         Cliente.get_clientes().append(cliente)
@@ -165,7 +643,7 @@ def establecer_cliente(restaurante):
 ##Interacción 2
 
 def hacer_comida(clientes):
-    Utilidad.limpiar_pantalla()
+    # Utilidad.limpiar_pantalla()
 
     trabajadores = clientes[0].get_restaurante().get_trabajadores()
 
@@ -242,8 +720,8 @@ def platos_menu(tipo, cliente):
         for idx, plato in enumerate(platos):
             print(f"{idx + 1}. {plato}")
 
-        num_plato = int(Utilidad.read_string())
-        cantidad = int(Utilidad.read_string())
+        num_plato = Utilidad.readInt()
+        cantidad = Utilidad.readInt()
 
         for _ in range(cantidad):
             plato_pedido = platos[num_plato - 1]
@@ -261,35 +739,35 @@ def hacer_pedido(clientes, pedido):
         while encendido2:
             print("Seleccione una opción:\n1. Entradas.\n2. Platos Fuertes.\n3. Bebidas.\n4. Postres.\n5. Menú Infantil.\n6. Todos.\n7. Terminar.")
 
-            opcion = int(Utilidad.read_string())
+            opcion = Utilidad.readInt()
             encendido2 = True
             if opcion == 1:
-                Utilidad.limpiar_pantalla()
+                # Utilidad.limpiar_pantalla()
                 pedido = platos_menu("Entrada", cliente)
                 if pedido.get_platos():
                     pedido_cliente.get_platos().extend(pedido.get_platos())
             elif opcion == 2:
-                Utilidad.limpiar_pantalla()
+                # Utilidad.limpiar_pantalla()
                 pedido = platos_menu("Plato fuerte", cliente)
                 if pedido.get_platos():
                     pedido_cliente.get_platos().extend(pedido.get_platos())
             elif opcion == 3:
-                Utilidad.limpiar_pantalla()
+                # Utilidad.limpiar_pantalla()
                 pedido = platos_menu("Bebida", cliente)
                 if pedido.get_platos():
                     pedido_cliente.get_platos().extend(pedido.get_platos())
             elif opcion == 4:
-                Utilidad.limpiar_pantalla()
+                # Utilidad.limpiar_pantalla()
                 pedido = platos_menu("Postre", cliente)
                 if pedido.get_platos():
                     pedido_cliente.get_platos().extend(pedido.get_platos())
             elif opcion == 5:
-                Utilidad.limpiar_pantalla()
+                # Utilidad.limpiar_pantalla()
                 pedido = platos_menu("Infantil", cliente)
                 if pedido.get_platos():
                     pedido_cliente.get_platos().extend(pedido.get_platos())
             elif opcion == 6:
-                Utilidad.limpiar_pantalla()
+                # Utilidad.limpiar_pantalla()
                 pedido = platos_menu("Ninguno", cliente)
                 if pedido.get_platos():
                     pedido_cliente.get_platos().extend(pedido.get_platos())
@@ -324,7 +802,7 @@ def asignar_factura(pedidos):
 
     mesero.aumentar_ganancias_extra(5000)
 
-    Utilidad.limpiar_pantalla()
+    # Utilidad.limpiar_pantalla()
 
     return mesa.get_facturas()
 
@@ -349,12 +827,12 @@ def dejar_restaurante():
             encendido = False
             
         elif eleccion == 2:
-            limpiar_pantalla()
-            menu_principal()
+            # limpiar_pantalla()
+            # menu_principal()
             encendido = False
             
         else:
-            limpiar_pantalla()
+            # limpiar_pantalla()
             print("Ingrese un número válido [1 - 2].")
 
 def cobrar_factura(mesa):
@@ -610,7 +1088,7 @@ def liberar_mesa(mesa):
                 for cliente in mesa.get_clientes():
                     if cliente.get_cedula() == cedula:
                         if cliente.get_afiliacion() != Cliente.Afiliacion.NINGUNA:
-                            reservar_mesa()
+                            reservarMesa()
                         else:
                             print("¿Desea afiliarse?")
                             print("""
@@ -684,9 +1162,9 @@ def liberar_mesa(mesa):
                                             print("Número no válido.")
                                 else:
                                     print("Número no válido.")
-                                reservar_mesa()
+                                reservarMesa()
                             elif eleccion2 == 2:
-                                reservar_mesa()
+                                reservarMesa()
         elif eleccion == 2:
             for cliente in mesa.get_clientes():
                 if cliente.get_afiliacion() == Cliente.Afiliacion.NINGUNA:
@@ -1040,7 +1518,7 @@ def elegirZona(restaurante):
                                 if reserva.is_satisfaccion():
                                     reservas_satisfactorias += 1
                                 fecha_to_date_time = datetime.datetime(reserva.get_fecha()[0], reserva.get_fecha()[1], reserva.get_fecha()[2], reserva.get_fecha()[3], 0)
-                                if datetime.datetime.now() - datetime.timedelta(days=30) < fecha_to_date_time < datetime.datetime.now() and fecha_to_date_time not in reservas_restaurante:
+                                if datetime.now() - datetime.timedelta(days=30) < fecha_to_date_time < datetime.now() and fecha_to_date_time not in reservas_restaurante:
                                     reservas_restaurante.append(reserva)
                             if restaurante_zona.get_intentos_reserva() is not None:
                                 for intento in restaurante_zona.get_intentos_reserva():
@@ -1100,16 +1578,16 @@ def elegirZona(restaurante):
 
             else:  # Si no se encuentra la ciudad
                 print("Por favor ingrese el nombre de la ciudad.")
-                ciudad = Ciudad(Utilidad.capitalize(Utilidad.read_string()))
+                ciudad = Ciudad(input().capitalize())
                 print("Por favor ingrese la cantidad de zonas que tiene la ciudad.")
                 cantidad_zonas = Utilidad.readInt()
                 # Este ciclo for se encarga de la creación de las zonas de la nueva ciudad.
                 for i in range(1, cantidad_zonas + 1):
                     print(f"Por favor ingrese el nombre de la zona #{i}.")
-                    nombre_zona = Utilidad.capitalize(Utilidad.read_string())
+                    nombre_zona = input().capitalize()
                     print(f"Por favor ingrese la población de la zona #{i}.")
                     poblacion_zona = Utilidad.readInt()
-                    ciudad.get_zonas_ciudad().append(Zona(poblacion_zona, Utilidad.capitalize(nombre_zona), ciudad))
+                    ciudad.get_zonas_ciudad().append(Zona(poblacion_zona, nombre_zona.capitalize(), ciudad))
                     ciudad.actualizar_poblacion()
                     print(ciudad.get_zonas_ciudad()[-1])
                 
@@ -1169,7 +1647,7 @@ def parametrosBasicos(ciudad, restaurante):
                 ciudad.get_restaurantes().append(restaurante)
                 # Se establecen los parámetros básicos del restaurante
                 print("Ingrese el nombre del restaurante:")
-                nombre = Utilidad.capitalize(Utilidad.read_string())
+                nombre = input().capitalize()
                 restaurante.set_nombre(nombre)
                 print("¿El restaurante tendrá zona VIP?\n1. Sí.\n2. No.\nEscriba un número para elegir.")
                 tiene_vip = Utilidad.readInt()
@@ -1197,7 +1675,7 @@ def parametrosBasicos(ciudad, restaurante):
                         if reserva.is_satisfaccion():
                             reservas_satisfactorias += 1
                         fecha_to_date_time = datetime.datetime(reserva.get_fecha()[0], reserva.get_fecha()[1], reserva.get_fecha()[2], reserva.get_fecha()[3], 0)
-                        if (fecha_to_date_time > datetime.datetime.now() - datetime.timedelta(days=30)) and (fecha_to_date_time < datetime.datetime.now()):
+                        if (fecha_to_date_time > datetime.now() - datetime.timedelta(days=30)) and (fecha_to_date_time < datetime.now()):
                             if fecha_to_date_time not in reservas_restaurante:
                                 reservas_restaurante.append(reserva)
                     if restaurante_zona.get_intentos_reserva() is not None:
@@ -1262,7 +1740,7 @@ def parametrosBasicos(ciudad, restaurante):
                 ciudad.get_restaurantes().append(restaurante)
                 # Se establecen los parámetros básicos del restaurante
                 print("Ingrese el nombre del restaurante:")
-                nombre = Utilidad.capitalize(Utilidad.read_string())
+                nombre = input().capitalize()
                 restaurante.set_nombre(nombre)
                 print("¿El restaurante tendrá zona VIP?\n1. Sí.\n2. No.\nEscriba un número para elegir.")
                 tiene_vip = Utilidad.readInt()
@@ -1276,10 +1754,10 @@ def parametrosBasicos(ciudad, restaurante):
 
         else:  # Si no se encuentra la zona
             print("Por favor ingrese el nombre de la zona.")
-            nombre_zona = Utilidad.capitalize(Utilidad.read_string())
+            nombre_zona = input().capitalize()
             print("Por favor ingrese la población de la zona.")
             poblacion_zona = Utilidad.readInt()
-            ciudad.get_zonas_ciudad().append(Zona(poblacion_zona, Utilidad.capitalize(nombre_zona), ciudad))
+            ciudad.get_zonas_ciudad().append(Zona(poblacion_zona, nombre_zona.capitalize(), ciudad))
             ciudad.actualizar_poblacion()
             restaurante.set_ciudad(ciudad)
             print("Zonas de " + ciudad.get_nombre() + ":")
@@ -1461,7 +1939,7 @@ def establecerMenuYEncargos(restaurante):
                     print("Platos existentes:")
                     for plato in Plato.get_platos():
                         if plato not in menu_transitorio:
-                            print(Utilidad.capitalize(plato.get_nombre()))
+                            print(plato.get_nombre().capitalize())
 
                     print("En caso de que quiera agregar uno de los platos mostrados en la lista, ingrese el nombre tal como allí aparece.")
                     plato = crearPlato()
@@ -1547,7 +2025,7 @@ def cargamento(restaurante):
 
 def crearPlato():
     print("Ingrese el nombre del plato:")
-    nombre = Utilidad.capitalize(Utilidad.read_string())
+    nombre = input().capitalize()
     existe = False
     indice_existe = 0
     plato_retorno = Plato()
@@ -1667,7 +2145,7 @@ def crearPlato():
 
 def crear_ingrediente(cantidad_ingredientes, ingredientes_plato):
     print("Ingrese el nombre del nuevo ingrediente.")
-    nombre_ingrediente = Utilidad.capitalize(Utilidad.read_string())
+    nombre_ingrediente = input().capitalize()
     
     print("Ingrese el precio unitario del nuevo ingrediente.")
     precio_ingrediente = Utilidad.readInt()
@@ -1703,7 +2181,7 @@ def crear_evento():
         2. No.
         Escriba un número para elegir su opción.
         """)
-        eleccion = Utilidad.read_int()
+        eleccion = Utilidad.readInt()
         if eleccion == 1:
             print("Ciudades:")
             Utilidad.listado_ciudades()
@@ -1712,7 +2190,7 @@ def crear_evento():
             ciudad = Ciudad()
             while encendido1:
                 print("Escriba un número para elegir la ciudad.\nEn caso de no encontrar la ciudad requerida, escriba 0.")
-                eleccion1 = Utilidad.read_int()
+                eleccion1 = Utilidad.readInt()
                 if eleccion1 > len(Ciudad.get_ciudades()) or eleccion1 < 0:
                     print(f"Ingrese un número válido [1 - {len(Ciudad.get_ciudades())}].")
                     encendido1 = True
@@ -1743,7 +2221,7 @@ def recomendar_localizacion(ciudad):
 
     # Primera parte: se pide la ciudad y se hacen las recomendaciones respectivas
     print("Desea que le recomendemos el restaurante con mayor capacidad:\n1. Sí, por favor.\n2. No, deseo conocerlos todos")
-    eleccion_recomendacion = Utilidad.read_int()
+    eleccion_recomendacion = Utilidad.readInt()
     if eleccion_recomendacion == 1:  # Si quiere que se le recomiende restaurante automáticamente
         if ciudad:
             restaurante = get_restaurante(ciudad)
@@ -1753,7 +2231,7 @@ def recomendar_localizacion(ciudad):
         Utilidad.listado_zonas_ciudad(ciudad)
         encendido2 = False
         while encendido2:
-            eleccion_zona = Utilidad.read_int()
+            eleccion_zona = Utilidad.readInt()
             if eleccion_zona < 1 or eleccion_zona > len(ciudad.get_zonas_ciudad()):
                 encendido2 = True
             else:
@@ -1762,7 +2240,7 @@ def recomendar_localizacion(ciudad):
                 Utilidad.listado_restaurantes_zona(zona)
                 encendido3 = False
                 while encendido3:
-                    eleccion_restaurante = Utilidad.read_int()
+                    eleccion_restaurante = Utilidad.readInt()
                     if eleccion_restaurante < 1 or eleccion_restaurante > len(zona.get_restaurantes()):
                         encendido3 = True
                     else:
@@ -1770,9 +2248,9 @@ def recomendar_localizacion(ciudad):
                         cliente.set_restaurante(restaurante)
 
     print("Estimado Cliente, nos permite los siguientes datos:\nCédula:")
-    cedula_cliente = Utilidad.read_int()
+    cedula_cliente = Utilidad.readInt()
     print("Nombre:")
-    nombre_cliente = Utilidad.read_string()
+    nombre_cliente = input()
     clientes = []
 
     cliente.set_nombre(nombre_cliente)
@@ -1796,11 +2274,11 @@ def recomendar_localizacion(ciudad):
     while encendido1:
         fecha = []
         print("Ingrese el día de la reserva:")
-        fecha.append(Utilidad.read_int())
+        fecha.append(Utilidad.readInt())
         print("Ingrese el mes de la reserva:")
-        fecha.append(Utilidad.read_int())
+        fecha.append(Utilidad.readInt())
         print("Ingrese el año de la reserva:")
-        fecha.append(Utilidad.read_int())
+        fecha.append(Utilidad.readInt())
 
         reserva.set_fecha(fecha)
 
@@ -1866,7 +2344,7 @@ def recomendacion_meeting(numero_invitados, eleccion):
     1. Sí, tomo la recomendación
     2. No, deseo ordenar por mi cuenta
     """)
-    opinion = Utilidad.read_int()
+    opinion = Utilidad.readInt()
 
     if opinion == 1:
         if 0 < numero_invitados <= 8:  # Recomendación para pocos invitados
@@ -1874,7 +2352,7 @@ def recomendacion_meeting(numero_invitados, eleccion):
             botellas_a_llevar = [caros for caros in eleccion if caros.get_precio() > 170000]
             for i, finales in enumerate(botellas_a_llevar):
                 print(f"{i + 1}. {finales.get_nombre()}")
-            opcion_media = Utilidad.read_int()
+            opcion_media = Utilidad.readInt()
             producto_ofrecido = botellas_a_llevar[opcion_media - 1]
 
             botellas_cantidad = 1 if numero_invitados <= 4 else 2
@@ -1885,7 +2363,7 @@ def recomendacion_meeting(numero_invitados, eleccion):
             botellas_a_llevar = [baratos for baratos in eleccion if baratos.get_precio() < 60000]
             for i, finales in enumerate(botellas_a_llevar):
                 print(f"{i + 1}. {finales.get_nombre()}")
-            opcion_media = Utilidad.read_int()
+            opcion_media = Utilidad.readInt()
             producto_ofrecido = botellas_a_llevar[opcion_media - 1]
 
             cuenta_botellas = int((numero_invitados + producto_ofrecido.get_porciones() - 1) / producto_ofrecido.get_porciones())
@@ -1896,10 +2374,10 @@ def recomendacion_meeting(numero_invitados, eleccion):
         print("¿Cuál desea?")
         for i, plato in enumerate(eleccion):
             print(f"{i + 1}. {plato.get_nombre()}")
-        opcion = Utilidad.read_int()
+        opcion = Utilidad.readInt()
         escogido = eleccion[opcion - 1]
         print(f"De {escogido.get_nombre()} tenemos {escogido.get_cantidad_de_plato()} en bodega. ¿Cuántos desea?")
-        cantidad_escogida = Utilidad.read_int()
+        cantidad_escogida = Utilidad.readInt()
 
         if cantidad_escogida <= escogido.get_cantidad_de_plato():
             cantidad_bebida = cantidad_escogida
@@ -1954,7 +2432,7 @@ def recomendacion_por_cantidad(evento, numero_invitados):
 ## Interacción 2
 
 def recomendar_evento():
-    Utilidad.limpiar_pantalla()
+    # Utilidad.limpiar_pantalla()
     evento1 = Evento()
     factura = Factura()
     cliente = Cliente()
@@ -1964,7 +2442,7 @@ def recomendar_evento():
         1. Sí
         2. No
     """)
-    respuesta_afiliacion = Utilidad.read_int()
+    respuesta_afiliacion = Utilidad.readInt()
     if respuesta_afiliacion == 1:
         cliente.es_afiliado()
     else:
@@ -1977,7 +2455,7 @@ def recomendar_evento():
         print("¿Desea conocer las temáticas de Eventos especiales que tenemos?")
         print("1. Sí, por favor")
         print("2. No")
-        opcion_evento = Utilidad.read_int()
+        opcion_evento = Utilidad.readInt()
 
         if opcion_evento == 1:
             while encendido2:
@@ -1988,16 +2466,16 @@ def recomendar_evento():
                     4. No, salir
                     Escriba un número para elegir su opción.
                 """)
-                opcion_final = Utilidad.read_int()
+                opcion_final = Utilidad.readInt()
 
                 if opcion_final == 1:
                     factura_cumple = Factura()
                     print("¿Cuántos invitados son?")
-                    numero_invitados = Utilidad.read_int()
+                    numero_invitados = Utilidad.readInt()
                     print("El Evento tiene un coste de 210.000$, ¿Desea continuar?")
                     print("1. Sí")
                     print("2. No")
-                    respuesta_cumple = Utilidad.read_int()
+                    respuesta_cumple = Utilidad.readInt()
 
                     if respuesta_cumple == 1:
                         torta_seleccionada = None
@@ -2009,14 +2487,14 @@ def recomendar_evento():
                                 evento1 = elemento
 
                         print("Perfecto! Danos el nombre del festejado:")
-                        nombre_festejado = Utilidad.read_string()
+                        nombre_festejado = input()
                         descripcion_evento = f"Feliz Cumpleaños!!! Te deseamos lo mejor en esta etapa {nombre_festejado}"
                         print("A continuación verá las tortas para la ocasión:")
                         listado_platos_evento(evento1)
                         recomendacion_por_cantidad(evento1, numero_invitados)
 
                         print("Digite la opción de la torta:")
-                        pastel_escogido = Utilidad.read_int()
+                        pastel_escogido = Utilidad.readInt()
 
                         if pastel_escogido != 0:
                             torta_seleccionada = evento1.get_platos()[pastel_escogido - 1]
@@ -2041,13 +2519,13 @@ def recomendar_evento():
                     print("El Evento tiene un coste de 450.000$, ¿Desea continuar?")
                     print("1. Sí")
                     print("2. No")
-                    respuesta_meeting = Utilidad.read_int()
+                    respuesta_meeting = Utilidad.readInt()
 
                     if respuesta_meeting == 1:
                         print("¿Cuántos asistentes son?")
-                        numero_invitados_meeting = Utilidad.read_int()
+                        numero_invitados_meeting = Utilidad.readInt()
                         print("Digite el NIT de la empresa:")
-                        nit = Utilidad.read_int()
+                        nit = Utilidad.readInt()
 
                         platos_meeting = []
                         descripcion_evento = "Una empresa que demuestra su talento, seriedad y humanidad"
@@ -2063,7 +2541,7 @@ def recomendar_evento():
                             1. Vino
                             2. Champaña
                         """)
-                        opcion_vino_champana = Utilidad.read_int()
+                        opcion_vino_champana = Utilidad.readInt()
                         vino_champana_final = listado_platos_evento(evento1, numero_invitados_meeting, opcion_vino_champana)
                         platos_meeting.append(vino_champana_final)
 
@@ -2073,7 +2551,7 @@ def recomendar_evento():
                                 1. Sí
                                 2. No
                             """)
-                            opcion_cumple_final = Utilidad.read_int()
+                            opcion_cumple_final = Utilidad.readInt()
 
                             if opcion_cumple_final == 1:
                                 for cocinero_en_cuestion in Trabajador.get_cocineros():
@@ -2261,7 +2739,7 @@ def listado_precios_factura(factura, reserva, dia_fin_de_semana):
     print(f"El total de su factura es: {acomulado_total}")
 
 def formato_factura_evento(restaurante, factura, reserva, dia_fin_de_semana):
-    Utilidad.limpiar_pantalla()
+    # Utilidad.limpiar_pantalla()
     evento_factura = factura.get_evento()
     
     print(f".............. {restaurante.get_nombre()} ..............")
@@ -2287,7 +2765,7 @@ def formato_factura_evento(restaurante, factura, reserva, dia_fin_de_semana):
             print(".....Merci de faire confiance à notre restaurante")
 
 def datos_hora_reserva(restaurante, factura):
-    Utilidad.limpiar_pantalla()
+    # Utilidad.limpiar_pantalla()
     print("""
         Estimado Cliente, el día de su reserva se encuentra entre Viernes, Sábado o Domingo:
         1. Si
@@ -2297,12 +2775,12 @@ def datos_hora_reserva(restaurante, factura):
     dia_fin_de_semana = False
     reserva = []
     
-    respuesta = Utilidad.read_int()
+    respuesta = Utilidad.readInt()
     if respuesta == 1:
         print("Listo, por ello tenemos un recargo del 8%")
         dia_fin_de_semana = True
         print("Estimado Cliente, nos regala la hora a la que desea el evento (HH:MM): ")
-        hora_evento = Utilidad.read_string()
+        hora_evento = input()
         fraccion = hora_evento.split(":")
         hora_evento_real = int(fraccion[0])
         reserva = restaurante.get_historial_reservas()[-1].get_fecha()
