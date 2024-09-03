@@ -18,6 +18,26 @@ from gestorAplicacion.Usuario.trabajador import Trabajador
 import datetime
 from datetime import datetime
 import random
+# from utilidad import Utilidad
+
+# from gestorAplicacion.Entorno.casilla import Casilla
+# from gestorAplicacion.Entorno.ciudad import Ciudad
+# from gestorAplicacion.Entorno.mesa import Mesa
+# from gestorAplicacion.Entorno.zona import Zona
+# from gestorAplicacion.Gestion.cargamento import Cargamento
+# from gestorAplicacion.Gestion.evento import Evento
+# from gestorAplicacion.Gestion.factura import Factura
+# from gestorAplicacion.Gestion.ingrediente import Ingrediente
+# from gestorAplicacion.Gestion.pedido import Pedido
+# from gestorAplicacion.Gestion.plato import Plato
+# from gestorAplicacion.Gestion.reserva import Reserva
+# from gestorAplicacion.Gestion.restaurante import Restaurante
+# from gestorAplicacion.Usuario.cliente import Cliente
+# from gestorAplicacion.Usuario.persona import Persona
+# from gestorAplicacion.Usuario.trabajador import Trabajador
+# import datetime
+# from datetime import datetime
+# import random
 
 #Funcionalidad 1
 #Interacción 1
