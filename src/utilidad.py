@@ -1,4 +1,4 @@
-from Entorno.ciudad import Ciudad
+from gestorAplicacion.Entorno.ciudad import Ciudad
 
 
 

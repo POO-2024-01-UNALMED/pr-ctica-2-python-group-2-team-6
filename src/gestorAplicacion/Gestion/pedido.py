@@ -1,5 +1,5 @@
-from Usuario.cliente import Cliente
-from Usuario.trabajador import Trabajador
+from gestorAplicacion.Usuario.cliente import Cliente
+from gestorAplicacion.Usuario.trabajador import Trabajador
 
 class Pedido:
     pedidos = []

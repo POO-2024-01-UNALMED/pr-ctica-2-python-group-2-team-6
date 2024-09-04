@@ -1,4 +1,4 @@
-from Usuario.cliente import Cliente
+from gestorAplicacion.Usuario.cliente import Cliente
 from datetime import date
 
 class Evento:

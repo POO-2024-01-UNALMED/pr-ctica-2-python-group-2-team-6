@@ -1,9 +1,9 @@
-from Entorno.casilla import Casilla
-from Gestion.restaurante import Restaurante
-from Gestion.pedido import Pedido
-from Usuario.trabajador import Trabajador
-from Usuario.cliente import Cliente
-from Gestion.factura import Factura
+from gestorAplicacion.Entorno.casilla import Casilla
+from gestorAplicacion.Gestion.restaurante import Restaurante
+from gestorAplicacion.Gestion.pedido import Pedido
+from gestorAplicacion.Usuario.trabajador import Trabajador
+from gestorAplicacion.Usuario.cliente import Cliente
+from gestorAplicacion.Gestion.factura import Factura
 
 class Mesa(Casilla):
     mesas = []

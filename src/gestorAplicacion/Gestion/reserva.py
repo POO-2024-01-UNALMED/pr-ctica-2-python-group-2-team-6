@@ -1,4 +1,4 @@
-from Usuario.cliente import Cliente
+from gestorAplicacion.Usuario.cliente import Cliente
 
 class Reserva:
     contador_reservas = 0

@@ -1,4 +1,4 @@
-from Usuario.persona import Persona
+from gestorAplicacion.Usuario.persona import Persona
 from enum import Enum
 
 class Afiliacion(Enum):

@@ -1,4 +1,4 @@
-from Entorno.zona import Zona
+from gestorAplicacion.Entorno.zona import Zona
 class Ciudad(Zona):
     ciudades = []
 
