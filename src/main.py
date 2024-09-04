@@ -18,32 +18,9 @@ from gestorAplicacion.Usuario.trabajador import Trabajador
 import datetime
 from datetime import datetime
 import random
-# from utilidad import Utilidad
-
-# from gestorAplicacion.Entorno.casilla import Casilla
-# from gestorAplicacion.Entorno.ciudad import Ciudad
-# from gestorAplicacion.Entorno.mesa import Mesa
-# from gestorAplicacion.Entorno.zona import Zona
-# from gestorAplicacion.Gestion.cargamento import Cargamento
-# from gestorAplicacion.Gestion.evento import Evento
-# from gestorAplicacion.Gestion.factura import Factura
-# from gestorAplicacion.Gestion.ingrediente import Ingrediente
-# from gestorAplicacion.Gestion.pedido import Pedido
-# from gestorAplicacion.Gestion.plato import Plato
-# from gestorAplicacion.Gestion.reserva import Reserva
-# from gestorAplicacion.Gestion.restaurante import Restaurante
-# from gestorAplicacion.Usuario.cliente import Cliente
-# from gestorAplicacion.Usuario.persona import Persona
-# from gestorAplicacion.Usuario.trabajador import Trabajador
-# import datetime
-# from datetime import datetime
-# import random
 
 #Funcionalidad 1
 #Interacción 1
-if __name__ == "__main__":
-    print("Hola")
-
 def reservarMesa():
     encendido1 = True
     while encendido1:
@@ -2815,3 +2792,27 @@ def datos_hora_reserva(restaurante, factura):
     
     formato_factura_evento(restaurante, factura, reserva, dia_fin_de_semana)
     return None
+
+if __name__ == "__main__":
+    print("Hola")
+
+print("¿Qué desea hacer?")
+print("1. Reservar mesa.")
+print("2. Ordenar comida.")
+print("3. Abandonar restaurante.")
+print("4. Agregar sede.")
+print("5. Organizar evento.")
+print("6. Salir.")
+eleccion = Utilidad.readInt()
+if eleccion == 1:
+    reservarMesa()
+elif eleccion == 2:
+    ordenar_comida()
+elif eleccion == 3:
+    dejar_restaurante()
+elif eleccion == 4:
+    agregarSede()
+elif eleccion == 5:
+    crear_evento()
+elif eleccion == 6:
+    print("Gracias por visitarnos.")
