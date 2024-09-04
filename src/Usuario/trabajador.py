@@ -1,4 +1,5 @@
 from enum import Enum
+from Usuario.persona import Persona
 
 class Tipo(Enum):
     COCINERO = 1

@@ -1,4 +1,4 @@
-from persona import Persona
+from Usuario.persona import Persona
 from enum import Enum
 
 class Afiliacion(Enum):

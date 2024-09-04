@@ -1,4 +1,6 @@
-from gestorAplicacion.Entorno.ciudad import Ciudad
+from Entorno.ciudad import Ciudad
+
+
 
 class Utilidad:
 

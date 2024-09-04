@@ -1,4 +1,4 @@
-from zona import Zona
+from Entorno.zona import Zona
 class Ciudad(Zona):
     ciudades = []
 

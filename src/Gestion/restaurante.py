@@ -1,11 +1,11 @@
-from Entorno.casilla import Casilla
-from Entorno.ciudad import Ciudad
-from Entorno.mesa import Mesa
-from Entorno.zona import Zona
-from Usuario.cliente import Cliente
-from Usuario.trabajador import Trabajador
+# from Entorno.casilla import Casilla
+# from Entorno.ciudad import Ciudad
+# from Entorno.mesa import Mesa
+# from Entorno.zona import Zona
+# from Usuario.cliente import Cliente
+# from Usuario.trabajador import Trabajador
 
-from uiMain.Utilidad import intersectar_listas
+from utilidad import *
 
 class Restaurante:
     # Atributos de clase

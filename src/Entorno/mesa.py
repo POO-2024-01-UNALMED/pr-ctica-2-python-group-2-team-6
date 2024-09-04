@@ -1,4 +1,4 @@
-from casilla import Casilla
+from Entorno.casilla import Casilla
 from Gestion.restaurante import Restaurante
 from Gestion.pedido import Pedido
 from Usuario.trabajador import Trabajador

@@ -1,20 +1,20 @@
 from utilidad import Utilidad
 
-from gestorAplicacion.Entorno.casilla import Casilla
-from gestorAplicacion.Entorno.ciudad import Ciudad
-from gestorAplicacion.Entorno.mesa import Mesa
-from gestorAplicacion.Entorno.zona import Zona
-from gestorAplicacion.Gestion.cargamento import Cargamento
-from gestorAplicacion.Gestion.evento import Evento
-from gestorAplicacion.Gestion.factura import Factura
-from gestorAplicacion.Gestion.ingrediente import Ingrediente
-from gestorAplicacion.Gestion.pedido import Pedido
-from gestorAplicacion.Gestion.plato import Plato
-from gestorAplicacion.Gestion.reserva import Reserva
-from gestorAplicacion.Gestion.restaurante import Restaurante
-from gestorAplicacion.Usuario.cliente import Cliente
-from gestorAplicacion.Usuario.persona import Persona
-from gestorAplicacion.Usuario.trabajador import Trabajador
+from Entorno.casilla import Casilla
+from Entorno.ciudad import Ciudad
+from Entorno.mesa import Mesa
+from Entorno.zona import Zona
+from Gestion.cargamento import Cargamento
+from Gestion.evento import Evento
+from Gestion.factura import Factura
+from Gestion.ingrediente import Ingrediente
+from Gestion.pedido import Pedido
+from Gestion.plato import Plato
+from Gestion.reserva import Reserva
+from Gestion.restaurante import Restaurante
+from Usuario.cliente import Cliente
+from Usuario.persona import Persona
+from Usuario.trabajador import Trabajador
 import datetime
 from datetime import datetime
 import random
@@ -41,6 +41,9 @@ import random
 
 #Funcionalidad 1
 #Interacción 1
+if __name__ == "__main__":
+    print("Hola")
+
 def reservarMesa():
     encendido1 = True
     while encendido1:
