@@ -15,8 +15,10 @@ from gestorAplicacion.Gestion.restaurante import Restaurante
 from gestorAplicacion.Usuario.cliente import Cliente
 from gestorAplicacion.Usuario.persona import Persona
 from gestorAplicacion.Usuario.trabajador import Trabajador
+
 import datetime
-from datetime import datetime
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 import random
 
 #Funcionalidad 1
@@ -310,7 +312,7 @@ def extras_reserva(cliente):
     restaurante = cliente.get_restaurante()
     print("Desde la cadena de restaurantes ofrecemos los servicios de reserva de parqueadero y decoraciones para la mesa. Elija un servicio en caso de necesitarlo:")
     print("1. Reserva de Parqueadero.\n2. Decoraciones para la mesa.\n3. No desea ningún servicio extra.")
-    eleccion = Utilidad.read_int()
+    eleccion = Utilidad.readInt()
 
     if eleccion == 1:
         print("Reserva de Parqueadero")
@@ -318,7 +320,7 @@ def extras_reserva(cliente):
         cargo_extra1 = 0
         if cliente.get_afiliacion() == Cliente.Afiliacion.NINGUNA:
             print("El servicio tiene un coste de $10.000. ¿Desea reservar el parqueadero?\n1. Sí.\n2. No.")
-            eleccion2 = Utilidad.read_int()
+            eleccion2 = Utilidad.readInt()
             if eleccion2 == 1:
                 cargo_extra1 = 10000
                 indice_celda = restaurante.get_parqueadero().index(False)
@@ -353,13 +355,13 @@ def extras_reserva(cliente):
         else:
             print("El costo de las decoraciones es de $50.000")
         print("¿Desea decorar la mesa?\n1. Sí.\n2. No.")
-        eleccion3 = Utilidad.read_int()
+        eleccion3 = Utilidad.readInt()
         if eleccion3 == 1:
             encendido1 = False
             while not encendido1:
                 cargo_extra2 = 0
                 print("Disponemos de los siguientes paquetes de decoración:\n1. Cena romántica (30000$).\n2. Graduación (1200$ + 5000$ por cada comensal).\n3. Descubrimiento (1200$ + 6000$ por cada comensal).")
-                eleccion4 = Utilidad.read_int()
+                eleccion4 = Utilidad.readInt()
                 if eleccion4 == 1:
                     restaurante.restar_de_bodega(Utilidad.indice_bodega_items("rosa", restaurante), 1)
                     restaurante.restar_de_bodega(Utilidad.indice_bodega_items("vela", restaurante), 3)
@@ -373,7 +375,7 @@ def extras_reserva(cliente):
                     cargo_extra2 = 1200 + cargo_birretes
                 elif eleccion4 == 3:
                     print("Seleccione el género del bebé:\n1. Niño.\n2. Niña.")
-                    eleccion5 = Utilidad.read_int()
+                    eleccion5 = Utilidad.readInt()
                     if eleccion5 == 1:
                         restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo azul", restaurante), 3)
                         restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo blanco", restaurante), 3)
@@ -409,12 +411,12 @@ def pago_anticipado(restaurante):
     factura = clientes[0].get_factura()
 
     print("¿Desea pagar ya mismo su reserva?\n1. Sí.\n2. No.")
-    eleccion1 = Utilidad.read_int()
+    eleccion1 = Utilidad.readInt()
 
     if eleccion1 == 1:
         if clientes[0].get_afiliacion() == Cliente.Afiliacion.NINGUNA:
             print("¿Desea afiliarse al restaurante? Hacerlo le daría un descuento extra por ser un nuevo socio\n1. Sí.\n2. No.")
-            eleccion2 = Utilidad.read_int()
+            eleccion2 = Utilidad.readInt()
             if eleccion2 == 1:
                 factura.aumentar_valor(13500)  # Aplicar 10% de descuento al valor de la reserva.
                 pagar_reserva(restaurante, reserva, clientes, factura)
@@ -430,7 +432,7 @@ def pago_anticipado(restaurante):
         factura.aumentar_valor(15000)
         print("Al realizar el pago postconsumo se solicitará una propina porcentual obligatoria.")
         print("¿Teniendo esto en cuenta, desea continuar sin realizar el pago?\n1. Sí.\n2. No.")
-        eleccion6 = Utilidad.read_int()
+        eleccion6 = Utilidad.readInt()
         if eleccion6 == 1:
             confirmar_reserva(restaurante, reserva, clientes)
         else:
@@ -445,7 +447,7 @@ def pagar_reserva(restaurante, reserva, clientes, factura):
             factura.calcular_valor()
             print(f"¿Desea confirmar la transacción con un valor de: {factura.get_valor()}?")
             print("1. Sí.\n2. No.\nEscriba un número para elegir su opción.")
-            eleccion3 = Utilidad.read_int()
+            eleccion3 = Utilidad.readInt()
             if eleccion3 == 1:
                 print("Transacción confirmada.")
                 clientes[0].get_factura().set_valor(0)
@@ -462,7 +464,7 @@ def confirmar_reserva(restaurante, reserva, clientes):
     print("Resumen de su reserva:")
     print(reserva)
     print("¿Desea confirmar su reserva?\n1. Sí.\n2. No.")
-    eleccion1 = Utilidad.read_int()
+    eleccion1 = Utilidad.readInt()
 
     if eleccion1 == 1:
         confirmada = True
@@ -1484,9 +1486,6 @@ def agregarSede():
 def elegirZona(restaurante):
     encendido1 = True
     while encendido1:
-        # Se muestran las ciudades de las que se tienen datos
-        for zona in Zona.get_zonas():
-            print(zona.get_nombre())
         print("Ciudades:")
         Utilidad.listado_ciudades()
         print("Escriba un número para elegir la ciudad.\nEn caso de no encontrar la ciudad requerida escriba 0.")
@@ -1786,31 +1785,89 @@ def parametrosBasicos(ciudad, restaurante):
 
 # Método para establecer la disposición del restaurante.
 def establecerDisposicion(restaurante):
-    if len(Restaurante.get_restaurantes()) > 3:
-        promedio_area, promedio_mesas, promedio_sillas = 0, 0, 0
-
-        for restaurant in Restaurante.get_restaurantes():
-            promedio_area += restaurant.get_area()
-            promedio_mesas += restaurant.get_mesas()
-            promedio_sillas += restaurant.get_sillas()
-
-        promedio_area = promedio_area / len(Restaurante.get_restaurantes())
-        promedio_mesas = promedio_mesas / len(Restaurante.get_restaurantes())
-        promedio_sillas = promedio_sillas / len(Restaurante.get_restaurantes())
-
-        print(f"Promedio Área: {promedio_area:.2f}m²\nPromedio Mesas: {promedio_mesas}\nPromedio Sillas: {promedio_sillas}")
-        print("¿Desea establecer el tamaño y la disposición del nuevo restaurante basado en estos promedios?\n1. Sí.\n2. No.")
-        eleccion = Utilidad.readInt()
-        if eleccion == 1:
-            restaurante.set_area(promedio_area)
-            restaurante.set_mesas(promedio_mesas)
-            restaurante.set_sillas(promedio_sillas)
-        else:
-            restaurante.editar_restaurante()
+    # Verificar si hay más de 3 restaurantes creados
+    if Restaurante.restaurantes_creados > 3:
+        promedios = obtenerPromedios()
+        print(f"DISPOSICIÓN RECOMENDADA:\nTamaño:\n\tAncho = {promedios[0]}\n\tLargo = {promedios[1]}\n"
+              f"Mesas:\n\tEstándar = {promedios[2]}\n\tVIP = {promedios[3]} (En caso de tener Zona VIP)\n"
+              f"Ventanas = {promedios[4]}")
     else:
-        restaurante.set_area(150)
-        restaurante.set_mesas(20)
-        restaurante.set_sillas(80)
+        print("""DISPOSICIÓN RECOMENDADA:
+        Tamaño:
+            Ancho = 10
+            Largo = 10
+        Mesas:
+            Estándar = 10
+            VIP = 4 (En caso de tener Zona VIP)
+        Ventanas = 4""")
+    
+    editarRestaurante(restaurante)
+    return restaurante
+
+def editarRestaurante(restaurante):
+    encendido = True
+    while encendido:
+        print("Ingresa el ancho del restaurante:")
+        coord_x = Utilidad.readInt()
+        print("Ingresa el largo del restaurante:")
+        coord_y = Utilidad.readInt()
+
+        if coord_x > 4 and coord_y > 4:
+            encendido = False
+        else:
+            print("El valor mínimo de ancho y largo es de 5.")
+
+    restaurante.set_capacidad(((coord_x - 1) * (coord_y - 1)) * 3)
+
+    chars = ["╔", "═", "╦", "╗", "║", "╠", "╬", "╣", "╚", "╩", "╝", " "]
+    restaurante.get_disposicion().append(chars)
+
+    for i in range(coord_y):
+        lista_actual = []
+        restaurante.get_disposicion().append(lista_actual)
+        if len(restaurante.get_disposicion()) == 2:
+            lista_actual.extend(["B"] * coord_x)
+        elif 2 < len(restaurante.get_disposicion()) < coord_y + 1:
+            lista_actual.append("B")
+            lista_actual.extend([" "] * (coord_x - 2))
+            lista_actual.append("B")
+        else:
+            lista_actual.extend(["B"] * coord_x)
+
+    top_row = chars[0] + chars[1] * 3
+    for i in range(2, coord_x):
+        top_row += chars[2] + chars[1] * 3
+    top_row += chars[2] + chars[1] * 3 + chars[3]
+
+    separator = chars[5] + chars[1] * 3
+    for i in range(2, coord_x):
+        separator += chars[6] + chars[1] * 3
+    separator += chars[6] + chars[1] * 3 + chars[7]
+
+    bottom_row = chars[8] + chars[1] * 3
+    for i in range(2, coord_x):
+        bottom_row += chars[9] + chars[1] * 3
+    bottom_row += chars[9] + chars[1] * 3 + chars[10]
+
+    imprimirDisposicionRestaurante(restaurante.get_disposicion(), coord_x, coord_y, chars, top_row, separator, bottom_row)
+    cambiarElemento(restaurante, coord_x, coord_y, chars, top_row, separator, bottom_row)
+
+    modificando = True
+    while modificando:
+        print("¿Desea realizar otra modificación?\n1. Sí.\n2. No.\nEscriba un número para elegir su opción")
+        decision = Utilidad.readInt()
+        if decision == 1:
+            cambiarElemento(restaurante, coord_x, coord_y, chars, top_row, separator, bottom_row)
+        elif decision == 2:
+            tiene_puerta = any(casilla.get_tipo() == "PUERTA" for casilla in restaurante.get_casillas())
+            tiene_ventana = any(casilla.get_tipo() == "VENTANA" for casilla in restaurante.get_casillas())
+            if restaurante.get_mesas() and tiene_puerta and tiene_ventana:
+                modificando = False
+            else:
+                Utilidad.limpiar_pantalla()
+                print("Es necesario añadir como mínimo una entrada, una mesa y una ventana.")
+        else:
+            print("Ingresa un número válido [1 - 2].")
 
 def cambiarElemento(restaurante, coord_x, coord_y, chars, top_row, separator, bottom_row):
     print("Escribe la coordenada en X:")
@@ -1888,7 +1945,7 @@ def cambiarElemento(restaurante, coord_x, coord_y, chars, top_row, separator, bo
 
 def generarFechas():
     fechas_disponibles = []
-    hoy = date.today()
+    hoy = datetime.today()
     fin = hoy + relativedelta(months=6)
     while hoy <= fin:
         fechas = [hoy.year, hoy.month, hoy.day, 10, 12, 14, 16, 18, 20]
@@ -2794,25 +2851,42 @@ def datos_hora_reserva(restaurante, factura):
     return None
 
 if __name__ == "__main__":
-    print("Hola")
-
-print("¿Qué desea hacer?")
-print("1. Reservar mesa.")
-print("2. Ordenar comida.")
-print("3. Abandonar restaurante.")
-print("4. Agregar sede.")
-print("5. Organizar evento.")
-print("6. Salir.")
-eleccion = Utilidad.readInt()
-if eleccion == 1:
-    reservarMesa()
-elif eleccion == 2:
-    ordenar_comida()
-elif eleccion == 3:
-    dejar_restaurante()
-elif eleccion == 4:
-    agregarSede()
-elif eleccion == 5:
-    crear_evento()
-elif eleccion == 6:
-    print("Gracias por visitarnos.")
+    Ciudad.get_ciudades().clear()
+    Zona.get_zonas().clear()
+    Ciudad("Medellin")
+    
+    # print(Casilla.get_casillas())
+    # print(Ciudad.get_ciudades())
+    # print(Mesa.get_mesas())
+    # print(Zona.get_zonas())
+    # print(Cargamento.get_cargamentos())
+    # print(Evento.get_eventos())
+    # print(Factura.get_facturas())
+    # print(Ingrediente.get_ingredientes())
+    # print(Pedido.get_pedidos())
+    # print(Plato.get_platos())
+    # print(Reserva.get_reservas())
+    # print(Restaurante.get_restaurantes())
+    # print(Trabajador.get_cocineros())
+    # print(Cliente.get_clientes())
+    
+    print("¿Qué desea hacer?")
+    print("1. Reservar mesa.")
+    print("2. Ordenar comida.")
+    print("3. Abandonar restaurante.")
+    print("4. Agregar sede.")
+    print("5. Organizar evento.")
+    print("6. Salir.")
+    eleccion = Utilidad.readInt()
+    if eleccion == 1:
+        reservarMesa()
+    elif eleccion == 2:
+        ordenar_comida()
+    elif eleccion == 3:
+        dejar_restaurante()
+    elif eleccion == 4:
+        agregarSede()
+    elif eleccion == 5:
+        crear_evento()
+    elif eleccion == 6:
+        print("Gracias por visitarnos.")
