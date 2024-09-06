@@ -18,8 +18,99 @@ from gestorAplicacion.Usuario.trabajador import Trabajador
 
 import datetime
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
+# from dateutil.relativedelta import relativedelta
 import random
+from tkinter import *
+from tkinter import messagebox
+
+def info_aplicacion():
+    messagebox.showinfo(title="Información de la aplicación", message="La aplicación mimimimi")
+
+def salir_de_acoustic():
+    menu_inicio()
+
+def menu_inicio():
+    ventana_acoustic.withdraw()
+    ventana_inicio.deiconify()
+
+def menu_acoustic():
+    ventana_inicio.withdraw()
+    ventana_acoustic.deiconify()
+    
+#MENU INICIO
+ventana_inicio = Tk()
+ventana_inicio.title("Menú Inicio")
+ventana_inicio.resizable(True, True)
+ventana_inicio.geometry("500x700")
+ventana_inicio.iconbitmap('./cosas/Aa.ico')
+frame_left = Frame(ventana_inicio, bg = "red", bd = 2, relief="solid", width=100)
+frame_left.pack(side = LEFT, fill = BOTH, expand = True, padx = 10, pady = 10)
+frame_left.pack_propagate(False)
+frame_right = Frame(ventana_inicio, bg = "blue", bd = 2, relief="solid", width=100)
+frame_right.pack(side = RIGHT, fill = BOTH, expand = True, padx = 10, pady = 10)
+frame_right.pack_propagate(False)
+frame_left_top = Frame(frame_left, bg = "green", bd = 2, relief="solid")
+frame_left_top.pack(side = TOP, fill = BOTH, expand = True, padx = 10, pady = 10)
+mensajeCum = Label(frame_left_top, text="Bienvenidos sean al Restaurante Orientado a objetos", font=("Arial", 20), fg="#000", anchor="n")
+mensajeCum.pack(fill = BOTH)
+frame_left_bottom = Frame(frame_left, height=200, width=100, bg = "yellow", bd = 2, relief="solid")
+frame_left_bottom.pack(side = BOTTOM, fill = BOTH, expand = True, padx = 10, pady = 10)
+frame_left_bottom.pack_propagate(False)
+frame_lb_top = Frame(frame_left_bottom, bg = "pink", bd = 2, relief="solid")
+frame_lb_top.pack(side = TOP, fill = BOTH, expand = True)
+frame_lb_bottom = Frame(frame_left_bottom, bg = "brown", bd = 2, relief="solid")
+frame_lb_bottom.pack(side = BOTTOM, fill = BOTH, expand = True)
+acoustic_button = Button(frame_lb_bottom, text="Iniciar procesos", font=("Arial", 20), fg="#000", anchor="n", command = lambda: menu_acoustic())   
+acoustic_button.pack(expand=True, anchor='center')
+frame_right_top = Frame(frame_right, bg = "purple", bd = 2, relief="solid")
+frame_right_top.pack(side = TOP, fill = BOTH, expand = True, padx = 10, pady = 10)
+frame_right_bottom = Frame(frame_right, bg = "orange", bd = 2, relief="solid")
+frame_right_bottom.pack(side = BOTTOM, fill = BOTH, expand = True, padx = 10, pady = 10)
+frame_right_bottom.grid_rowconfigure(0, weight=1)
+frame_right_bottom.grid_columnconfigure(0, weight=1)
+frame_right_bottom.grid_rowconfigure(1, weight=1)
+frame_right_bottom.grid_columnconfigure(1, weight=1)
+frame_rb_lt = Frame(frame_right_bottom, bg = "pink", bd = 2, relief="solid")
+frame_rb_lt.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+frame_rb_rt = Frame(frame_right_bottom, bg = "brown", bd = 2, relief="solid")
+frame_rb_rt.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+frame_rb_lb = Frame(frame_right_bottom, bg = "black", bd = 2, relief="solid")
+frame_rb_lb.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+frame_rb_rb = Frame(frame_right_bottom, bg = "white", bd = 2, relief="solid")
+frame_rb_rb.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+
+#MENU ACOUSTIC
+ventana_acoustic = Tk()
+ventana_acoustic.title("Menú Acoustic")
+ventana_acoustic.resizable(True, True)
+ventana_acoustic.geometry("500x700")
+ventana_acoustic.iconbitmap('./cosas/Aa.ico')
+
+menu_bar = Menu(ventana_acoustic)
+ventana_acoustic.config(menu = menu_bar)
+menu_archivo = Menu(menu_bar, tearoff = 0)
+menu_bar.add_cascade(label = "Archivo", menu = menu_archivo)
+menu_archivo.add_command(label = "Aplicación", command = info_aplicacion)
+menu_archivo.add_separator()
+menu_archivo.add_command(label = "Salir", command = salir_de_acoustic)
+menu_procesos = Menu(menu_bar, tearoff = 0)
+menu_bar.add_cascade(label = "Procesos y Consultas", menu = menu_procesos)
+menu_procesos.add_command(label = "Funcionalidad 1")
+menu_procesos.add_separator()
+menu_procesos.add_command(label = "Funcionalidad 2")
+menu_procesos.add_separator()
+menu_procesos.add_command(label = "Funcionalidad 3")
+menu_procesos.add_separator()
+menu_procesos.add_command(label = "Funcionalidad 4")
+menu_procesos.add_separator()
+menu_procesos.add_command(label = "Funcionalidad 5")
+menu_ayuda = Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label = "Ayuda", menu = menu_ayuda)
+menu_ayuda.add_command(label = "Acerca de")
+
+menu_inicio()
+
+ventana_inicio.mainloop()
 
 #Funcionalidad 1
 #Interacción 1
@@ -171,7 +262,7 @@ def seleccionMesa(restaurante):
     encendido1 = True
     while encendido1:
         fecha_elegida = seleccionFecha(restaurante, tipo_mesa, mesas_elegidas)
-        Utilidad.limpiar_pantalla()
+        # Utilidad.limpiar_pantalla()
         print(f"Mesas disponibles para el día {fecha_elegida[2]}/{fecha_elegida[1]}/{fecha_elegida[0]}:")
 
         mesas_disponibles = []
@@ -198,7 +289,7 @@ def seleccionMesa(restaurante):
                 print("Ingresó un número inválido. Se le asignará una mesa aleatoria.")
                 mesa_elegida = next(mesa for mesa in restaurante.get_mesas() if mesa.get_num_mesa() == mesas_elegidas[0])
 
-            Utilidad.limpiar_pantalla()
+            # Utilidad.limpiar_pantalla()
             indice_fecha_elegida = next(i for i, fecha in enumerate(mesa_elegida.get_fechas_disponibles())
                                         if fecha[1] == fecha_elegida[1] and fecha[2] == fecha_elegida[2])
 
@@ -820,7 +911,7 @@ def dejar_restaurante():
         eleccion = int(input())
         
         if eleccion == 1:
-            limpiar_pantalla()
+            # limpiar_pantalla()
             print("Ingrese el número de cédula del cliente que va a dejar el restaurante")
             cedula = int(input())
             cliente = buscar_cliente_por_cedula(cedula)  # Asumiendo que `buscar_cliente_por_cedula` es un método que devuelve el cliente
@@ -1864,7 +1955,7 @@ def editarRestaurante(restaurante):
             if restaurante.get_mesas() and tiene_puerta and tiene_ventana:
                 modificando = False
             else:
-                Utilidad.limpiar_pantalla()
+                # Utilidad.limpiar_pantalla()
                 print("Es necesario añadir como mínimo una entrada, una mesa y una ventana.")
         else:
             print("Ingresa un número válido [1 - 2].")
@@ -2850,43 +2941,43 @@ def datos_hora_reserva(restaurante, factura):
     formato_factura_evento(restaurante, factura, reserva, dia_fin_de_semana)
     return None
 
-if __name__ == "__main__":
-    Ciudad.get_ciudades().clear()
-    Zona.get_zonas().clear()
-    Ciudad("Medellin")
+# if __name__ == "__main__":
+#     Ciudad.get_ciudades().clear()
+#     Zona.get_zonas().clear()
+#     Ciudad("Medellin")
     
-    # print(Casilla.get_casillas())
-    # print(Ciudad.get_ciudades())
-    # print(Mesa.get_mesas())
-    # print(Zona.get_zonas())
-    # print(Cargamento.get_cargamentos())
-    # print(Evento.get_eventos())
-    # print(Factura.get_facturas())
-    # print(Ingrediente.get_ingredientes())
-    # print(Pedido.get_pedidos())
-    # print(Plato.get_platos())
-    # print(Reserva.get_reservas())
-    # print(Restaurante.get_restaurantes())
-    # print(Trabajador.get_cocineros())
-    # print(Cliente.get_clientes())
+#     # print(Casilla.get_casillas())
+#     # print(Ciudad.get_ciudades())
+#     # print(Mesa.get_mesas())
+#     # print(Zona.get_zonas())
+#     # print(Cargamento.get_cargamentos())
+#     # print(Evento.get_eventos())
+#     # print(Factura.get_facturas())
+#     # print(Ingrediente.get_ingredientes())
+#     # print(Pedido.get_pedidos())
+#     # print(Plato.get_platos())
+#     # print(Reserva.get_reservas())
+#     # print(Restaurante.get_restaurantes())
+#     # print(Trabajador.get_cocineros())
+#     # print(Cliente.get_clientes())
     
-    print("¿Qué desea hacer?")
-    print("1. Reservar mesa.")
-    print("2. Ordenar comida.")
-    print("3. Abandonar restaurante.")
-    print("4. Agregar sede.")
-    print("5. Organizar evento.")
-    print("6. Salir.")
-    eleccion = Utilidad.readInt()
-    if eleccion == 1:
-        reservarMesa()
-    elif eleccion == 2:
-        ordenar_comida()
-    elif eleccion == 3:
-        dejar_restaurante()
-    elif eleccion == 4:
-        agregarSede()
-    elif eleccion == 5:
-        crear_evento()
-    elif eleccion == 6:
-        print("Gracias por visitarnos.")
+#     print("¿Qué desea hacer?")
+#     print("1. Reservar mesa.")
+#     print("2. Ordenar comida.")
+#     print("3. Abandonar restaurante.")
+#     print("4. Agregar sede.")
+#     print("5. Organizar evento.")
+#     print("6. Salir.")
+#     eleccion = Utilidad.readInt()
+#     if eleccion == 1:
+#         reservarMesa()
+#     elif eleccion == 2:
+#         ordenar_comida()
+#     elif eleccion == 3:
+#         dejar_restaurante()
+#     elif eleccion == 4:
+#         agregarSede()
+#     elif eleccion == 5:
+#         crear_evento()
+#     elif eleccion == 6:
+#         print("Gracias por visitarnos.")
