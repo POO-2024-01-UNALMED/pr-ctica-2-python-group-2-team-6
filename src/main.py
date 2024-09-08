@@ -1,5 +1,4 @@
 from utilidad import Utilidad
-
 from gestorAplicacion.Entorno.casilla import Casilla
 from gestorAplicacion.Entorno.ciudad import Ciudad
 from gestorAplicacion.Entorno.mesa import Mesa
@@ -24,11 +23,11 @@ from tkinter import *
 from tkinter import messagebox
 
 def info_aplicacion():
-    messagebox.showinfo(title="Información de la aplicación", message="La aplicación mimimimi")
+    messagebox.showinfo(title="Información de la aplicación", message="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
 
 def salir_de_acoustic():
     menu_inicio()
-aaa mi ano
+
 def menu_inicio():
     ventana_acoustic.withdraw()
     ventana_inicio.deiconify()
@@ -43,39 +42,52 @@ ventana_inicio.title("Menú Inicio")
 ventana_inicio.resizable(True, True)
 ventana_inicio.geometry("500x700")
 ventana_inicio.iconbitmap('./cosas/Aa.ico')
+
 frame_left = Frame(ventana_inicio, bg = "red", bd = 2, relief="solid", width=100)
 frame_left.pack(side = LEFT, fill = BOTH, expand = True, padx = 10, pady = 10)
 frame_left.pack_propagate(False)
+
 frame_right = Frame(ventana_inicio, bg = "blue", bd = 2, relief="solid", width=100)
 frame_right.pack(side = RIGHT, fill = BOTH, expand = True, padx = 10, pady = 10)
 frame_right.pack_propagate(False)
+
 frame_left_top = Frame(frame_left, bg = "green", bd = 2, relief="solid")
 frame_left_top.pack(side = TOP, fill = BOTH, expand = True, padx = 10, pady = 10)
 mensajeCum = Label(frame_left_top, text="Bienvenidos sean al Restaurante Orientado a objetos", font=("Arial", 20), fg="#000", anchor="n")
 mensajeCum.pack(fill = BOTH)
+
 frame_left_bottom = Frame(frame_left, height=200, width=100, bg = "yellow", bd = 2, relief="solid")
 frame_left_bottom.pack(side = BOTTOM, fill = BOTH, expand = True, padx = 10, pady = 10)
 frame_left_bottom.pack_propagate(False)
+
 frame_lb_top = Frame(frame_left_bottom, bg = "pink", bd = 2, relief="solid")
 frame_lb_top.pack(side = TOP, fill = BOTH, expand = True)
 frame_lb_bottom = Frame(frame_left_bottom, bg = "brown", bd = 2, relief="solid")
 frame_lb_bottom.pack(side = BOTTOM, fill = BOTH, expand = True)
+
 acoustic_button = Button(frame_lb_bottom, text="Iniciar procesos", font=("Arial", 20), fg="#000", anchor="n", command = lambda: menu_acoustic())   
 acoustic_button.pack(expand=True, anchor='center')
+
 frame_right_top = Frame(frame_right, bg = "purple", bd = 2, relief="solid")
 frame_right_top.pack(side = TOP, fill = BOTH, expand = True, padx = 10, pady = 10)
+
 frame_right_bottom = Frame(frame_right, bg = "orange", bd = 2, relief="solid")
 frame_right_bottom.pack(side = BOTTOM, fill = BOTH, expand = True, padx = 10, pady = 10)
+
 frame_right_bottom.grid_rowconfigure(0, weight=1)
 frame_right_bottom.grid_columnconfigure(0, weight=1)
 frame_right_bottom.grid_rowconfigure(1, weight=1)
 frame_right_bottom.grid_columnconfigure(1, weight=1)
+
 frame_rb_lt = Frame(frame_right_bottom, bg = "pink", bd = 2, relief="solid")
 frame_rb_lt.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+
 frame_rb_rt = Frame(frame_right_bottom, bg = "brown", bd = 2, relief="solid")
 frame_rb_rt.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+
 frame_rb_lb = Frame(frame_right_bottom, bg = "black", bd = 2, relief="solid")
 frame_rb_lb.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+
 frame_rb_rb = Frame(frame_right_bottom, bg = "white", bd = 2, relief="solid")
 frame_rb_rb.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
