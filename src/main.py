@@ -28,7 +28,7 @@ def info_aplicacion():
 
 def salir_de_acoustic():
     menu_inicio()
-
+aaa mi ano
 def menu_inicio():
     ventana_acoustic.withdraw()
     ventana_inicio.deiconify()
