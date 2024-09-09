@@ -22,27 +22,80 @@ from datetime import datetime, timedelta
 import random
 from tkinter import *
 from tkinter import messagebox
+from PIL import Image, ImageTk
 
 def info_aplicacion():
     messagebox.showinfo(title="Información de la aplicación", message="La aplicación mimimimi")
 
 def salir_de_acoustic():
     menu_inicio()
-aaa mi ano
+
 def menu_inicio():
     ventana_acoustic.withdraw()
     ventana_inicio.deiconify()
 
+hojas_de_vida = ["Juan José",  "Colorado", "Stiven"]
+imagenes_prueba = ['./Imagenes/ImagenPrueba1.png', './Imagenes/ImagenPrueba2.png', './Imagenes/ImagenPrueba3.png', './Imagenes/ImagenPrueba4.png']
+indice = 0
+img_label = None
+
 def menu_acoustic():
     ventana_inicio.withdraw()
     ventana_acoustic.deiconify()
+
+def cambiar_imagen():
+    # global indice, img_label
+    # boton_right_top.config(text= hojas_de_vida[indice])
+
+    # # imagenLabel = tk.Label(frameInferiorIzquierdoP4, image= imagenes[indice_imagen])
+    # # imagenLabel.place(relx = 0.05, y = 5, relheight= 0.8, relwidth=0.9)
+
+    # # # Asignar evento al Label
+    # # imagenLabel.bind("<Leave>", cambiar_imagen)
+    # photo = PhotoImage(imagenes_prueba[1])
+
+    # frame_rb_lt.config(photo)
+    
+
+    # # global img_label, photo
+    # # img = Image.open(image_path)
+    # # img.thumbnail((500, 400))  # Redimensionar imagen
+    # # photo = ImageTk.PhotoImage(img)
+    # img_label.config(image=photo)
+    # img_label.image = photo 
+    # indice = (indice + 1) % len(hojas_de_vida)
+    global indice, img_label
+
+    # Actualizar el texto del botón con el nombre de la persona
+    boton_right_top.config(text=hojas_de_vida[indice])
+
+    # Cargar la imagen actual
+    img = Image.open(imagenes_prueba[indice])
+    img.thumbnail((200, 200))  # Redimensionar imagen a un tamaño más manejable
+
+    # Convertirla a un formato compatible con Tkinter
+    photo = ImageTk.PhotoImage(img)
+
+    # Si ya existe una etiqueta de imagen, la actualizamos
+    if img_label is not None:
+        img_label.config(image=photo)
+        img_label.image = photo  # Mantener una referencia de la imagen
+
+    # Si no existe la etiqueta, la creamos
+    else:
+        img_label = Label(frame_rb_lt, image=photo)
+        img_label.image = photo  # Mantener una referencia de la imagen
+        img_label.pack()
+
+    # Avanzar al siguiente índice de imagen
+    indice = (indice + 1) % len(imagenes_prueba)
     
 #MENU INICIO
 ventana_inicio = Tk()
 ventana_inicio.title("Menú Inicio")
 ventana_inicio.resizable(True, True)
 ventana_inicio.geometry("500x700")
-ventana_inicio.iconbitmap('./cosas/Aa.ico')
+# ventana_inicio.iconbitmap("./Imagenes/Aa.ico")
 frame_left = Frame(ventana_inicio, bg = "red", bd = 2, relief="solid", width=100)
 frame_left.pack(side = LEFT, fill = BOTH, expand = True, padx = 10, pady = 10)
 frame_left.pack_propagate(False)
@@ -62,6 +115,8 @@ frame_lb_bottom = Frame(frame_left_bottom, bg = "brown", bd = 2, relief="solid")
 frame_lb_bottom.pack(side = BOTTOM, fill = BOTH, expand = True)
 acoustic_button = Button(frame_lb_bottom, text="Iniciar procesos", font=("Arial", 20), fg="#000", anchor="n", command = lambda: menu_acoustic())   
 acoustic_button.pack(expand=True, anchor='center')
+
+
 frame_right_top = Frame(frame_right, bg = "purple", bd = 2, relief="solid")
 frame_right_top.pack(side = TOP, fill = BOTH, expand = True, padx = 10, pady = 10)
 frame_right_bottom = Frame(frame_right, bg = "orange", bd = 2, relief="solid")
@@ -75,16 +130,19 @@ frame_rb_lt.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 frame_rb_rt = Frame(frame_right_bottom, bg = "brown", bd = 2, relief="solid")
 frame_rb_rt.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
 frame_rb_lb = Frame(frame_right_bottom, bg = "black", bd = 2, relief="solid")
-frame_rb_lb.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
-frame_rb_rb = Frame(frame_right_bottom, bg = "white", bd = 2, relief="solid")
-frame_rb_rb.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+frame_rb_lb.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+# frame_rb_rb = Frame(frame_right_bottom, bg = "white", bd = 2, relief="solid")
+# frame_rb_rb.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+
+boton_right_top = Button(frame_right_top, bg = "white", text="Hoja de vida de los desarrolladores", font=("Arial",12), command=cambiar_imagen)
+boton_right_top.pack(expand=True, fill = "both", padx=6, pady=6)
 
 #MENU ACOUSTIC
 ventana_acoustic = Tk()
 ventana_acoustic.title("Menú Acoustic")
 ventana_acoustic.resizable(True, True)
 ventana_acoustic.geometry("500x700")
-ventana_acoustic.iconbitmap('./cosas/Aa.ico')
+# ventana_acoustic.iconbitmap('./Imagenes/Aa.ico')
 
 menu_bar = Menu(ventana_acoustic)
 ventana_acoustic.config(menu = menu_bar)
