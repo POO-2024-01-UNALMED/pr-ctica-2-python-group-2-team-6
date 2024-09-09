@@ -23,158 +23,185 @@ from tkinter import *
 from tkinter import messagebox
 from PIL import Image, ImageTk
 
+contador_clicks_cv = 0
+contador_pasa_img_res = 0
+
+# Función para cambiar la imagen
+def cambiar_cv(event):
+    global contador_clicks_cv
+
+    # Listas de rutas de imágenes
+    cvs = [
+        ["Me gusta el Póker"],
+        ["Me gusta el Mine"],
+        ["Me quiero follar a Borges"]
+    ]
+
+    rutas = [
+        ["src/Imagenes/desarrolladores/arangoPrueba1.png", "src/Imagenes/desarrolladores/arangoPrueba2.png", "src/Imagenes/desarrolladores/arangoPrueba3.png", "src/Imagenes/desarrolladores/arangoPrueba4.png" ],
+        ["src/Imagenes/desarrolladores/coloradoPrueba1.png", "src/Imagenes/desarrolladores/coloradoPrueba2.png", "src/Imagenes/desarrolladores/coloradoPrueba3.png", "src/Imagenes/desarrolladores/coloradoPrueba4.png"],
+        ["src/Imagenes/desarrolladores/stivenPrueba1.png", "src/Imagenes/desarrolladores/stivenPrueba2.png", "src/Imagenes/desarrolladores/stivenPrueba3.png","src/Imagenes/desarrolladores/stivenPrueba4.png" ]
+    ]
+    #boton_right_top.config(text=cvs[contador_clicks_cv][0])
+    # Actualizar las rutas de las imágenes de acuerdo al contador de clics
+    ruta_rb_lt = rutas[contador_clicks_cv][0]
+    ruta_rb_rt = rutas[contador_clicks_cv][1]
+    ruta_rb_lb = rutas[contador_clicks_cv][2]
+    ruta_rb_rb = rutas[contador_clicks_cv][3]
+    
+    # Cargar y redimensionar las imágenes
+    img_lt = Image.open(ruta_rb_lt).resize((456, 272))
+    img_rt = Image.open(ruta_rb_rt).resize((456, 272))
+    img_lb = Image.open(ruta_rb_lb).resize((456, 272))
+    img_rb = Image.open(ruta_rb_rb).resize((456, 272)) #Cambbiar si David dice que se puede pregunta #4
+
+    # Convertir las imágenes a PhotoImage
+    photo_lt = ImageTk.PhotoImage(img_lt)
+    photo_rt = ImageTk.PhotoImage(img_rt)
+    photo_lb = ImageTk.PhotoImage(img_lb)
+    photo_rb = ImageTk.PhotoImage(img_rb)
+
+    # Actualizar las imágenes en los labels
+    print(frame_rb_lt_img.winfo_width(), frame_rb_lt_img.winfo_height())
+    frame_rb_lt_img.config(image=photo_lt)
+    frame_rb_lt_img.image = photo_lt  # Necesario para evitar que la imagen se recolecte por el garbage collector
+
+    frame_rb_rt_img.config(image=photo_rt)
+    frame_rb_rt_img.image = photo_rt
+
+    frame_rb_lb_img.config(image=photo_lb)
+    frame_rb_lb_img.image = photo_lb
+
+    frame_rb_rb_img.config(image=photo_rb)
+    frame_rb_rb_img.image = photo_rb
+
+    # Incrementar el contador para la próxima rotación
+    contador_clicks_cv = (contador_clicks_cv + 1) % len(rutas)
+
+def cambiar_img_restaurante(event):
+    global contador_pasa_img_res
+
+    rutas = ["src/Imagenes/restaurante/restaurante1.png", "src/Imagenes/restaurante/restaurante2.png", "src/Imagenes/restaurante/restaurante3.png", "src/Imagenes/restaurante/restaurante4.png", "src/Imagenes/restaurante/restaurante5.png"]
+    
+    ruta = rutas[contador_pasa_img_res % 5]
+
+    img = Image.open(ruta).resize((150, 150))
+
+    photo = ImageTk.PhotoImage(img)
+    
+    frame_lb_top.config(image = photo)
+    frame_lb_top.image = photo
+
+    contador_pasa_img_res = (contador_pasa_img_res + 1) % 5
+
 def info_aplicacion():
     messagebox.showinfo(title="Información de la aplicación", message="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
 
-def salir_de_acoustic():
+def salir_de_funcional():
     menu_inicio()
 
 def menu_inicio():
-    ventana_acoustic.withdraw()
+    ventana_funcional.withdraw()
     ventana_inicio.deiconify()
 
 hojas_de_vida = ["Juan José",  "Colorado", "Stiven"]
-imagenes_prueba = ['./Imagenes/ImagenPrueba1.png', './Imagenes/ImagenPrueba2.png', './Imagenes/ImagenPrueba3.png', './Imagenes/ImagenPrueba4.png']
-indice = 0
-img_label = None
 
-def menu_acoustic():
+def menu_funcional():
     ventana_inicio.withdraw()
-    ventana_acoustic.deiconify()
-
-def cambiar_imagen():
-    # global indice, img_label
-    # boton_right_top.config(text= hojas_de_vida[indice])
-
-    # # imagenLabel = tk.Label(frameInferiorIzquierdoP4, image= imagenes[indice_imagen])
-    # # imagenLabel.place(relx = 0.05, y = 5, relheight= 0.8, relwidth=0.9)
-
-    # # # Asignar evento al Label
-    # # imagenLabel.bind("<Leave>", cambiar_imagen)
-    # photo = PhotoImage(imagenes_prueba[1])
-
-    # frame_rb_lt.config(photo)
-    
-
-    # # global img_label, photo
-    # # img = Image.open(image_path)
-    # # img.thumbnail((500, 400))  # Redimensionar imagen
-    # # photo = ImageTk.PhotoImage(img)
-    # img_label.config(image=photo)
-    # img_label.image = photo 
-    # indice = (indice + 1) % len(hojas_de_vida)
-    global indice, img_label
-
-    # Actualizar el texto del botón con el nombre de la persona
-    boton_right_top.config(text=hojas_de_vida[indice])
-
-    # Cargar la imagen actual
-    img = Image.open(imagenes_prueba[indice])
-    img.thumbnail((200, 200))  # Redimensionar imagen a un tamaño más manejable
-
-    # Convertirla a un formato compatible con Tkinter
-    photo = ImageTk.PhotoImage(img)
-
-    # Si ya existe una etiqueta de imagen, la actualizamos
-    if img_label is not None:
-        img_label.config(image=photo)
-        img_label.image = photo  # Mantener una referencia de la imagen
-
-    # Si no existe la etiqueta, la creamos
-    else:
-        img_label = Label(frame_rb_lt, image=photo)
-        img_label.image = photo  # Mantener una referencia de la imagen
-        img_label.pack()
-
-    # Avanzar al siguiente índice de imagen
-    indice = (indice + 1) % len(imagenes_prueba)
+    ventana_funcional.deiconify()
     
 #MENU INICIO
 ventana_inicio = Tk()
 ventana_inicio.title("Menú Inicio")
 ventana_inicio.resizable(True, True)
 ventana_inicio.geometry("500x700")
-<<<<<<< HEAD
-# ventana_inicio.iconbitmap("./Imagenes/Aa.ico")
-=======
-ventana_inicio.iconbitmap('./cosas/Aa.ico')
+ventana_inicio.iconbitmap("src/Imagenes/Aa.ico")
 
->>>>>>> e4bc5ab8e1919cfc1f990fb6bb0a0e9b11ee68c8
-frame_left = Frame(ventana_inicio, bg = "red", bd = 2, relief="solid", width=100)
+#Frame P1
+frame_left = Frame(ventana_inicio, bd = 2, relief="solid", width=100)
 frame_left.pack(side = LEFT, fill = BOTH, expand = True, padx = 10, pady = 10)
 frame_left.pack_propagate(False)
 
-frame_right = Frame(ventana_inicio, bg = "blue", bd = 2, relief="solid", width=100)
-frame_right.pack(side = RIGHT, fill = BOTH, expand = True, padx = 10, pady = 10)
-frame_right.pack_propagate(False)
-
+#Frame P3
 frame_left_top = Frame(frame_left, bg = "green", bd = 2, relief="solid")
-frame_left_top.pack(side = TOP, fill = BOTH, expand = True, padx = 10, pady = 10)
-mensajeCum = Label(frame_left_top, text="Bienvenidos sean al Restaurante Orientado a objetos", font=("Arial", 20), fg="#000", anchor="n")
-mensajeCum.pack(fill = BOTH)
+frame_left_top.pack(side = TOP, fill = BOTH, expand = True, padx=10, pady = 10)
+frame_left_top.pack_propagate(False)
 
+#Mensaje Bienvenida
+mensaje_bienvenida = Label(frame_left_top, text="Bienvenidos sean al Restaurante Orientado a objetos", font=("Arial", 20), fg="#000")
+mensaje_bienvenida.pack(expand = True, fill = BOTH, padx = 10, pady = 10)
+
+#Frame P4
 frame_left_bottom = Frame(frame_left, height=200, width=100, bg = "yellow", bd = 2, relief="solid")
 frame_left_bottom.pack(side = BOTTOM, fill = BOTH, expand = True, padx = 10, pady = 10)
 frame_left_bottom.pack_propagate(False)
 
-frame_lb_top = Frame(frame_left_bottom, bg = "pink", bd = 2, relief="solid")
+frame_lb_top = Label(frame_left_bottom, bg = "pink", bd = 2, relief="solid", width=500, height=500)
+frame_lb_top.bind("<Enter>", cambiar_img_restaurante)
 frame_lb_top.pack(side = TOP, fill = BOTH, expand = True)
-frame_lb_bottom = Frame(frame_left_bottom, bg = "brown", bd = 2, relief="solid")
-frame_lb_bottom.pack(side = BOTTOM, fill = BOTH, expand = True)
 
-acoustic_button = Button(frame_lb_bottom, text="Iniciar procesos", font=("Arial", 20), fg="#000", anchor="n", command = lambda: menu_acoustic())   
-acoustic_button.pack(expand=True, anchor='center')
+cambiar_img_restaurante(None)
 
-<<<<<<< HEAD
+funcional_button = Button(frame_left_bottom, text="Acceder a las funcionalidades", font=("Arial", 20), fg="#000", anchor="n", command = lambda: menu_funcional())   
+funcional_button.pack(side = BOTTOM, fill = X)
 
-=======
->>>>>>> e4bc5ab8e1919cfc1f990fb6bb0a0e9b11ee68c8
+#Frame P2
+frame_right = Frame(ventana_inicio, bg = "blue", bd = 2, relief="solid", width=100)
+frame_right.pack(side = RIGHT, fill = BOTH, expand = True, padx = 10, pady = 10)
+frame_right.pack_propagate(False)
+
+#Frame P5
 frame_right_top = Frame(frame_right, bg = "purple", bd = 2, relief="solid")
-frame_right_top.pack(side = TOP, fill = BOTH, expand = True, padx = 10, pady = 10)
+frame_right_top.pack(side = TOP, fill = BOTH, expand = True, padx=10, pady = 10)
+frame_right_top.pack_propagate(False)
 
-frame_right_bottom = Frame(frame_right, bg = "orange", bd = 2, relief="solid")
+#Descripción CV
+right_top = Label(frame_right_top, bg = "white", text = "Hoja de Vida de los desarrolladores", font=("Arial",12))
+right_top.bind("<Button-1>", cambiar_cv)
+right_top.pack(expand = True, fill = BOTH, padx = 10, pady = 10)
+
+#Frame P6
+frame_right_bottom = Frame(frame_right, height=200, width = 100, bg = "orange", bd = 2, relief="solid")
 frame_right_bottom.pack(side = BOTTOM, fill = BOTH, expand = True, padx = 10, pady = 10)
+frame_right_bottom.grid_propagate(False)
 
 frame_right_bottom.grid_rowconfigure(0, weight=1)
 frame_right_bottom.grid_columnconfigure(0, weight=1)
 frame_right_bottom.grid_rowconfigure(1, weight=1)
 frame_right_bottom.grid_columnconfigure(1, weight=1)
 
-frame_rb_lt = Frame(frame_right_bottom, bg = "pink", bd = 2, relief="solid")
-frame_rb_lt.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+#Imagen recuadro superior izquierdo del recuadro inferior derecho
+frame_rb_lt_img = Label(frame_right_bottom, bd=2, relief="solid", width=456, height=272)
+frame_rb_lt_img.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
-frame_rb_rt = Frame(frame_right_bottom, bg = "brown", bd = 2, relief="solid")
-frame_rb_rt.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+#Imagen recuadro superior derecho del recuadro inferior derecho
+frame_rb_rt_img = Label(frame_right_bottom, bd=2, relief="solid", width=456, height=272)
+frame_rb_rt_img.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
 
-frame_rb_lb = Frame(frame_right_bottom, bg = "black", bd = 2, relief="solid")
-<<<<<<< HEAD
-frame_rb_lb.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
-# frame_rb_rb = Frame(frame_right_bottom, bg = "white", bd = 2, relief="solid")
-# frame_rb_rb.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+#Imagen recuadro inferior del recuadro inferior derecho
+frame_rb_lb_img = Label(frame_right_bottom, bd=2, relief="solid", width=456, height=272)
+frame_rb_lb_img.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
-boton_right_top = Button(frame_right_top, bg = "white", text="Hoja de vida de los desarrolladores", font=("Arial",12), command=cambiar_imagen)
-boton_right_top.pack(expand=True, fill = "both", padx=6, pady=6)
-=======
-frame_rb_lb.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+#Imagen recuadro inferior del recuadro inferior derecho
+frame_rb_rb_img = Label(frame_right_bottom, bd=2, relief="solid", width=456, height=272)
+frame_rb_rb_img.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
-frame_rb_rb = Frame(frame_right_bottom, bg = "white", bd = 2, relief="solid")
-frame_rb_rb.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
->>>>>>> e4bc5ab8e1919cfc1f990fb6bb0a0e9b11ee68c8
+cambiar_cv(None)
 
-#MENU ACOUSTIC
-ventana_acoustic = Tk()
-ventana_acoustic.title("Menú Acoustic")
-ventana_acoustic.resizable(True, True)
-ventana_acoustic.geometry("500x700")
-# ventana_acoustic.iconbitmap('./Imagenes/Aa.ico')
+#MENU funcional
+ventana_funcional = Tk()
+ventana_funcional.title("Menú funcional")
+ventana_funcional.resizable(True, True)
+ventana_funcional.geometry("500x700")
+ventana_funcional.iconbitmap('src/Imagenes/Aa.ico')
 
-menu_bar = Menu(ventana_acoustic)
-ventana_acoustic.config(menu = menu_bar)
+menu_bar = Menu(ventana_funcional)
+ventana_funcional.config(menu = menu_bar)
 menu_archivo = Menu(menu_bar, tearoff = 0)
 menu_bar.add_cascade(label = "Archivo", menu = menu_archivo)
 menu_archivo.add_command(label = "Aplicación", command = info_aplicacion)
 menu_archivo.add_separator()
-menu_archivo.add_command(label = "Salir", command = salir_de_acoustic)
+menu_archivo.add_command(label = "Salir", command = salir_de_funcional)
 menu_procesos = Menu(menu_bar, tearoff = 0)
 menu_bar.add_cascade(label = "Procesos y Consultas", menu = menu_procesos)
 menu_procesos.add_command(label = "Funcionalidad 1")
