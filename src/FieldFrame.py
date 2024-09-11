@@ -1,9 +1,10 @@
 from tkinter import *
 from tkinter.ttk import Combobox as Cajacombo
 
+
 class FieldFrame(Frame):
 
-    def __init__(self, root, tituloCriterios, criterios, tituloValores, valores=None, habilitado=None, tipo=0):
+    def __init__(self, root, tituloCriterios, criterios, tituloValores, valores=None, habilitado=None, tipo = 0):
         super().__init__(root, width=400, height=300, bg="white")
         self.root = root
         self.tituloCriterios = tituloCriterios
@@ -31,48 +32,46 @@ class FieldFrame(Frame):
                     valor.insert(0, self.valores[i])
                 self.entradas.append(valor)
                 if self.habilitado is not None and not self.habilitado[i]:
-                    valor.configure(state="normal")
-                else:
-                    valor.configure(state="readonly")  # Cambiado a solo lectura
+                    valor.configure(state="disabled")
 
-            # Crear botón "Limpiar campos"
+            # Crear botones
             self.crearBoton("Limpiar campos", self.limpiarEntradas, 1)
-            # Crear botón "Aceptar" si habilitado es None
-            if self.habilitado is None:
-                self.crearBoton("Aceptar", self.aceptar, 0)
+        if self.habilitado is None:
+            self.crearBoton("Aceptar", self.aceptar, 0)
+            pass
 
-        elif tipo == 1: # Botones Sí o No
+        elif tipo == 1: #Sí o No
+            # Crear botones
             self.crearBoton("Sí", self.yessir, 0)
             self.crearBoton("No", self.abortarMision, 1)
+            pass
 
-        elif tipo == 2: # Cajacombos
+        elif tipo == 2:
+            # Crear las cajacombos
             for i in range(len(self.criterios)):
                 Label(self, text=self.criterios[i], bg="white", font=("Arial", 11)).grid(row=(i + 1), column=0, padx=10, pady=5)
-                valor = Cajacombo(self, width=40, values=self.valores[i])
+                self.valores[i].insert(0, "↓↓ Escoja una opción ↓↓")
+                valor = Cajacombo(self, width=40, values=valores[i][1:])
                 valor.grid(row=(i + 1), column=1, padx=10, pady=5)
-                valor.set(self.valores[i][0] if self.valores else "↓↓ Escoja una opción ↓↓")
-                valor.configure(state="readonly")  # Hacer el combobox solo lectura
+                if self.valores:
+                    valor.insert(0, self.valores[i][0])
                 self.entradas.append(valor)
                 if self.habilitado is not None and not self.habilitado[i]:
-                    valor.configure(state="normal")  # Cambiar a normal si habilitado es False
-                else:
-                    valor.configure(state="readonly")  # Cambiado a solo lectura
+                    valor.configure(state="disabled")
+            pass
 
     def crearBoton(self, texto, comando, columna):
         Button(self, text=texto, command=comando, font=("Arial", 11)).grid(row=(len(self.criterios) + 1), column=columna, padx=10, pady=10)
 
     def limpiarEntradas(self):
         for entrada in self.entradas:
-            if isinstance(entrada, Entry):
-                entrada.delete(0, END)
-            elif isinstance(entrada, Cajacombo):
-                entrada.set("↓↓ Escoja una opción ↓↓")
+            entrada.delete(0, END)
 
     def yessir(self):
-        print("Sí seleccionado")
+        pass
         
     def abortarMision(self):
-        print("No seleccionado")
+        pass
 
     def getValores(self):
         self.valores = [valor.get() for valor in self.entradas]
@@ -85,6 +84,7 @@ class FieldFrame(Frame):
         self.getValores()
         print("Valores aceptados:", self.valores)
 
+# Función para ejecutar la ventana principal
 def main():
     root = Tk()
     root.title("FieldFrame Example")
@@ -95,7 +95,7 @@ def main():
     habilitado = [True, True, True, True, True]
 
     # Crear el FieldFrame y agregarlo a la ventana
-    frame = FieldFrame(root, tituloCriterios="¿Desea", criterios=criterios, tituloValores="continuar?", valores=valores, habilitado=habilitado, tipo=2)
+    frame = FieldFrame(root, tituloCriterios= "¿Desea", criterios= criterios, tituloValores = "continuar?", valores = valores, habilitado = habilitado, tipo = 2)
     frame.pack(padx=20, pady=20)
 
     root.mainloop()

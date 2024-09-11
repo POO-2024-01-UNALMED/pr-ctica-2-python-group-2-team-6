@@ -25,6 +25,7 @@ from PIL import Image, ImageTk
 
 contador_clicks_cv = 0
 contador_pasa_img_res = 0
+funcionalidad_actual = 0
 
 # Función para cambiar la imagen
 def cambiar_cv(event):
@@ -62,7 +63,6 @@ def cambiar_cv(event):
     photo_rb = ImageTk.PhotoImage(img_rb)
 
     # Actualizar las imágenes en los labels
-    print(frame_rb_lt_img.winfo_width(), frame_rb_lt_img.winfo_height())
     frame_rb_lt_img.config(image=photo_lt)
     frame_rb_lt_img.image = photo_lt  # Necesario para evitar que la imagen se recolecte por el garbage collector
 
@@ -94,6 +94,10 @@ def cambiar_img_restaurante(event):
 
     contador_pasa_img_res = (contador_pasa_img_res + 1) % 5
 
+def cambiar_proceso(event, num_func):
+    
+    pass
+
 def info_aplicacion():
     messagebox.showinfo(title="Información de la aplicación", message="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
 
@@ -103,6 +107,26 @@ def salir_de_funcional():
 def menu_inicio():
     ventana_funcional.withdraw()
     ventana_inicio.deiconify()
+
+def funcionalidad_1():
+    cambiar_proceso(None, 1)
+    pass
+
+def funcionalidad_2():
+    cambiar_proceso(None, 2)
+    pass
+
+def funcionalidad_3():
+    cambiar_proceso(None, 3)
+    pass
+
+def funcionalidad_4():
+    cambiar_proceso(None, 4)
+    pass
+
+def funcionalidad_5():
+    cambiar_proceso(None, 5)
+    pass
 
 hojas_de_vida = ["Juan José",  "Colorado", "Stiven"]
 
@@ -114,8 +138,15 @@ def menu_funcional():
 ventana_inicio = Tk()
 ventana_inicio.title("Menú Inicio")
 ventana_inicio.resizable(True, True)
-ventana_inicio.geometry("500x700")
-ventana_inicio.iconbitmap("src/Imagenes/Aa.ico")
+ventana_inicio.geometry("500x1080")
+ventana_inicio.iconbitmap("src/Imagenes/susy-oveja.ico")
+menu_bar_inicio = Menu(ventana_inicio)
+ventana_inicio.config(menu = menu_bar_inicio)
+menu_inicial = Menu(menu_bar_inicio, tearoff = 0)
+menu_bar_inicio.add_cascade(label = "Inicio", menu = menu_inicial)
+menu_inicial.add_command(label = "Descripción del sistema", command = info_aplicacion)
+menu_inicial.add_separator()
+menu_inicial.add_command(label = "Salir", command = ventana_inicio.quit)
 
 #Frame P1
 frame_left = Frame(ventana_inicio, bd = 2, relief="solid", width=100)
@@ -137,7 +168,7 @@ frame_left_bottom.pack(side = BOTTOM, fill = BOTH, expand = True, padx = 10, pad
 frame_left_bottom.pack_propagate(False)
 
 frame_lb_top = Label(frame_left_bottom, bg = "pink", bd = 2, relief="solid", width=500, height=500)
-frame_lb_top.bind("<Enter>", cambiar_img_restaurante)
+frame_lb_top.bind("<Leave>", cambiar_img_restaurante)
 frame_lb_top.pack(side = TOP, fill = BOTH, expand = True)
 
 cambiar_img_restaurante(None)
@@ -188,36 +219,93 @@ frame_rb_rb_img.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
 cambiar_cv(None)
 
-#MENU funcional
+#Menu funcional
 ventana_funcional = Tk()
 ventana_funcional.title("Menú funcional")
 ventana_funcional.resizable(True, True)
-ventana_funcional.geometry("500x700")
-ventana_funcional.iconbitmap('src/Imagenes/Aa.ico')
+ventana_funcional.geometry("500x1080")
+ventana_funcional.iconbitmap('src/Imagenes/susy-oveja.ico')
 
-menu_bar = Menu(ventana_funcional)
-ventana_funcional.config(menu = menu_bar)
-menu_archivo = Menu(menu_bar, tearoff = 0)
-menu_bar.add_cascade(label = "Archivo", menu = menu_archivo)
+#Menu superior ventana funcional
+menu_bar_funcional = Menu(ventana_funcional)
+ventana_funcional.config(menu = menu_bar_funcional)
+menu_archivo = Menu(menu_bar_funcional, tearoff = 0)
+menu_bar_funcional.add_cascade(label = "Archivo", menu = menu_archivo)
 menu_archivo.add_command(label = "Aplicación", command = info_aplicacion)
 menu_archivo.add_separator()
 menu_archivo.add_command(label = "Salir", command = salir_de_funcional)
-menu_procesos = Menu(menu_bar, tearoff = 0)
-menu_bar.add_cascade(label = "Procesos y Consultas", menu = menu_procesos)
-menu_procesos.add_command(label = "Funcionalidad 1")
+
+menu_procesos = Menu(menu_bar_funcional, tearoff = 0)
+menu_bar_funcional.add_cascade(label = "Procesos y Consultas", menu = menu_procesos)
+
+#Ir a la funcionalidad 1
+menu_procesos.add_command(label = "Funcionalidad 1", command = funcionalidad_1)
 menu_procesos.add_separator()
-menu_procesos.add_command(label = "Funcionalidad 2")
+
+#Ir a la funcionalidad 2
+menu_procesos.add_command(label = "Funcionalidad 2", command = funcionalidad_2)
 menu_procesos.add_separator()
-menu_procesos.add_command(label = "Funcionalidad 3")
+
+#Ir a la funcionalidad 3
+menu_procesos.add_command(label = "Funcionalidad 3", command = funcionalidad_3)
 menu_procesos.add_separator()
-menu_procesos.add_command(label = "Funcionalidad 4")
+
+#Ir a la funcionalidad 4
+menu_procesos.add_command(label = "Funcionalidad 4", command = funcionalidad_4)
 menu_procesos.add_separator()
-menu_procesos.add_command(label = "Funcionalidad 5")
-menu_ayuda = Menu(menu_bar, tearoff=0)
-menu_bar.add_cascade(label = "Ayuda", menu = menu_ayuda)
+
+#Ir a la funcionalidad 5
+menu_procesos.add_command(label = "Funcionalidad 5", command = funcionalidad_5)
+
+menu_ayuda = Menu(menu_bar_funcional, tearoff=0)
+menu_bar_funcional.add_cascade(label = "Ayuda", menu = menu_ayuda)
 menu_ayuda.add_command(label = "Acerca de")
 
+#Frame donde estará la información de las funcionalidades
+frame_procesos = Frame(ventana_funcional, bd = 2, relief="solid")
+frame_procesos.pack(fill = BOTH, expand = True, padx = 10, pady = 10)
+
+frame_procesos.grid_rowconfigure(0, weight=1)
+frame_procesos.grid_columnconfigure(0, weight=1)
+frame_procesos.grid_rowconfigure(1, weight=1)
+frame_procesos.grid_rowconfigure(2, weight=1)
+
+#Frames frame_procesos
+#Titulo funcionalidad
+frame_procesos_top = Frame(frame_procesos, bd=2, height=10, relief="solid")
+frame_procesos_top.grid(row = 0, padx = 10, pady = 0, sticky="nsew")
+frame_procesos_top.grid_propagate(False)
+frame_procesos_top.grid_rowconfigure(0, weight=1)
+frame_procesos_top.grid_columnconfigure(0, weight=1)
+label_procesos_top = Label(frame_procesos_top, text="Funcionalidades", font=("Arial", 20), fg="#000")
+label_procesos_top.grid(sticky="nsew")
+
+#Desripcion funcionalidad
+frame_procesos_mid = Frame(frame_procesos, bd=2, height=40, relief="solid")
+frame_procesos_mid.grid(row = 1, padx = 10, pady = 0, sticky="nsew")
+frame_procesos_mid.grid_propagate(False)
+frame_procesos_mid.grid_rowconfigure(0, weight=1)
+frame_procesos_mid.grid_columnconfigure(0, weight=1)
+label_procesos_mid = Label(frame_procesos_mid, text="Descripciones", font=("Arial", 20), fg="#000")
+label_procesos_mid.grid(sticky="nsew")
+
+#Campo FieldFrame
+frame_procesos_bottom = Frame(frame_procesos, bd=2, height=500, relief="solid")
+frame_procesos_bottom.grid(row = 2, padx = 10, pady = 0, sticky="nsew")
+frame_procesos_bottom.grid_propagate(False)
+frame_procesos_bottom.grid_rowconfigure(0, weight=1)
+frame_procesos_bottom.grid_columnconfigure(0, weight=1)
+label_procesos = Label(frame_procesos_bottom, text="Para acceder a las funcionalidades diríjase a la pestaña Procesos y Consultas.\nPosteriormente seleccione la funcionalidad a la que desea acceder.", font=("Arial", 20), fg="#000")
+label_procesos.grid(sticky="nsew")
+
 menu_inicio()
+
+#Asegurarse que al cerrar la ventana se cierre la ventana
+def cerrado():
+    ventana_inicio.quit()
+
+ventana_inicio.protocol("WM_DELETE_WINDOW", cerrado)
+ventana_funcional.protocol("WM_DELETE_WINDOW", cerrado)
 
 ventana_inicio.mainloop()
 
