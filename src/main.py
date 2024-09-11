@@ -1,4 +1,5 @@
 from utilidad import Utilidad
+from FieldFrame import FieldFrame
 from gestorAplicacion.Entorno.casilla import Casilla
 from gestorAplicacion.Entorno.ciudad import Ciudad
 from gestorAplicacion.Entorno.mesa import Mesa
@@ -26,6 +27,84 @@ from PIL import Image, ImageTk
 contador_clicks_cv = 0
 contador_pasa_img_res = 0
 funcionalidad_actual = 0
+
+def reservarMesa():
+    global label_procesos_bottom
+
+    # ventana_inicio.wait_variable(label_procesos_bottom.valores)
+
+    def continuar1():
+        eleccion_1 = label_procesos_bottom.valores[0]
+        print(eleccion_1)
+        if eleccion_1 != 0:
+            if eleccion_1 == 1:
+                # Utilidad.limpiar_pantalla()
+                print("Ciudades:")
+                Utilidad.listado_ciudades()
+                print("Escriba un número para elegir la ciudad.\nEn caso de no encontrar la ciudad requerida escriba 0.")
+                eleccion2 = Utilidad.readInt()
+                if eleccion2 > len(Ciudad.get_ciudades()) or eleccion2 < 0:
+                    print(f"Ingrese un número válido [1 - {len(Ciudad.get_ciudades())}].")
+                else:
+                    # Utilidad.limpiar_pantalla()
+                    if eleccion2 != 0:
+                        ciudad = Ciudad.get_ciudades()[eleccion2 - 1]
+                        if not ciudad.get_restaurantes():
+                            print("Esta ciudad no tiene restaurantes.")
+                            reservarMesa()
+                        else:
+                            encendido2 = True
+                            while encendido2:
+                                # Utilidad.limpiar_pantalla()
+                                print(f"Zonas de {ciudad.get_nombre()}:")
+                                zonas_con_restaurante = Utilidad.listado_zonas_con_restaurante_ciudad(ciudad)
+                                print("Escriba un número para elegir la zona.")
+                                eleccion3 = Utilidad.readInt()
+                                if eleccion3 > len(zonas_con_restaurante) or eleccion3 < 1:
+                                    print(f"Ingrese un número válido [1 - {len(zonas_con_restaurante)}].")
+                                else:
+                                    # Utilidad.limpiar_pantalla()
+                                    zona = zonas_con_restaurante[eleccion3 - 1]
+                                    encendido3 = True
+                                    while encendido3:
+                                        # Utilidad.limpiar_pantalla()
+                                        print(f"Restaurantes de {zona.get_nombre()}:")
+                                        Utilidad.listado_restaurantes_zona(zona)
+                                        print("Escriba un número para elegir el restaurante.")
+                                        eleccion4 = Utilidad.readInt()
+                                        if eleccion4 > len(zona.get_restaurantes()) or eleccion4 < 1:
+                                            print(f"Ingrese un número válido [1 - {len(zona.get_restaurantes())}].")
+                                        else:
+                                            cliente = seleccionMesa(zona.get_restaurantes()[eleccion4 - 1])
+                                            restaurante = extras_reserva(cliente)
+                                            pago_anticipado(restaurante)
+                                            encendido3 = False
+                                    encendido2 = False
+                    else:
+                        print("Lo sentimos, pero estas son las únicas ciudades donde tenemos restaurantes de nuestra cadena.")
+                        print("""
+                                ¿Desea elegir otra ciudad?
+                                1. Sí.
+                                2. No.
+                                Escriba un número para elegir su opción.""")
+                        eleccion4 = Utilidad.readInt()
+                        if eleccion4 == 1:
+                            reservarMesa()
+                        else:
+                            pass
+                            # menu_principal()
+                    encendido1 = False
+            elif eleccion_1 == 2:
+                # Utilidad.limpiar_pantalla()
+                # menu_principal()
+                encendido1 = False
+            else:
+                # Utilidad.limpiar_pantalla()
+                print("Ingrese un número válido [1 - 2].")
+    
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea", criterios=None, tituloValores="continuar?", tipo=1, comandoSi=continuar1)
+    label_procesos_bottom.grid(sticky="nsew")
 
 # Función para cambiar la imagen
 def cambiar_cv(event):
@@ -94,9 +173,15 @@ def cambiar_img_restaurante(event):
 
     contador_pasa_img_res = (contador_pasa_img_res + 1) % 5
 
+
+
 def cambiar_proceso(event, num_func):
+    if num_func == 1:
+        label_procesos_top.config(text="Reservar Mesa")
+        label_procesos_mid.config(text="Descripción Reservar")
+        reservarMesa()
+       
     
-    pass
 
 def info_aplicacion():
     messagebox.showinfo(title="Información de la aplicación", message="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
@@ -110,6 +195,7 @@ def menu_inicio():
 
 def funcionalidad_1():
     cambiar_proceso(None, 1)
+    
     pass
 
 def funcionalidad_2():
@@ -295,8 +381,8 @@ frame_procesos_bottom.grid(row = 2, padx = 10, pady = 0, sticky="nsew")
 frame_procesos_bottom.grid_propagate(False)
 frame_procesos_bottom.grid_rowconfigure(0, weight=1)
 frame_procesos_bottom.grid_columnconfigure(0, weight=1)
-label_procesos = Label(frame_procesos_bottom, text="Para acceder a las funcionalidades diríjase a la pestaña Procesos y Consultas.\nPosteriormente seleccione la funcionalidad a la que desea acceder.", font=("Arial", 20), fg="#000")
-label_procesos.grid(sticky="nsew")
+label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Descripción", tituloValores="funcionamiento" , criterios=["Para acceder a las funcionalidades diríjase a la pestaña Procesos y Consultas.\nPosteriormente seleccione la funcionalidad a la que desea acceder."], tipo=3)
+label_procesos_bottom.grid(sticky="nsew")
 
 menu_inicio()
 
@@ -312,16 +398,13 @@ ventana_inicio.mainloop()
 #Funcionalidad 1
 #Interacción 1
 def reservarMesa():
+    global label_procesos_bottom
     encendido1 = True
     while encendido1:
-        print("""
-                ¿Desea reservar una mesa?
-                1. Sí.
-                2. No.
-                Escriba un número para elegir su opción.""")
-        eleccion1 = Utilidad.readInt()
 
-        if eleccion1 == 1:
+        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea", tituloValores="continuar?", tipo=1)
+
+        if label_procesos_bottom.valores[0] == 1:
             # Utilidad.limpiar_pantalla()
             print("Ciudades:")
             Utilidad.listado_ciudades()
@@ -2514,6 +2597,14 @@ def crear_ingrediente(cantidad_ingredientes, ingredientes_plato):
 
 
 #Funcionalidad 5
+# def reservarMesa():
+#     global label_procesos_bottom
+
+#     label_procesos_bottom.destroy()
+#     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea", criterios=None, tituloValores="continuar?", tipo=1)
+#     label_procesos_bottom.grid(sticky="nsew")
+
+    
 
 def crear_evento():
     restaurante = Restaurante()
