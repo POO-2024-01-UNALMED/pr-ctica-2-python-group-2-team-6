@@ -50,8 +50,9 @@ class FieldFrame(Frame):
                 Label(self, text=self.criterios[i], bg="white", font=("Arial", 11)).grid(row=(i + 1), column=0, padx=10, pady=5)
                 valor = Cajacombo(self, width=40, values=self.valores[i])
                 valor.grid(row=(i + 1), column=1, padx=10, pady=5)
-                valor.set(self.valores[i][0] if self.valores else "↓↓ Escoja una opción ↓↓")
-                valor.configure(state="readonly")  # Hacer el combobox solo lectura
+                # Valor predeterminado no editable
+                valor.set("↓↓ Escoja una opción ↓↓")
+                valor.bind("<<ComboboxSelected>>", self.on_select)  # Bind event to update default value
                 self.entradas.append(valor)
                 if self.habilitado is not None and not self.habilitado[i]:
                     valor.configure(state="normal")  # Cambiar a normal si habilitado es False
@@ -66,7 +67,12 @@ class FieldFrame(Frame):
             if isinstance(entrada, Entry):
                 entrada.delete(0, END)
             elif isinstance(entrada, Cajacombo):
-                entrada.set("↓↓ Escoja una opción ↓↓")
+                entrada.set("↓↓ Escoja una opción ↓↓")  # Reset default text
+
+    def on_select(self, event):
+        combobox = event.widget
+        if combobox.get() == "↓↓ Escoja una opción ↓↓":
+            combobox.set("")  # Clear the default text if a valid selection is made
 
     def yessir(self):
         print("Sí seleccionado")
