@@ -140,6 +140,7 @@ class FieldFrame(Frame):
                     campos_vacios.append(self.criterios[self.valores.index(ocurrencia)])
             raise(ExcepcionSeleccionVacia(campos_vacios))
         else:
+            self.comandoContinuar()
             print("Valores aceptados:", self.valores)
 
 # Función para ejecutar la ventana principal
