@@ -1,9 +1,9 @@
 from tkinter import *
 from tkinter.ttk import Combobox as Cajacombo
-
+from uiMain.errorAplicacion import ExcepcionSeleccionVacia
 
 class FieldFrame(Frame):
-    def __init__(self, root, tituloCriterios, criterios, tituloValores, valores=None, habilitado=None, tipo=0, comandoSi=None):
+    def __init__(self, root, tituloCriterios, criterios, tituloValores, valores=None, habilitado=None, tipo=0, comandoContinuar=None, comandoCancelar=None):
         super().__init__(root, width=400, height=300, bg="white")
         self.root = root
         self.tituloCriterios = tituloCriterios
@@ -13,7 +13,8 @@ class FieldFrame(Frame):
         self.entradas = []
         self.habilitado = habilitado
         self.tipo = tipo
-        self.comandoSi = comandoSi
+        self.comandoContinuar = comandoContinuar
+        self.comandoCancelar = comandoCancelar
 
         # Guardar los widgets originales para poder restaurarlos
         self.original_widgets = []  # Para almacenar widgets
@@ -56,26 +57,25 @@ class FieldFrame(Frame):
             self.crearBoton("Sí", self.yessir, 0)
             self.crearBoton("No", self.abortarMision, 1)
 
-        elif tipo == 2:  # El usuario selecciona las opciones
-            # Crear las cajacombos
+        elif tipo == 2: # Cajacombos
             for i in range(len(self.criterios)):
-                criterio_label = Label(self, text=self.criterios[i], bg="white", font=("Arial", 11))
-                criterio_label.grid(row=(i + 1), column=0, padx=10, pady=5)
-                valor = Cajacombo(self, width=40, values=valores[i][1:])
+                Label(self, text=self.criterios[i], bg="white", font=("Arial", 11)).grid(row=(i + 1), column=0, padx=10, pady=5)
+                valor = Cajacombo(self, width=40, values=self.valores[i])
                 valor.grid(row=(i + 1), column=1, padx=10, pady=5)
-                if self.valores:
-                    valor.insert(0, self.valores[i][0])
+                # Valor predeterminado no editable
+                valor.set("↓↓ Escoja una opción ↓↓")
+                valor.bind("<<ComboboxSelected>>", self.on_select)  # Bind event to update default value
                 self.entradas.append(valor)
                 if self.habilitado is not None and not self.habilitado[i]:
-                    valor.configure(state="disabled")
-                # Guardar los widgets originales
-            self.save_original_widget(criterio_label, i + 1, 0)
-            self.save_original_widget(valor, i + 1, 1)
+                    valor.configure(state="normal")  # Cambiar a normal si habilitado es False
+                else:
+                    valor.configure(state="readonly")
+                
+                self.crearBoton("Aceptar", self.aceptar, 1)
 
         elif tipo == 3:
             print("Tipo 3")
             Label(self, text = criterios[0]).grid(row=1, column=0, columnspan=2)
-    
 
     def save_original_widget(self, widget, row, column):
         """Guardar el widget y su posición"""
@@ -89,31 +89,18 @@ class FieldFrame(Frame):
         for entrada in self.entradas:
             entrada.delete(0, END)
 
+    def on_select(self, event):
+        combobox = event.widget
+        if combobox.get() == "↓↓ Escoja una opción ↓↓":
+            combobox.set("")
+
     def yessir(self):
         self.valores = [1]
-        self.comandoSi()
-        # Eliminar los Labels actuales y los otros widgets
-        for widget in self.original_widgets:
-            widget.grid_remove()
-
-        # Crear nuevos Labels para el siguiente paso
-        nuevoLabel = Label(self, text="Nuevo Paso: Introduzca los siguientes valores", bg="white", font=("Arial", 11))
-        nuevoLabel.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
-
-        # Aquí puedes añadir más lógica para lo que sigue después de "Sí"
+        self.comandoContinuar()
         
     def abortarMision(self):
         self.valores = [2]
-        # Eliminar los widgets actuales
-        for widget in self.winfo_children():
-            widget.grid_remove()
-
-        # Restaurar los widgets originales
-        self.restore_original_widgets()
-
-        # Volver a crear los botones "Sí" y "No"
-        self.crearBoton("Sí", self.yessir, 0)
-        self.crearBoton("No", self.abortarMision, 1)
+        self.comandoCancelar()
 
     def restore_original_widgets(self):
         """Volver a mostrar los widgets originales en sus posiciones originales"""
@@ -129,8 +116,14 @@ class FieldFrame(Frame):
 
     def aceptar(self):
         self.getValores()
-        print("Valores aceptados:", self.valores)
-
+        if '↓↓ Escoja una opción ↓↓' in self.valores:
+            campos_vacios = []
+            for ocurrencia in self.valores:
+                if ocurrencia == '↓↓ Escoja una opción ↓↓':
+                    campos_vacios.append(self.criterios[self.valores.index(ocurrencia)])
+            raise(ExcepcionSeleccionVacia(campos_vacios))
+        else:
+            print("Valores aceptados:", self.valores)
 
 # Función para ejecutar la ventana principal
 def main():
@@ -138,12 +131,12 @@ def main():
     root.title("FieldFrame Example")
     root.geometry("500x300")
 
-    criterios = ["Nombre", "Apellido", "Edad", "Tamaño", "Educacion"]
-    valores = [["Caja", "Combo", "Muy", "Mela", "Sí"], ["Cajita2"], ["Cajita3"], ["Cajita4"], ["Cajita5"]]
-    habilitado = [True, True, True, True, True]
+    criterios = ["Nombre"]
+    valores = [["Caja"]]
+    habilitado = [True]
 
     # Crear el FieldFrame y agregarlo a la ventana
-    frame = FieldFrame(root, tituloCriterios= "¿Desea", criterios= criterios, tituloValores = "continuar?", valores = valores, habilitado = habilitado, tipo = 1)
+    frame = FieldFrame(root, tituloCriterios= "¿Desea", criterios= criterios, tituloValores = "continuar?", valores = valores, habilitado = habilitado, tipo = 2)
     frame.pack(padx=20, pady=20)
 
     root.mainloop()
