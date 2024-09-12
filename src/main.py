@@ -35,9 +35,6 @@ def reservarMesa():
     Zona.get_zonas().pop(0)
     ciudadPrueba = Ciudad("Comala")
     global label_procesos_bottom
-    
-    label_procesos_top.config(text="Reservar Mesa")
-    label_procesos_mid.config(text="Seleccione si desea continuar o no con el proceso.")
 
     def continuar1():
         global label_procesos_bottom
@@ -111,7 +108,7 @@ def reservarMesa():
             print(nombre_ciudades)
 
             label_procesos_bottom.destroy()
-            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="", criterios=["Ciudad"], tituloValores="", valores=[nombre_ciudades], tipo=2, comandoContinuar=continuar2, habilitado = [True])
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Ciudad"], tituloValores = "Valor ingresado", valores = [nombre_ciudades], tipo = 2, comandoContinuar = continuar2, habilitado = [True])
             label_procesos_bottom.grid(sticky="nsew")
 
         elif eleccion_1 == 2:
@@ -124,9 +121,17 @@ def reservarMesa():
     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea", criterios=None, tituloValores="continuar?", tipo=1, comandoContinuar=continuar1, comandoCancelar=funcionalidad_0)
     label_procesos_bottom.grid(sticky="nsew")
 
+def redimensionar_imagen(image, width, height):
+    return image.resize((width, height), Image.LANCZOS)
+
 # Función para cambiar la imagen
 def cambiar_cv(event):
     global contador_clicks_cv
+
+    rb_lt_size = [frame_rb_lt_img.winfo_width(), frame_rb_lt_img.winfo_height()]
+    rb_rt_size = [frame_rb_rt_img.winfo_width(), frame_rb_rt_img.winfo_height()]
+    rb_lb_size = [frame_rb_lb_img.winfo_width(), frame_rb_lb_img.winfo_height()]
+    rb_rb_size = [frame_rb_rb_img.winfo_width(), frame_rb_rb_img.winfo_height()]
 
     # Listas de rutas de imágenes
     cvs = [
@@ -148,10 +153,10 @@ def cambiar_cv(event):
     ruta_rb_rb = rutas[contador_clicks_cv][3]
     
     # Cargar y redimensionar las imágenes
-    img_lt = Image.open(ruta_rb_lt).resize((456, 272))
-    img_rt = Image.open(ruta_rb_rt).resize((456, 272))
-    img_lb = Image.open(ruta_rb_lb).resize((456, 272))
-    img_rb = Image.open(ruta_rb_rb).resize((456, 272)) #Cambbiar si David dice que se puede pregunta #4
+    img_lt = redimensionar_imagen(Image.open(ruta_rb_lt), rb_lt_size[0], rb_lt_size[1])
+    img_rt = redimensionar_imagen(Image.open(ruta_rb_rt), rb_rt_size[0], rb_rt_size[1])
+    img_lb = redimensionar_imagen(Image.open(ruta_rb_lb), rb_lb_size[0], rb_lb_size[1])
+    img_rb = redimensionar_imagen(Image.open(ruta_rb_rb), rb_rb_size[0], rb_rb_size[1]) #Cambbiar si David dice que se puede pregunta #4
 
     # Convertir las imágenes a PhotoImage
     photo_lt = ImageTk.PhotoImage(img_lt)
@@ -178,11 +183,13 @@ def cambiar_cv(event):
 def cambiar_img_restaurante(event):
     global contador_pasa_img_res
 
+    lb_top_size = [frame_lb_top.winfo_width(), frame_lb_top.winfo_height()]
+
     rutas = ["src/Imagenes/restaurante/restaurante1.png", "src/Imagenes/restaurante/restaurante2.png", "src/Imagenes/restaurante/restaurante3.png", "src/Imagenes/restaurante/restaurante4.png", "src/Imagenes/restaurante/restaurante5.png"]
     
     ruta = rutas[contador_pasa_img_res % 5]
 
-    img = Image.open(ruta).resize((150, 150))
+    img = redimensionar_imagen(Image.open(ruta), lb_top_size[0], lb_top_size[1])
 
     photo = ImageTk.PhotoImage(img)
     
@@ -191,28 +198,42 @@ def cambiar_img_restaurante(event):
 
     contador_pasa_img_res = (contador_pasa_img_res + 1) % 5
 
+def tamano_texto(event, label):
+    # Obtener las dimensiones del label
+    label_width = event.width
+    label_height = event.height
 
+    # Calcular un tamaño de fuente adecuado basado en el tamaño del label
+    new_font_size = min(label_width // 35, label_height // 8)
+    
+    # Establecer la nueva fuente
+    label.config(font=("Arial", new_font_size))
 
 def cambiar_proceso(event, num_func):
     global label_procesos_bottom
     if num_func == 0:
+        label_procesos_top.config(text="Reservar Mesa")
+        label_procesos_mid.config(text="Seleccione si desea continuar o no con el proceso.")
         label_procesos_bottom.destroy()
         label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Descripción", tituloValores="funcionamiento" , criterios=["Para acceder a las funcionalidades diríjase a la pestaña Procesos y Consultas.\nPosteriormente seleccione la funcionalidad a la que desea acceder."], tipo=3)
         label_procesos_bottom.grid(sticky="nsew")
     elif num_func == 1:
         reservarMesa()
-       
-    
 
 def info_aplicacion():
     messagebox.showinfo(title="Información de la aplicación", message="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
 
-def salir_de_funcional():
-    menu_inicio()
-
 def menu_inicio():
     ventana_funcional.withdraw()
     ventana_inicio.deiconify()
+    ventana_inicio.state("zoomed")
+    ventana_inicio.geometry("1080x750")
+
+def menu_funcional():
+    ventana_inicio.withdraw()
+    ventana_funcional.deiconify()
+    ventana_funcional.state("zoomed")
+    ventana_funcional.geometry("1080x750")
 
 def funcionalidad_0():
     cambiar_proceso(None, 0)
@@ -238,17 +259,15 @@ def funcionalidad_5():
     pass
 
 hojas_de_vida = ["Juan José",  "Colorado", "Stiven"]
-
-def menu_funcional():
-    ventana_inicio.withdraw()
-    ventana_funcional.deiconify()
     
 #MENU INICIO
 ventana_inicio = Tk()
 ventana_inicio.title("Menú Inicio")
-ventana_inicio.resizable(True, True)
-ventana_inicio.geometry("500x1080")
+ventana_inicio.state("zoomed")
+ventana_inicio.geometry("1080x750")
 ventana_inicio.iconbitmap("src/Imagenes/susy-oveja.ico")
+ventana_inicio.config(bg="#838383")
+
 menu_bar_inicio = Menu(ventana_inicio)
 ventana_inicio.config(menu = menu_bar_inicio)
 menu_inicial = Menu(menu_bar_inicio, tearoff = 0)
@@ -258,50 +277,54 @@ menu_inicial.add_separator()
 menu_inicial.add_command(label = "Salir", command = ventana_inicio.quit)
 
 #Frame P1
-frame_left = Frame(ventana_inicio, bd = 2, relief="solid", width=100)
+frame_left = Frame(ventana_inicio, bg = "#696969", bd = 2, relief="solid", width=100)
 frame_left.pack(side = LEFT, fill = BOTH, expand = True, padx = 10, pady = 10)
 frame_left.pack_propagate(False)
 
 #Frame P3
-frame_left_top = Frame(frame_left, bg = "green", bd = 2, relief="solid")
+frame_left_top = Frame(frame_left, bd = 2, relief="solid", bg = "#545454")
 frame_left_top.pack(side = TOP, fill = BOTH, expand = True, padx=10, pady = 10)
 frame_left_top.pack_propagate(False)
 
 #Mensaje Bienvenida
-mensaje_bienvenida = Label(frame_left_top, text="Bienvenidos sean al Restaurante Orientado a objetos", font=("Arial", 20), fg="#000")
+mensaje_bienvenida = Label(frame_left_top, text="Bienvenidos sean al Restaurante Orientado a Objetos", bg = "#545454", fg="#fff")
 mensaje_bienvenida.pack(expand = True, fill = BOTH, padx = 10, pady = 10)
+mensaje_bienvenida.bind("<Configure>", lambda event: tamano_texto(event, mensaje_bienvenida))
 
 #Frame P4
-frame_left_bottom = Frame(frame_left, height=200, width=100, bg = "yellow", bd = 2, relief="solid")
+frame_left_bottom = Frame(frame_left, height=200, bg = "#545454", bd = 2, relief="solid")
 frame_left_bottom.pack(side = BOTTOM, fill = BOTH, expand = True, padx = 10, pady = 10)
 frame_left_bottom.pack_propagate(False)
 
-frame_lb_top = Label(frame_left_bottom, bg = "pink", bd = 2, relief="solid", width=500, height=500)
+funcional_button = Button(frame_left_bottom, text="Acceder a las funcionalidades", bd = 4, font=("Arial", 20), bg = "#434343", fg="#fff", command = lambda: menu_funcional())   
+funcional_button.pack(side = BOTTOM, fill = X, padx = 10, pady = 10)
+
+frame_lb_top = Label(frame_left_bottom, bg = "white", relief="solid", bd = 2)
 frame_lb_top.bind("<Leave>", cambiar_img_restaurante)
-frame_lb_top.pack(side = TOP, fill = BOTH, expand = True)
+frame_lb_top.pack(side = TOP, fill = BOTH, expand = True, padx = 10, pady = 10)
+
+ventana_inicio.update()
 
 cambiar_img_restaurante(None)
 
-funcional_button = Button(frame_left_bottom, text="Acceder a las funcionalidades", font=("Arial", 20), fg="#000", anchor="n", command = lambda: menu_funcional())   
-funcional_button.pack(side = BOTTOM, fill = X)
-
 #Frame P2
-frame_right = Frame(ventana_inicio, bg = "blue", bd = 2, relief="solid", width=100)
+frame_right = Frame(ventana_inicio, bg = "#696969", bd = 2, relief="solid", width=100)
 frame_right.pack(side = RIGHT, fill = BOTH, expand = True, padx = 10, pady = 10)
 frame_right.pack_propagate(False)
 
 #Frame P5
-frame_right_top = Frame(frame_right, bg = "purple", bd = 2, relief="solid")
+frame_right_top = Frame(frame_right, bd = 2, relief="solid", bg = "#545454")
 frame_right_top.pack(side = TOP, fill = BOTH, expand = True, padx=10, pady = 10)
 frame_right_top.pack_propagate(False)
 
 #Descripción CV
-right_top = Label(frame_right_top, bg = "white", text = "Hoja de Vida de los desarrolladores", font=("Arial",12))
+right_top = Label(frame_right_top, text = "Hoja de Vida de los desarrolladores", bg = "#545454", fg="#fff")
 right_top.bind("<Button-1>", cambiar_cv)
+right_top.bind("<Configure>", lambda event: tamano_texto(event, right_top))
 right_top.pack(expand = True, fill = BOTH, padx = 10, pady = 10)
 
 #Frame P6
-frame_right_bottom = Frame(frame_right, height=200, width = 100, bg = "orange", bd = 2, relief="solid")
+frame_right_bottom = Frame(frame_right, height=200, width = 100, bg = "#545454", bd = 2, relief="solid")
 frame_right_bottom.pack(side = BOTTOM, fill = BOTH, expand = True, padx = 10, pady = 10)
 frame_right_bottom.grid_propagate(False)
 
@@ -311,29 +334,36 @@ frame_right_bottom.grid_rowconfigure(1, weight=1)
 frame_right_bottom.grid_columnconfigure(1, weight=1)
 
 #Imagen recuadro superior izquierdo del recuadro inferior derecho
-frame_rb_lt_img = Label(frame_right_bottom, bd=2, relief="solid", width=456, height=272)
+frame_rb_lt_img = Label(frame_right_bottom, bd = 2, relief="solid")
 frame_rb_lt_img.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
 #Imagen recuadro superior derecho del recuadro inferior derecho
-frame_rb_rt_img = Label(frame_right_bottom, bd=2, relief="solid", width=456, height=272)
+frame_rb_rt_img = Label(frame_right_bottom, bd = 2, relief="solid")
 frame_rb_rt_img.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
 
 #Imagen recuadro inferior del recuadro inferior derecho
-frame_rb_lb_img = Label(frame_right_bottom, bd=2, relief="solid", width=456, height=272)
+frame_rb_lb_img = Label(frame_right_bottom, bd = 2, relief="solid")
 frame_rb_lb_img.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
 #Imagen recuadro inferior del recuadro inferior derecho
-frame_rb_rb_img = Label(frame_right_bottom, bd=2, relief="solid", width=456, height=272)
+frame_rb_rb_img = Label(frame_right_bottom, bd = 2, relief="solid") #, width=456, height=272
 frame_rb_rb_img.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+
+ventana_inicio.update()
 
 cambiar_cv(None)
 
 #Menu funcional
 ventana_funcional = Tk()
 ventana_funcional.title("Menú funcional")
-ventana_funcional.resizable(True, True)
-ventana_funcional.geometry("500x1080")
+ventana_funcional.state("zoomed")
+ventana_funcional.geometry("1080x750")
 ventana_funcional.iconbitmap('src/Imagenes/susy-oveja.ico')
+ventana_funcional.config(bg="#838383")
+
+#Formatear texto de las Cajacombo
+ventana_funcional.option_add('*TCombobox*Listbox.font', ('Arial', 15))
+ventana_funcional.option_add('*TCombobox.font', ('Arial', 15))
 
 #Menu superior ventana funcional
 menu_bar_funcional = Menu(ventana_funcional)
@@ -342,7 +372,7 @@ menu_archivo = Menu(menu_bar_funcional, tearoff = 0)
 menu_bar_funcional.add_cascade(label = "Archivo", menu = menu_archivo)
 menu_archivo.add_command(label = "Aplicación", command = info_aplicacion)
 menu_archivo.add_separator()
-menu_archivo.add_command(label = "Salir", command = salir_de_funcional)
+menu_archivo.add_command(label = "Salir", command = menu_inicio)
 
 menu_procesos = Menu(menu_bar_funcional, tearoff = 0)
 menu_bar_funcional.add_cascade(label = "Procesos y Consultas", menu = menu_procesos)
@@ -371,7 +401,7 @@ menu_bar_funcional.add_cascade(label = "Ayuda", menu = menu_ayuda)
 menu_ayuda.add_command(label = "Acerca de")
 
 #Frame donde estará la información de las funcionalidades
-frame_procesos = Frame(ventana_funcional, bd = 2, relief="solid")
+frame_procesos = Frame(ventana_funcional, bd = 2, relief="solid", bg="#696969")
 frame_procesos.pack(fill = BOTH, expand = True, padx = 10, pady = 10)
 
 frame_procesos.grid_rowconfigure(0, weight=1)
@@ -381,26 +411,26 @@ frame_procesos.grid_rowconfigure(2, weight=1)
 
 #Frames frame_procesos
 #Titulo funcionalidad
-frame_procesos_top = Frame(frame_procesos, bd=2, height=10, relief="solid")
-frame_procesos_top.grid(row = 0, padx = 10, pady = 0, sticky="nsew")
+frame_procesos_top = Frame(frame_procesos, bd = 2, height=40, relief="solid")
+frame_procesos_top.grid(row = 0, padx = 10, pady = 10, sticky="nsew")
 frame_procesos_top.grid_propagate(False)
 frame_procesos_top.grid_rowconfigure(0, weight=1)
 frame_procesos_top.grid_columnconfigure(0, weight=1)
-label_procesos_top = Label(frame_procesos_top, text="Funcionalidades", font=("Arial", 20), fg="#000")
+label_procesos_top = Label(frame_procesos_top, text="Funcionalidades", font=("Arial", 20), bg = "#545454", fg="#fff")
 label_procesos_top.grid(sticky="nsew")
 
 #Desripcion funcionalidad
-frame_procesos_mid = Frame(frame_procesos, bd=2, height=40, relief="solid")
-frame_procesos_mid.grid(row = 1, padx = 10, pady = 0, sticky="nsew")
+frame_procesos_mid = Frame(frame_procesos, bd = 2, height=40, relief="solid")
+frame_procesos_mid.grid(row = 1, padx = 10, pady = 10, sticky="nsew")
 frame_procesos_mid.grid_propagate(False)
 frame_procesos_mid.grid_rowconfigure(0, weight=1)
 frame_procesos_mid.grid_columnconfigure(0, weight=1)
-label_procesos_mid = Label(frame_procesos_mid, text="Descripciones", font=("Arial", 20), fg="#000")
+label_procesos_mid = Label(frame_procesos_mid, text="Descripciones", font=("Arial", 20), bg = "#545454", fg="#fff")
 label_procesos_mid.grid(sticky="nsew")
 
 #Campo FieldFrame
-frame_procesos_bottom = Frame(frame_procesos, bd=2, height=500, relief="solid")
-frame_procesos_bottom.grid(row = 2, padx = 10, pady = 0, sticky="nsew")
+frame_procesos_bottom = Frame(frame_procesos, bd = 2, height=500, relief="solid", bg = "#545454")
+frame_procesos_bottom.grid(row = 2, padx = 10, pady = 10, sticky="nsew")
 frame_procesos_bottom.grid_propagate(False)
 frame_procesos_bottom.grid_rowconfigure(0, weight=1)
 frame_procesos_bottom.grid_columnconfigure(0, weight=1)
