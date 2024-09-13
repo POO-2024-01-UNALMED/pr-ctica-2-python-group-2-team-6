@@ -52,46 +52,38 @@ def reservarMesa():
                 eleccion_3 = label_procesos_bottom.valores[0] #Obtener valor seleccionado
                 print("Main:", eleccion_3)
                 
-                # Utilidad.limpiar_pantalla()
-                        encendido2 = True
-                        while encendido2:
-                            # Utilidad.limpiar_pantalla()
-                            print(f"Zonas de {ciudad.get_nombre()}:")
-                            zonas_con_restaurante = Utilidad.listado_zonas_con_restaurante_ciudad(ciudad)
-                            print("Escriba un número para elegir la zona.")
-                            eleccion3 = Utilidad.readInt()
-                            if eleccion3 > len(zonas_con_restaurante) or eleccion3 < 1:
-                                print(f"Ingrese un número válido [1 - {len(zonas_con_restaurante)}].")
-                            else:
-                                # Utilidad.limpiar_pantalla()
-                                zona = zonas_con_restaurante[eleccion3 - 1]
-                                encendido3 = True
-                                while encendido3: # !(WE lOVE MALAFIRMA)
-                                    # Utilidad.limpiar_pantalla()
-                                    print(f"Restaurantes de {zona.get_nombre()}:")
-                                    Utilidad.listado_restaurantes_zona(zona)
-                                    print("Escriba un número para elegir el restaurante.")
-                                    eleccion4 = Utilidad.readInt()
-                                    if eleccion4 > len(zona.get_restaurantes()) or eleccion4 < 1:
-                                        print(f"Ingrese un número válido [1 - {len(zona.get_restaurantes())}].")
-                                    else:
-                                        cliente = seleccionMesa(zona.get_restaurantes()[eleccion4 - 1])
-                                        restaurante = extras_reserva(cliente)
-                                        pago_anticipado(restaurante)
-                                        encendido3 = False
-                                encendido2 = False
-                else:
-                    print("Lo sentimos, pero estas son las únicas ciudades donde tenemos restaurantes de nuestra cadena.")
-                    print("""
-                            ¿Desea elegir otra ciudad?
-                            1. Sí.
-                            2. No.
-                            Escriba un número para elegir su opción.""")
-                    eleccion4 = Utilidad.readInt()
-                    if eleccion4 == 1:
-                        reservarMesa()
-                    else:
-                        pass
+                def continuar4():
+                    #Definimos el restaurante seleccionado
+                    restaurante_actual = None
+                    
+                    for restaurante in Restaurante.get_restaurantes():
+                        if restaurante.get_nombre() == eleccion_3:
+                            restaurante_actual = restaurante
+                            break
+                    
+                    #Llamamos a seleccionMesa y le pasamos como parámetro el restaurante seleccionado.
+                    cliente = seleccionMesa(restaurante_actual)
+
+                    #Llamamos a extras_reserva y le pasamos como parámetro cliente
+                    restaurante = extras_reserva(cliente)
+
+                    #llamamos a pago_anticipado y le pasamos como parámetro restaurante
+                    pago_anticipado(restaurante)
+                
+                #Elegir restaurante donde reservar mesa
+                zona_actual = None
+                for zona in Zona.get_zonas(): 
+                    if zona.get_nombre() == eleccion_2:
+                        zona_actual = zona
+                        break
+                
+                nombre_restaurantes = []
+                for restaurante in zona_actual.get_restaurantes():
+                    nombre_zonas.append(restaurante.get_nombre())
+                print(nombre_zonas)
+                label_procesos_bottom.destroy()
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Restaurante"], tituloValores = "Valor ingresado", valores = [nombre_restaurantes], tipo = 2, comandoContinuar = continuar4, habilitado = [True])
+                label_procesos_bottom.grid(sticky="nsew")
             
             #Elegir zona donde reservar mesa
             ciudad_actual = None
@@ -102,7 +94,8 @@ def reservarMesa():
             
             nombre_zonas = []
             for zona in ciudad_actual.get_zonas():
-                nombre_zonas.append(zona.get_nombre())
+                if zona.get_restaurantes() != []:
+                    nombre_zonas.append(zona.get_nombre())
             print(nombre_zonas)
             label_procesos_bottom.destroy()
             label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Zona"], tituloValores = "Valor ingresado", valores = [nombre_zonas], tipo = 2, comandoContinuar = continuar3, habilitado = [True])
@@ -225,6 +218,9 @@ def cambiar_proceso(event, num_func):
 
 def info_aplicacion():
     messagebox.showinfo(title="Información de la aplicación", message="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
+
+def info_aplicacion_p3():
+    mensaje_bienvenida.config(text="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
 
 def menu_inicio():
     ventana_funcional.withdraw()
