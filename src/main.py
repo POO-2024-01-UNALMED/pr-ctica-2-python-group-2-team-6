@@ -417,6 +417,9 @@ def funcionalidad_5():
     cambiar_proceso(None, 5)
     pass
 
+def acerca_de():
+    messagebox.showinfo("Acerca de", "Autores:\n- Juan José Arango Marín.\n- Samuel Colorado Castrillón.\n- Stiven Saldarriaga Mayorga.")
+
 hojas_de_vida = ["Juan José",  "Colorado", "Stiven"]
     
 #MENU INICIO
@@ -557,7 +560,7 @@ menu_procesos.add_command(label = "Funcionalidad 5", command = funcionalidad_5)
 
 menu_ayuda = Menu(menu_bar_funcional, tearoff=0)
 menu_bar_funcional.add_cascade(label = "Ayuda", menu = menu_ayuda)
-menu_ayuda.add_command(label = "Acerca de")
+menu_ayuda.add_command(label = "Acerca de", command = acerca_de)
 
 #Frame donde estará la información de las funcionalidades
 frame_procesos = Frame(ventana_funcional, bd = 2, relief="solid", bg="#696969")
