@@ -30,14 +30,111 @@ contador_clicks_cv = 0
 contador_pasa_img_res = 0
 funcionalidad_actual = 0
 
+def reservar_mesa():
+    Ciudad.get_ciudades().pop(0)
+    Zona.get_zonas().pop(0)
+    comala = Ciudad("Comala")
+    zona_centro = Zona(14, "Centro", comala)
+    comala.agregar_zona(zona_centro)
+    casa_stiven = Restaurante(10, "Casa Stiven", [], comala, zona_centro, False)
+    zona_centro.get_restaurantes().append(casa_stiven)
+
+    global label_procesos_bottom
+
+    def f1_i1_seleccion_ciudad():
+        global label_procesos_bottom
+        label_procesos_mid.config(text="Seleccione la ciudad donde desea reservar su mesa.")
+
+        def f1_i1_seleccion_zona():
+            global label_procesos_bottom
+            label_procesos_mid.config(text="Seleccione la zona donde desea reservar su mesa.")
+            nombre_ciudad_elegida = label_procesos_bottom.valores[0] #Obtener valor seleccionado
+            print("Main:", nombre_ciudad_elegida)
+            
+            def f1_i1_seleccion_restaurante():
+                global label_procesos_bottom
+                label_procesos_mid.config(text="Selecciona el restaurante donde desea reservar su mesa")
+                nombre_zona_elegida = label_procesos_bottom.valores[0] #Obtener valor seleccionado
+                print("Main:", nombre_zona_elegida)
+                
+                def llamar_interacciones():
+                    #Definimos el restaurante seleccionado
+                    restaurante_actual = None
+
+                    nombre_restaurante_elegido = label_procesos_bottom.valores[0] #Obtener valor seleccionado
+                    
+                    for restaurante in Restaurante.get_restaurantes():
+                        if restaurante.get_nombre() == nombre_restaurante_elegido:
+                            restaurante_actual = restaurante
+                            break
+                    
+                    #Llamamos a seleccion_mesa y le pasamos como parámetro el restaurante seleccionado.
+                    cliente = seleccion_mesa(restaurante_actual)
+
+                    #Llamamos a extras_reserva y le pasamos como parámetro cliente
+                    restaurante = extras_reserva(cliente)
+
+                    #llamamos a pago_anticipado y le pasamos como parámetro restaurante
+                    pago_anticipado(restaurante)
+                
+                #Elegir restaurante donde reservar mesa
+                zona_actual = None
+                for zona in Zona.get_zonas(): 
+                    if zona.get_nombre() == nombre_zona_elegida:
+                        zona_actual = zona
+                        break
+                
+                nombre_restaurantes = []
+                for restaurante in zona_actual.get_restaurantes():
+                    nombre_restaurantes.append(restaurante.get_nombre())
+                print("Restaurantes:", nombre_restaurantes)
+
+                label_procesos_bottom.destroy()
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Restaurante"], tituloValores = "Valor ingresado", valores = [nombre_restaurantes], tipo = 2, comandoContinuar = llamar_interacciones, habilitado = [True])
+                label_procesos_bottom.grid(sticky="nsew")
+            
+            #Elegir zona donde reservar mesa
+            ciudad_actual = None
+            for ciudad in Ciudad.get_ciudades(): 
+                if ciudad.get_nombre() == nombre_ciudad_elegida:
+                    ciudad_actual = ciudad
+                    break
+            
+            nombre_zonas = []
+            for zona in ciudad_actual.get_zonas_ciudad():
+                if zona.get_restaurantes() != []:
+                    nombre_zonas.append(zona.get_nombre())
+            
+            print("Zonas:", nombre_zonas)
+
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Zona"], tituloValores = "Valor ingresado", valores = [nombre_zonas], tipo = 2, comandoContinuar = f1_i1_seleccion_restaurante, habilitado = [True])
+            label_procesos_bottom.grid(sticky="nsew")
+
+        #Elegir ciudad donde reservar mesa
+        nombre_ciudades = []
+        for ciudad in Ciudad.get_ciudades(): 
+            nombre_ciudades.append(ciudad.get_nombre())
+        print("Ciudades:", nombre_ciudades)
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Ciudad"], tituloValores = "Valor ingresado", valores = [nombre_ciudades], tipo = 2, comandoContinuar = f1_i1_seleccion_zona, habilitado = [True])
+        label_procesos_bottom.grid(sticky="nsew")
+    
+    label_procesos_mid.config(text="Seleccione sí o no dependiendo de si quiere continuar")
+    #Sí o No desea continuar con la funcionalidad 1
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea", criterios=None, tituloValores="continuar?", tipo=1, comandoContinuar=f1_i1_seleccion_ciudad, comandoCancelar=funcionalidad_0)
+    label_procesos_bottom.grid(sticky="nsew")
+
 def seleccion_mesa(restaurante):
-    clientes = []
-    print("Ingrese el nombre del cliente:")
-    nombre = input().capitalize()
-    print("Ingrese la cédula del cliente:")
-    cedula = Utilidad.readInt()
-    print("Ingrese la placa del vehículo del cliente (en caso de no tener escribir 0):")
-    placa_vehiculo = input()
+    global label_procesos_bottom
+
+    label_procesos_mid.config(text="Ingrese sus datos personales.\nEn caso de no tener vehículo ingrese únicamente el número 0.")
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Nombre", "Cédula", "Placa Vehículo"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True, True])
+    label_procesos_bottom.grid(sticky="nsew")
+
     cliente = Cliente(nombre, cedula, placa_vehiculo, Factura())
 
     if Utilidad.existe_cliente(cliente):
@@ -179,103 +276,6 @@ def seleccion_mesa(restaurante):
     print(restaurante)
     return cliente
 
-def reservarMesa():
-    Ciudad.get_ciudades().pop(0)
-    Zona.get_zonas().pop(0)
-    comala = Ciudad("Comala")
-    zona_centro = Zona(14, "Centro", comala)
-    comala.agregar_zona(zona_centro)
-    casa_stiven = Restaurante(10, "Casa Stiven", [], comala, zona_centro, False)
-    zona_centro.get_restaurantes().append(casa_stiven)
-
-    global label_procesos_bottom
-
-    def f1_i1_seleccion_ciudad():
-        global label_procesos_bottom
-        label_procesos_mid.config(text="Seleccione la ciudad donde desea reservar su mesa.")
-
-        def f1_i1_seleccion_zona():
-            global label_procesos_bottom
-            label_procesos_mid.config(text="Seleccione la zona donde desea reservar su mesa.")
-            nombre_ciudad_elegida = label_procesos_bottom.valores[0] #Obtener valor seleccionado
-            print("Main:", nombre_ciudad_elegida)
-            
-            def f1_i1_seleccion_restaurante():
-                global label_procesos_bottom
-                label_procesos_mid.config(text="Selecciona el restaurante donde desea reservar su mesa")
-                nombre_zona_elegida = label_procesos_bottom.valores[0] #Obtener valor seleccionado
-                print("Main:", nombre_zona_elegida)
-                
-                def llamar_interacciones():
-                    #Definimos el restaurante seleccionado
-                    restaurante_actual = None
-
-                    nombre_restaurante_elegido = label_procesos_bottom.valores[0] #Obtener valor seleccionado
-                    
-                    for restaurante in Restaurante.get_restaurantes():
-                        if restaurante.get_nombre() == nombre_restaurante_elegido:
-                            restaurante_actual = restaurante
-                            break
-                    
-                    #Llamamos a seleccion_mesa y le pasamos como parámetro el restaurante seleccionado.
-                    cliente = seleccion_mesa(restaurante_actual)
-
-                    #Llamamos a extras_reserva y le pasamos como parámetro cliente
-                    restaurante = extras_reserva(cliente)
-
-                    #llamamos a pago_anticipado y le pasamos como parámetro restaurante
-                    pago_anticipado(restaurante)
-                
-                #Elegir restaurante donde reservar mesa
-                zona_actual = None
-                for zona in Zona.get_zonas(): 
-                    if zona.get_nombre() == nombre_zona_elegida:
-                        zona_actual = zona
-                        break
-                
-                nombre_restaurantes = []
-                for restaurante in zona_actual.get_restaurantes():
-                    nombre_restaurantes.append(restaurante.get_nombre())
-                print("Restaurantes:", nombre_restaurantes)
-
-                label_procesos_bottom.destroy()
-                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Restaurante"], tituloValores = "Valor ingresado", valores = [nombre_restaurantes], tipo = 2, comandoContinuar = llamar_interacciones, habilitado = [True])
-                label_procesos_bottom.grid(sticky="nsew")
-            
-            #Elegir zona donde reservar mesa
-            ciudad_actual = None
-            for ciudad in Ciudad.get_ciudades(): 
-                if ciudad.get_nombre() == nombre_ciudad_elegida:
-                    ciudad_actual = ciudad
-                    break
-            
-            nombre_zonas = []
-            for zona in ciudad_actual.get_zonas_ciudad():
-                if zona.get_restaurantes() != []:
-                    nombre_zonas.append(zona.get_nombre())
-            
-            print("Zonas:", nombre_zonas)
-
-            label_procesos_bottom.destroy()
-            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Zona"], tituloValores = "Valor ingresado", valores = [nombre_zonas], tipo = 2, comandoContinuar = f1_i1_seleccion_restaurante, habilitado = [True])
-            label_procesos_bottom.grid(sticky="nsew")
-
-        #Elegir ciudad donde reservar mesa
-        nombre_ciudades = []
-        for ciudad in Ciudad.get_ciudades(): 
-            nombre_ciudades.append(ciudad.get_nombre())
-        print("Ciudades:", nombre_ciudades)
-        label_procesos_bottom.destroy()
-        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Ciudad"], tituloValores = "Valor ingresado", valores = [nombre_ciudades], tipo = 2, comandoContinuar = f1_i1_seleccion_zona, habilitado = [True])
-        label_procesos_bottom.grid(sticky="nsew")
-    
-    label_procesos_top.config(text="Reservar Mesa")
-    label_procesos_mid.config(text="Seleccione sí o no dependiendo de si quiere continuar")
-    #Sí o No desea continuar con la funcionalidad 1
-    label_procesos_bottom.destroy()
-    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea", criterios=None, tituloValores="continuar?", tipo=1, comandoContinuar=f1_i1_seleccion_ciudad, comandoCancelar=funcionalidad_0)
-    label_procesos_bottom.grid(sticky="nsew")
-
 def redimensionar_imagen(image, width, height):
     return image.resize((width, height), Image.LANCZOS)
 
@@ -367,13 +367,14 @@ def tamano_texto(event, label):
 def cambiar_proceso(event, num_func):
     global label_procesos_bottom
     if num_func == 0:
-        label_procesos_top.config(text="Reservar Mesa")
-        label_procesos_mid.config(text="Seleccione si desea continuar o no con el proceso.")
+        label_procesos_top.config(text="Funcionalidades")
+        label_procesos_mid.config(text="Descripciones")
         label_procesos_bottom.destroy()
         label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Descripción", tituloValores="funcionamiento" , criterios=["Para acceder a las funcionalidades diríjase a la pestaña Procesos y Consultas.\nPosteriormente seleccione la funcionalidad a la que desea acceder."], tipo=3)
         label_procesos_bottom.grid(sticky="nsew")
     elif num_func == 1:
-        reservarMesa()
+        label_procesos_top.config(text="Reservar Mesa")
+        reservar_mesa()
 
 def info_aplicacion():
     messagebox.showinfo(title="Información de la aplicación", message="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
@@ -569,7 +570,7 @@ frame_procesos.grid_rowconfigure(2, weight=1)
 
 #Frames frame_procesos
 #Titulo funcionalidad
-frame_procesos_top = Frame(frame_procesos, bd = 2, height=40, relief="solid")
+frame_procesos_top = Frame(frame_procesos, bd = 2, relief="solid")
 frame_procesos_top.grid(row = 0, padx = 10, pady = 10, sticky="nsew")
 frame_procesos_top.grid_propagate(False)
 frame_procesos_top.grid_rowconfigure(0, weight=1)
@@ -578,7 +579,7 @@ label_procesos_top = Label(frame_procesos_top, text="Funcionalidades", font=("Ar
 label_procesos_top.grid(sticky="nsew")
 
 #Desripcion funcionalidad
-frame_procesos_mid = Frame(frame_procesos, bd = 2, height=40, relief="solid")
+frame_procesos_mid = Frame(frame_procesos, bd = 2, relief="solid")
 frame_procesos_mid.grid(row = 1, padx = 10, pady = 10, sticky="nsew")
 frame_procesos_mid.grid_propagate(False)
 frame_procesos_mid.grid_rowconfigure(0, weight=1)
@@ -587,7 +588,7 @@ label_procesos_mid = Label(frame_procesos_mid, text="Descripciones", font=("Aria
 label_procesos_mid.grid(sticky="nsew")
 
 #Campo FieldFrame
-frame_procesos_bottom = Frame(frame_procesos, bd = 2, height=500, relief="solid", bg = "#545454")
+frame_procesos_bottom = Frame(frame_procesos, bd = 2, height = 300, relief="solid", bg = "#545454")
 frame_procesos_bottom.grid(row = 2, padx = 10, pady = 10, sticky="nsew")
 frame_procesos_bottom.grid_propagate(False)
 frame_procesos_bottom.grid_rowconfigure(0, weight=1)
@@ -608,6 +609,66 @@ ventana_inicio.mainloop()
 
 #Funcionalidad 1
 #Interacción 1
+
+
+
+def seleccionFecha(restaurante, tipo_mesa, mesas_elegidas):
+    elecciones = []
+    anios = []
+    meses = []
+
+    for fechas_mes in restaurante.get_fechas_disponibles():
+        if fechas_mes[0] not in anios:
+            anios.append(fechas_mes[0])
+
+    print("Años disponibles:")
+    for i, anio in enumerate(anios):
+        print(f"{i + 1}. {anio}.")
+
+    print(f"Escriba un número para elegir su opción [1 - {len(anios)}].")
+    eleccion1 = Utilidad.readInt()
+
+    encendido2 = True
+    while encendido2:
+        print("Meses disponibles:")
+        i = 1
+        for fechas_mes in restaurante.get_fechas_disponibles():
+            if anios[eleccion1 - 1] == fechas_mes[0]:
+                print(f"{i}. {fechas_mes[1]}.")
+                meses.append(fechas_mes[1])
+                i += 1
+
+        print(f"Escriba un número para elegir su opción [1 - {i - 1}].")
+        eleccion2 = Utilidad.readInt()
+
+        if 1 <= eleccion2 <= len(meses):
+            encendido2 = False
+        else:
+            print("Ingrese un número válido")
+
+    encendido3 = True
+    indice_mes = 0
+    while encendido3:
+        print("Días disponibles:")
+        for i, fechas in enumerate(restaurante.get_fechas_disponibles()):
+            if meses[eleccion2 - 1] == fechas[1]:
+                indice_mes = i
+                break
+
+        for i in range(2, len(restaurante.get_fechas_disponibles()[indice_mes])):
+            print(f"{i - 1}. {restaurante.get_fechas_disponibles()[indice_mes][i]}.")
+
+        print(f"Escriba un número para elegir su opción [1 - {len(restaurante.get_fechas_disponibles()[indice_mes]) - 2}].")
+        eleccion3 = Utilidad.readInt()
+
+        if 1 <= eleccion3 <= len(restaurante.get_fechas_disponibles()[indice_mes]) - 2:
+            encendido3 = False
+        else:
+            print("Ingrese un número válido")
+
+    elecciones.extend([anios[eleccion1 - 1], meses[eleccion2 - 1], restaurante.get_fechas_disponibles()[indice_mes][eleccion3 + 1]])
+    print(elecciones)
+    return elecciones
 
 def seleccion_mesa(restaurante):
     clientes = []
@@ -757,64 +818,6 @@ def seleccion_mesa(restaurante):
 
     print(restaurante)
     return cliente
-
-def seleccionFecha(restaurante, tipo_mesa, mesas_elegidas):
-    elecciones = []
-    anios = []
-    meses = []
-
-    for fechas_mes in restaurante.get_fechas_disponibles():
-        if fechas_mes[0] not in anios:
-            anios.append(fechas_mes[0])
-
-    print("Años disponibles:")
-    for i, anio in enumerate(anios):
-        print(f"{i + 1}. {anio}.")
-
-    print(f"Escriba un número para elegir su opción [1 - {len(anios)}].")
-    eleccion1 = Utilidad.readInt()
-
-    encendido2 = True
-    while encendido2:
-        print("Meses disponibles:")
-        i = 1
-        for fechas_mes in restaurante.get_fechas_disponibles():
-            if anios[eleccion1 - 1] == fechas_mes[0]:
-                print(f"{i}. {fechas_mes[1]}.")
-                meses.append(fechas_mes[1])
-                i += 1
-
-        print(f"Escriba un número para elegir su opción [1 - {i - 1}].")
-        eleccion2 = Utilidad.readInt()
-
-        if 1 <= eleccion2 <= len(meses):
-            encendido2 = False
-        else:
-            print("Ingrese un número válido")
-
-    encendido3 = True
-    indice_mes = 0
-    while encendido3:
-        print("Días disponibles:")
-        for i, fechas in enumerate(restaurante.get_fechas_disponibles()):
-            if meses[eleccion2 - 1] == fechas[1]:
-                indice_mes = i
-                break
-
-        for i in range(2, len(restaurante.get_fechas_disponibles()[indice_mes])):
-            print(f"{i - 1}. {restaurante.get_fechas_disponibles()[indice_mes][i]}.")
-
-        print(f"Escriba un número para elegir su opción [1 - {len(restaurante.get_fechas_disponibles()[indice_mes]) - 2}].")
-        eleccion3 = Utilidad.readInt()
-
-        if 1 <= eleccion3 <= len(restaurante.get_fechas_disponibles()[indice_mes]) - 2:
-            encendido3 = False
-        else:
-            print("Ingrese un número válido")
-
-    elecciones.extend([anios[eleccion1 - 1], meses[eleccion2 - 1], restaurante.get_fechas_disponibles()[indice_mes][eleccion3 + 1]])
-    print(elecciones)
-    return elecciones
 
 def extras_reserva(cliente):
     restaurante = cliente.get_restaurante()
@@ -1598,7 +1601,7 @@ def liberar_mesa(mesa):
                 for cliente in mesa.get_clientes():
                     if cliente.get_cedula() == cedula:
                         if cliente.get_afiliacion() != Cliente.Afiliacion.NINGUNA:
-                            reservarMesa()
+                            reservar_mesa()
                         else:
                             print("¿Desea afiliarse?")
                             print("""
@@ -1672,9 +1675,9 @@ def liberar_mesa(mesa):
                                             print("Número no válido.")
                                 else:
                                     print("Número no válido.")
-                                reservarMesa()
+                                reservar_mesa()
                             elif eleccion2 == 2:
-                                reservarMesa()
+                                reservar_mesa()
         elif eleccion == 2:
             for cliente in mesa.get_clientes():
                 if cliente.get_afiliacion() == Cliente.Afiliacion.NINGUNA:
@@ -2734,7 +2737,7 @@ def crear_ingrediente(cantidad_ingredientes, ingredientes_plato):
 
 
 #Funcionalidad 5
-# def reservarMesa():
+# def reservar_mesa():
 #     global label_procesos_bottom
 
 #     label_procesos_bottom.destroy()
@@ -3395,7 +3398,7 @@ def datos_hora_reserva(restaurante, factura):
 #     print("6. Salir.")
 #     eleccion = Utilidad.readInt()
 #     if eleccion == 1:
-#         reservarMesa()
+#         reservar_mesa()
 #     elif eleccion == 2:
 #         ordenar_comida()
 #     elif eleccion == 3:
