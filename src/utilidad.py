@@ -1,5 +1,5 @@
 from gestorAplicacion.Entorno.ciudad import Ciudad
-
+from gestorAplicacion.Usuario.cliente import Cliente
 
 
 class Utilidad:
@@ -34,5 +34,17 @@ class Utilidad:
                 print(f"{i + 1}. {ciudad.get_zonas_ciudad()[i].get_nombre()}")
         else:
             print("La ciudad no tiene zonas")
+    
+    def existe_cliente(cliente_consulta):
+        for cliente in Cliente.get_clientes():
+            if cliente_consulta.get_cedula() == cliente.get_cedula():
+                return True
+            else:
+                return False
+    
+    def cliente_cedula(cliente_consulta):
+        for cliente in Cliente.get_clientes():
+            if cliente_consulta.get_cedula() == cliente.get_cedula():
+                return cliente
 
 #Es posible que ni siquiera se usen estos métodos, así que de ser necesarios, los traduzco.

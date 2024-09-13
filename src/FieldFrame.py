@@ -26,6 +26,16 @@ class FieldFrame(Frame):
         self.grid_rowconfigure(3, weight=1)
         self.grid_rowconfigure(4, weight=1)
         self.grid_rowconfigure(5, weight=1)
+        self.grid_rowconfigure(6, weight=1)
+        self.grid_rowconfigure(7, weight=1)
+        self.grid_rowconfigure(8, weight=1)
+        self.grid_rowconfigure(9, weight=1)
+        self.grid_rowconfigure(10, weight=1)
+        self.grid_rowconfigure(11, weight=1)
+        self.grid_rowconfigure(12, weight=1)
+        self.grid_rowconfigure(13, weight=1)
+        self.grid_rowconfigure(14, weight=1)
+        self.grid_rowconfigure(15, weight=1)
 
         # Guardar los widgets originales para poder restaurarlos
         self.original_widgets = []  # Para almacenar widgets
@@ -43,9 +53,10 @@ class FieldFrame(Frame):
 
         if tipo == 0:  # El usuario escribe
             # Crear las entradas de texto
+
             for i in range(len(self.criterios)):
                 criterio_label = Label(self, text=self.criterios[i], font=("Arial", 15), bg = "#545454", fg="#fff")
-                criterio_label.grid(row=(i + 1), column=0, padx=10, pady=5)
+                criterio_label.grid(row=(i + 1), column=0, padx=0, pady=0)
                 valor = Entry(self, width=30, font=("Arial", 15))
                 valor.grid(row=(i + 1), column=1, padx=10, pady=5)
                 if self.valores:
