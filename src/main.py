@@ -379,7 +379,7 @@ def info_aplicacion():
     messagebox.showinfo(title="Información de la aplicación", message="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
 
 def info_aplicacion_p3():
-    mensaje_bienvenida.config(text="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
+    mensaje_bienvenida.config(text="Esta aplicación simula el funcionamiento de una\ncadena de restaurantes a través de distintas\nfuncionalidades como la de reservar una mesa,\nordenar comida, agregar sedes y organizar eventos.")
 
 def menu_inicio():
     ventana_funcional.withdraw()
@@ -430,7 +430,7 @@ menu_bar_inicio = Menu(ventana_inicio)
 ventana_inicio.config(menu = menu_bar_inicio)
 menu_inicial = Menu(menu_bar_inicio, tearoff = 0)
 menu_bar_inicio.add_cascade(label = "Inicio", menu = menu_inicial)
-menu_inicial.add_command(label = "Descripción del sistema", command = info_aplicacion)
+menu_inicial.add_command(label = "Descripción del sistema", command = info_aplicacion_p3)
 menu_inicial.add_separator()
 menu_inicial.add_command(label = "Salir", command = ventana_inicio.quit)
 
