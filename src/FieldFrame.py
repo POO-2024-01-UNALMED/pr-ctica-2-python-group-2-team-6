@@ -73,7 +73,7 @@ class FieldFrame(Frame):
         elif tipo == 1:  # El usuario elige Sí o No
             self.valoresLabel.destroy()
 
-            self.criteriosLabel.config(text="¿Desea continuar?", font=("Arial", 20), bg = "#545454", fg="#fff")
+            self.criteriosLabel.config(text=self.tituloCriterios + " " + self.tituloValores, font=("Arial", 20), bg = "#545454", fg="#fff")
             self.criteriosLabel.grid(columnspan=2)
             # Crear botones
             self.crearBoton("Sí", self.yessir, 0)
@@ -146,9 +146,11 @@ class FieldFrame(Frame):
         self.getValores()
         if '↓↓ Escoja una opción ↓↓' in self.valores:
             campos_vacios = []
+            indice = 0
             for ocurrencia in self.valores:
                 if ocurrencia == '↓↓ Escoja una opción ↓↓':
-                    campos_vacios.append(self.criterios[self.valores.index(ocurrencia)])
+                    campos_vacios.append(self.criterios[indice])
+                indice += 1
             raise(ExcepcionSeleccionVacia(campos_vacios))
         else:
             self.comandoContinuar()
