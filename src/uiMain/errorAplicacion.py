@@ -38,3 +38,19 @@ class ExcepcionSeleccionVacia(ExcepcionCajaCombo):
         messagebox.showerror("Error: Selección Vacía", self.mensaje_error)
         super().__init__(self.mensaje_error)
     
+class ExcepcionDatosEntry(ErrorAplicacion):
+    def __init__(self, mensaje_error_hijo):
+        if mensaje_error_hijo is not None:
+            self.mensaje_error_inicio = f"Ha ocurrido un error en el Entry: {mensaje_error_hijo}"
+        else:
+            self.mensaje_error_inicio = "Ha ocurrido un error en el Entry"
+        super().__init__(self.mensaje_error_inicio)
+    
+    def __str__(self):
+        return f"Error en la aplicación: {self.mensaje}"
+
+class ExcepcionCedulasRepetidas(ExcepcionDatosEntry):
+    def __init__(self, cedula_repetida):
+        self.mensaje_error = f"Hay cédulas de acompañantes repetidas: Cédula de número {cedula_repetida}"
+        messagebox.showerror("Error: Selección Vacía", self.mensaje_error)
+        super().__init__(self.mensaje_error)
