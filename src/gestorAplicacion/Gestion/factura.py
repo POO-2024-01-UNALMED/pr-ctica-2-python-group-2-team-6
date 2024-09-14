@@ -52,8 +52,10 @@ class Factura:
     def aumentar_valor(self, valor):
         self.valor += valor
 
-    def calcular_valor(self):
-        valor = sum(plato.get_precio() for plato in self.pedido.get_platos())
+    def calcular_valor(self, ):
+        valor = 0
+        for plato in self.pedido.platos:
+            valor += plato.precio
         if self.pago_preconsumo:
             valor += int(valor * 0.19)
         valor += self.propina

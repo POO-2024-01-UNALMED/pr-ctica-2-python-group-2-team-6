@@ -401,6 +401,7 @@ def cambiar_proceso(event, num_func):
     elif num_func == 1:
         label_procesos_top.config(text="Reservar Mesa")
         reservar_mesa()
+    
 
 def info_aplicacion():
     messagebox.showinfo(title="Información de la aplicación", message="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
