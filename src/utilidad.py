@@ -46,5 +46,55 @@ class Utilidad:
         for cliente in Cliente.get_clientes():
             if cliente_consulta.get_cedula() == cliente.get_cedula():
                 return cliente
+    
+    def calcular_distancia(restaurante, preferencia, tipo_mesa):
+        mesas = []
+        mesas_elegidas = []
+        menor_distancia = 9999
+        
+        for mesa in restaurante.get_mesas():
+            if mesa.is_vip() == tipo_mesa:
+                mesas.append(mesa)
+        
+        if preferencia == "Puerta":  # Puerta
+            puertas = []
+            for casilla in restaurante.get_casillas():
+                if casilla.get_tipo() == "PUERTA":
+                    puertas.append(casilla)
+            
+            # Ver mesas más cercanas a una puerta
+            for casilla in puertas:
+                for mesa in mesas:
+                    distancia_puerta = abs((casilla.get_coord_x() - mesa.get_coord_x()) + 
+                                        (casilla.get_coord_y() - mesa.get_coord_y()))
+                    mesa.set_distancia_puerta(distancia_puerta)
+                    if distancia_puerta < menor_distancia:
+                        menor_distancia = distancia_puerta
+            
+            for mesa in mesas:
+                if mesa.get_distancia_puerta() == menor_distancia:
+                    mesas_elegidas.append(mesa.get_num_mesa())
+        
+        else:  # Ventana
+            ventanas = []
+            for casilla in restaurante.get_casillas():
+                if casilla.get_tipo() == "VENTANA":
+                    ventanas.append(casilla)
+            
+            # Ver mesas más cercanas a una ventana
+            for casilla in ventanas:
+                for mesa in mesas:
+                    distancia_ventana = abs(casilla.get_coord_x() - mesa.get_coord_x()) + \
+                                        abs(casilla.get_coord_y() - mesa.get_coord_y())
+                    mesa.set_distancia_ventana(distancia_ventana)
+                    if distancia_ventana < menor_distancia:
+                        menor_distancia = distancia_ventana
+            
+            for mesa in mesas:
+                if mesa.get_distancia_ventana() == menor_distancia:
+                    mesas_elegidas.append(mesa.get_num_mesa())
+        
+        return mesas_elegidas
+
 
 #Es posible que ni siquiera se usen estos métodos, así que de ser necesarios, los traduzco.
