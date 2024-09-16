@@ -2121,6 +2121,8 @@ def cambiar_cv(event):
     frame_rb_rb_img.config(image=photo_rb)
     frame_rb_rb_img.image = photo_rb
 
+    right_top.config(text=cvs[contador_clicks_cv][0])
+
     # Incrementar el contador para la próxima rotación
     contador_clicks_cv = (contador_clicks_cv + 1) % len(rutas)
 
