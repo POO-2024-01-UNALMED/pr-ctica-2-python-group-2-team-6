@@ -20,7 +20,7 @@ from gestorAplicacion.Usuario.persona import Persona
 from gestorAplicacion.Usuario.trabajador import Trabajador
 
 from datetime import datetime, timedelta
-# from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta
 import random
 from tkinter import *
 from tkinter import messagebox
@@ -86,12 +86,6 @@ def reservar_mesa():
                     
                     #Llamamos a seleccion_mesa y le pasamos como parámetro el restaurante seleccionado.
                     seleccion_mesa(restaurante_actual)
-
-                    #Llamamos a extras_reserva y le pasamos como parámetro cliente
-                    
-
-                    #llamamos a pago_anticipado y le pasamos como parámetro restaurante
-                    pago_anticipado(retorno_extras_reserva)
                 
                 #Elegir restaurante donde reservar mesa
                 zona_actual = None
@@ -530,7 +524,6 @@ def extras_reserva(cliente):
         if tipo_decoracion_elegido == 1:
             label_procesos_mid.config(text="Reserva de Parqueadero")
             placa = ""
-            cargo_extra1 = 0
             if cliente.get_afiliacion() == Afiliacion.NINGUNA:
                 def f1_i2_parqueo_ninguna():
                     cliente.get_factura().aumentar_valor(10000)
@@ -548,17 +541,15 @@ def extras_reserva(cliente):
                 celda_parqueo = indice_celda + 1
                 if cliente.get_placa_vehiculo() != "Ninguna":
                     placa = cliente.get_placa_vehiculo()
-                print(f"Parqueadero reservado con éxito para el vehículo con placa: {placa}.")
-            cliente.get_factura().aumentar_valor(cargo_extra1)
-            #Llamar tercera
+                pago_anticipado(cliente.get_restaurante())
 
         elif tipo_decoracion_elegido == 2:
             label_procesos_mid.config(text="Decoraciones para la mesa")
-            cargo_extra2 = 0
+
             if cliente.get_afiliacion() != Afiliacion.NINGUNA:
-                cargo_extra2 += 42500
+                cliente.get_factura().aumentar_valor(42500)
             else:
-                cargo_extra2 += 50000
+                cliente.get_factura().aumentar_valor(50000)
             
             def f1_i2_elegir_decoracion():
                 global label_procesos_bottom, cargo_extra2
@@ -571,49 +562,56 @@ def extras_reserva(cliente):
                     decoracion_elegida = 3
                 
                 if decoracion_elegida == 1:
+                    print("Cena")
                     # restaurante.restar_de_bodega(indice_bodega_items("rosa", restaurante), 1)
                     # restaurante.restar_de_bodega(indice_bodega_items("vela", restaurante), 3)
                     # restaurante.restar_de_bodega_ingrediente(indice_bodega_ingredientes("vino blanco", restaurante), 1)
-                    cargo_extra2 += 30000
+                    cliente.get_factura().aumentar_valor(30000)
+                    pago_anticipado(cliente.get_restaurante())
                 elif decoracion_elegida == 2:
+                    print("Graduación")
                     # restaurante.restar_de_bodega(indice_bodega_items("globo negro", restaurante), 3)
                     # restaurante.restar_de_bodega(indice_bodega_items("globo dorado", restaurante), 3)
                     # restaurante.restar_de_bodega(indice_bodega_items("birrete", restaurante), cliente.get_mesa().get_clientes().size())
                     cargo_birretes = 5000 * len(cliente.get_mesa().get_clientes())
-                    cargo_extra2 += 1200 + cargo_birretes
+                    cliente.get_factura().aumentar_valor(1200 + cargo_birretes)
+                    pago_anticipado(cliente.get_restaurante())
                 elif decoracion_elegida == 3:
-                    print("Seleccione el género del bebé:\n1. Niño.\n2. Niña.")
-                    eleccion5 = Utilidad.readInt()
-                    if eleccion5 == 1:
-                        pass
-                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo azul", restaurante), 3)
-                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo blanco", restaurante), 3)
-                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("angel varon", restaurante), cliente.get_mesa().get_clientes().size())
-                    else:
-                        pass
-                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo rosado", restaurante), 3)
-                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo blanco", restaurante), 3)
-                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("angel femenino", restaurante), cliente.get_mesa().get_clientes().size())
-                    cargo_angeles = 6000 * len(cliente.get_mesa().get_clientes())
-                    cargo_extra2 += 1200 + cargo_angeles
-                    label_procesos_bottom.destroy()
-                    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Género"], tituloValores = "Valor ingresado", valores = [["Niño", "Niña"]], tipo = 2, comandoContinuar = f1_i2_elegir_decoracion, habilitado = [True])
-                    label_procesos_bottom.grid(sticky="nsew")
+                    def f1_i2_cobrar():
+                        global cargo_extra2
+                        genero_elegido = label_procesos_bottom.valores[0]
+                        if genero_elegido == "Niño":
+                            genero_elegido = 1
+                        elif genero_elegido == "Niña":
+                            genero_elegido = 2
+                        if genero_elegido == 1:
+                            pass
+                            # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo azul", restaurante), 3)
+                            # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo blanco", restaurante), 3)
+                            # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("angel varon", restaurante), cliente.get_mesa().get_clientes().size())
+                        elif genero_elegido == 2:
+                            pass
+                            # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo rosado", restaurante), 3)
+                            # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo blanco", restaurante), 3)
+                            # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("angel femenino", restaurante), cliente.get_mesa().get_clientes().size())
 
-                
-                cliente.get_factura().aumentar_valor(cargo_extra2)
+                        cargo_angeles = 6000 * len(cliente.get_mesa().get_clientes())
+                        cliente.get_factura().aumentar_valor(1200 + cargo_angeles)
+
+                        pago_anticipado(cliente.get_restaurante())
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Género"], tituloValores = "Valor ingresado", valores = [["Niño", "Niña"]], tipo = 2, comandoContinuar = f1_i2_cobrar, habilitado = [True])
+                    label_procesos_bottom.grid(sticky="nsew")
             
             label_procesos_bottom.destroy()
             label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Elegir decoración"], tituloValores = "Valor ingresado", valores = [["Cena romántica (30000$)", "Graduación (1200$ + 5000$ por cada comensal)", "Descubrimiento (1200$ + 6000$ por cada comensal)"]], tipo = 2, comandoContinuar = f1_i2_elegir_decoracion, habilitado = [True])
             label_procesos_bottom.grid(sticky="nsew")
 
-            cliente.get_factura().aumentar_valor(cargo_extra2)
             print(cliente.get_factura())
             #Llamar tercera
 
         else:
-            pass
-            #Llamar tercera
+            pago_anticipado(cliente.get_restaurante())
 
     label_procesos_bottom.destroy()
     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Decoraciones"], tituloValores = "Valor ingresado", valores = [["Reserva de Parqueadero", "Decoraciones para la mesa", "No desea ningún servicio extra"]], tipo = 2, comandoContinuar = f1_i2_decoraciones, habilitado = [True])
@@ -622,12 +620,10 @@ def extras_reserva(cliente):
 #Funcionalidad 1 Interacción 3
 
 def pago_anticipado(restaurante):
+    global label_procesos_bottom
     reserva = restaurante.get_historial_reservas()[-1]
     clientes = reserva.get_clientes()
     factura = clientes[0].get_factura()
-
-    print("¿Desea pagar ya mismo su reserva?\n1. Sí.\n2. No.")
-    eleccion1 = Utilidad.readInt()
 
     def f1_i3_continuar_pago():
         global label_procesos_bottom
@@ -644,11 +640,11 @@ def pago_anticipado(restaurante):
                         factura.aumentar_valor(15000)
                         pagar_reserva(restaurante, reserva, clientes, factura)
                 label_procesos_bottom.destroy()
-                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea afiliarse?", criterios=None, tituloValores="Recibirá un descuento si lo hace.", tipo=1, comandoContinuar=f1_i3_continuar_pago, comandoCancelar=funcionalidad_0)
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea afiliarse?", criterios=None, tituloValores="Recibirá un descuento si lo hace.", tipo=1, comandoContinuar=f1_i3_afiliarse, comandoCancelar=funcionalidad_0)
                 label_procesos_bottom.grid(sticky="nsew")
 
             else:
-                factura.set_valor(14300)  # Aplicar 5% de descuento al valor de la reserva.
+                factura.aumentar_valor(14300)  # Aplicar 5% de descuento al valor de la reserva.
                 pagar_reserva(restaurante, reserva, clientes, factura)
             clientes[0].get_factura().set_pago_preconsumo(True)
         else:
@@ -659,8 +655,6 @@ def pago_anticipado(restaurante):
     label_procesos_bottom.destroy()
     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea pagar ya", criterios=None, tituloValores="mismo su reserva?", tipo=1, comandoContinuar=f1_i3_continuar_pago, comandoCancelar=funcionalidad_0)
     label_procesos_bottom.grid(sticky="nsew")
-        
-    
 
 def pagar_reserva(restaurante, reserva, clientes, factura):
     global label_procesos_bottom
@@ -676,7 +670,7 @@ def pagar_reserva(restaurante, reserva, clientes, factura):
 
 def confirmar_reserva(restaurante, reserva, clientes):
     global label_procesos_bottom
-    confirmada = False
+    # confirmada = False
     fecha_intento = datetime.now()
     restaurante.get_intentos_reserva().append([fecha_intento.year, fecha_intento.month, fecha_intento.day])
     
@@ -687,7 +681,7 @@ def confirmar_reserva(restaurante, reserva, clientes):
         global label_procesos_bottom
         confirmar = label_procesos_bottom.valores[0]
         if confirmar == 1:
-            confirmada = True
+            # confirmada = True
             print("Reserva confirmada.")
             label_procesos_bottom.destroy()
             label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Reserva confirmada", tituloValores="" , criterios=[f"Su código de reserva es: {reserva.get_codigo_reserva()}"], tipo=3, comandoContinuar=funcionalidad_0)
