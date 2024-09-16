@@ -2602,7 +2602,7 @@ def cambiar_cv(event):
     cvs = [
         ["Me gusta el Póker"],
         ["Me gusta el Mine"],
-        ["Me quiero follar a Borges"]
+        ["Stiven Saldarriaga Mayorga\nCédula: 1041056688\nSexo: ¿Cuál SDK es ese?\nEdad: 18\nCursando: Ingeniería en Sistemas e Informática\nConocimientos: Java, ColdFusion, Metafísica pura\n Experiencia: Five Pack Alliance"]
     ]
 
     rutas = [
