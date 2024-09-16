@@ -4,7 +4,7 @@ from tkinter.ttk import Combobox as Cajacombo
 from uiMain.errorAplicacion import ExcepcionSeleccionVacia
 
 class FieldFrame(Frame):
-    def __init__(self, root, tituloCriterios, criterios, tituloValores, valores=None, habilitado=None, tipo=0, comandoContinuar=None, comandoCancelar=None):
+    def __init__(self, root, tituloCriterios, criterios, tituloValores, valores=None, habilitado=None, tipo=0, comandoContinuar=None, comandoCancelar=None, comandoOpcion3=None, comandoOpcion4 = None):
         super().__init__(root, width=400, height=300, bg = "#545454")
         self.root = root
         self.tituloCriterios = tituloCriterios
@@ -16,6 +16,8 @@ class FieldFrame(Frame):
         self.tipo = tipo
         self.comandoContinuar = comandoContinuar
         self.comandoCancelar = comandoCancelar
+        self.comandoOpcion3 = comandoOpcion3
+        self.comandoOpcion4 = comandoOpcion4
 
         # Configurar el grid
         self.grid_columnconfigure(0, weight=1)
@@ -103,6 +105,39 @@ class FieldFrame(Frame):
 
             label_mensaje = Label(self, text = criterios[0], font=("Arial", 15), bg = "#545454", fg="#fff")
             label_mensaje.grid(row=1, column=0, columnspan=2)
+        
+        elif tipo == 4:  # Tres botones
+            for i in range(len(self.criterios)):
+                Label(self, text=self.criterios[i], font=("Arial", 15), bg="#545454", fg="#fff").grid(row=(i + 1), column=0, padx=10, pady=5, sticky="w")
+
+            # Agregar los botones en una fila (row) con la misma llamada a crearBoton
+            self.crearBoton("Cumpleaños", self.comandoContinuar, columna=0)  # Primer botón
+            self.crearBoton("Meetings Empresariales", self.comandoCancelar, columna=1)  # Segundo botón
+            self.crearBoton("Gastronomias Mundiales", self.comandoOpcion3, columna=2)  # Tercer botón
+            self.crearBoton("No, deseo salir", self.comandoOpcion4, columna=3)  # Cuarto botón
+
+            # Configurar el grid para que los botones se distribuyan simétricamente
+            for i in range(4):  # Ajustar el tamaño de las columnas
+                self.grid_columnconfigure(i, weight=1)
+
+            # Configuración adicional para espaciado simétrico y distribución uniforme de botones
+            self.grid_rowconfigure(len(self.criterios) + 1, weight=1)
+
+        elif tipo == 5:  # Tres botones
+            for i in range(len(self.criterios)):
+                Label(self, text=self.criterios[i], font=("Arial", 15), bg="#545454", fg="#fff").grid(row=(i + 1), column=0, padx=10, pady=5, sticky="w")
+
+            # Agregar los botones en una fila (row) con la misma llamada a crearBoton
+            self.crearBoton("Vinos", self.comandoContinuar, columna=0)  # Primer botón
+            self.crearBoton("Champañas", self.comandoCancelar, columna=1)  # Segundo botón
+
+            # Configurar el grid para que los botones se distribuyan simétricamente
+            for i in range(2):  # Ajustar el tamaño de las columnas
+                self.grid_columnconfigure(i, weight=1)
+
+            # Configuración adicional para espaciado simétrico y distribución uniforme de botones
+            self.grid_rowconfigure(len(self.criterios) + 1, weight=1)
+
 
     def save_original_widget(self, widget, row, column):
         """Guardar el widget y su posición"""

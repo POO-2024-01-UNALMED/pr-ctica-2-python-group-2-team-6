@@ -1,6 +1,6 @@
 from utilidad import Utilidad
 from FieldFrame import FieldFrame
-from uiMain.errorAplicacion import ExcepcionSeleccionVacia, ExcepcionCedulasRepetidas
+from uiMain.errorAplicacion import *
 
 from gestorAplicacion.Entorno.casilla import Casilla
 from gestorAplicacion.Entorno.ciudad import Ciudad
@@ -350,6 +350,856 @@ def seleccion_fecha(restaurante, tipo_mesa, mesas_elegidas):
 
     return fecha_elegida
 
+
+###Parte de FUNCIONALIDAD 5, PENDIENTE PORT REVISAR
+class EstadoGlobal:
+    cliente_final = None
+    factura_final = None
+    evento_final = None
+
+
+def crearEvento():
+    global label_procesos_bottom, label_procesos_mid
+    Ciudad.get_ciudades().clear()
+    Zona.get_zonas().clear()
+
+    # Crear ciudades y zonas
+    comala = Ciudad("Comala")
+    medellin = Ciudad("Medellin")
+    zona_centro = Zona(14, "Centro", comala)
+    zona_centro1 = Zona(14, "CentroMede", medellin)
+    comala.agregar_zona(zona_centro)
+    medellin.agregar_zona(zona_centro1)
+
+    # Crear restaurantes
+    restaurantes_comala = [
+        Restaurante(10, "Casa Stiven", [], comala, zona_centro, False),
+        Restaurante(12, "Casa Stiven2", [], comala, zona_centro, False),
+        Restaurante(13, "Casa Stiven3", [], comala, zona_centro, False),
+        Restaurante(14, "Casa Stiven4", [], comala, zona_centro, False)
+    ]
+    for restaurante in restaurantes_comala:
+        zona_centro.get_restaurantes().append(restaurante)
+
+    restaurantes_medellin = [
+        Restaurante(10, "Casa Stiven1", [], medellin, zona_centro1, False)
+    ]
+    for restaurante in restaurantes_medellin:
+        zona_centro1.get_restaurantes().append(restaurante)
+
+    # Llamar la primera interacción
+    interaccion1_ciudad()
+
+def interaccion1_ciudad():
+    global label_procesos_bottom
+
+    # Mostrar opciones de ciudades
+    nombre_ciudades = [ciudad.get_nombre() for ciudad in Ciudad.get_ciudades()]
+    label_procesos_mid.config(text="Seleccione la ciudad donde desea el evento")
+
+    # Destruir el campo anterior y generar el nuevo
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Ciudad",
+        criterios=["Ciudad"],
+        tituloValores="Valor ingresado",
+        valores=[nombre_ciudades],
+        tipo=2,
+        comandoContinuar=interaccion1_zona,
+        habilitado=[True]
+    )
+    label_procesos_bottom.grid(sticky="nsew")
+
+def interaccion1_zona():
+    global label_procesos_bottom
+
+    # Obtener la ciudad seleccionada
+    nombre_ciudad_elegida = label_procesos_bottom.valores[0]
+    ciudad_actual = next(ciudad for ciudad in Ciudad.get_ciudades() if ciudad.get_nombre() == nombre_ciudad_elegida)
+
+    # Mostrar opciones de zonas
+    nombre_zonas = [zona.get_nombre() for zona in ciudad_actual.get_zonas_ciudad() if zona.get_restaurantes()]
+    label_procesos_mid.config(text="Seleccione la zona donde desea su evento")
+
+    # Destruir el campo anterior y generar el nuevo
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Zona",
+        criterios=["Zona"],
+        tituloValores="Valor ingresado",
+        valores=[nombre_zonas],
+        tipo=2,
+        comandoContinuar=llamar_interacciones,
+        habilitado=[True]
+    )
+    label_procesos_bottom.grid(sticky="nsew")
+
+def llamar_interacciones():
+    global label_procesos_bottom
+
+    # Obtener la zona seleccionada
+    zona_elegida = label_procesos_bottom.valores[0]
+    zona_actual = next(zona for zona in Zona.get_zonas() if zona.get_nombre() == zona_elegida)
+
+    # Llamar a la siguiente interacción
+    interaccion1_recomendacionRestaurante(zona_actual)
+
+    # Aquí necesitas asegurarte de que cliente_final se ha actualizado
+    # Puedes usar un bucle o esperar algún evento para verificar la actualización
+    while EstadoGlobal.cliente_final is None:
+        frame_procesos_bottom.update()  # Actualizar la interfaz gráfica
+
+    cliente_final = EstadoGlobal.cliente_final
+    interaccion2_recomendarEvento()
+
+    while EstadoGlobal.evento_final is None:
+        frame_procesos_bottom.update()
+    while EstadoGlobal.factura_final is None:
+        frame_procesos_bottom.update()
+
+    print(EstadoGlobal.factura_final.get_evento().get_platos())
+
+##########Interacción 1 Comienza acá
+
+def interaccion1_recomendacionRestaurante(zona_actual):
+    global label_procesos_mid, label_procesos_bottom
+
+    def interaccion1_mayorCapacidad():
+        restaurante_mayor_capacidad = max(zona_actual.get_restaurantes(), key=lambda r: r.get_capacidad())
+        label_procesos_mid.config(text=f"El restaurante recomendado es {restaurante_mayor_capacidad.get_nombre()}")
+        
+        # Pedir datos del evento, después actualizar cliente_final
+        EstadoGlobal.cliente_final = pedir_datos_evento(restaurante_mayor_capacidad)
+        
+
+
+    def interaccion1_EscogerRestaurante():
+        global label_procesos_bottom
+
+        def pedir_datos():
+            global label_procesos_bottom
+            restaurante_seleccionado = label_procesos_bottom.valores[0]
+            restaurante_final = next((r for r in zona_actual.get_restaurantes() if r.get_nombre() == restaurante_seleccionado), None)
+            if restaurante_final:
+                label_procesos_mid.config(text=f"Restaurante seleccionado: {restaurante_final.get_nombre()}")
+                EstadoGlobal.cliente_final = pedir_datos_evento(restaurante_final)
+            else:
+                label_procesos_mid.config(text="Error al seleccionar el restaurante. Intente de nuevo.")
+
+
+        restaurantes_zona = [restaurante.get_nombre() for restaurante in zona_actual.get_restaurantes()]
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(
+            frame_procesos_bottom,
+            tituloCriterios=["Restaurantes"],
+            criterios=["Restaurantes"],
+            tituloValores="Seleccione",
+            valores=[restaurantes_zona],
+            tipo=2,
+            comandoContinuar=pedir_datos,
+            habilitado=[True]
+        )
+        label_procesos_bottom.grid(sticky="nsew")
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Desea una recomendación",
+        criterios=None,
+        tituloValores="Continuar",
+        tipo=1,
+        comandoContinuar=interaccion1_mayorCapacidad,
+        comandoCancelar=interaccion1_EscogerRestaurante
+    )
+    label_procesos_bottom.grid(sticky="nsew")
+
+def pedir_datos_evento(restaurante):
+    global label_procesos_bottom
+
+    def reserva_de_los_clientes():
+        global label_procesos_bottom
+        nombre_cliente = label_procesos_bottom.getValue("Nombre")
+        try:
+            cedula_cliente = int(label_procesos_bottom.getValue("Cédula"))
+        except ValueError:
+            messagebox.showerror("Error: Tipo de dato erróneo", "Cédula debe ser un número")
+            return
+        
+        EstadoGlobal.cliente_final = Cliente(nombre_cliente, cedula_cliente)
+        EstadoGlobal.cliente_final.set_restaurante(restaurante)
+        label_procesos_bottom.destroy()
+
+
+
+
+    # Inicializar la primera pantalla para datos del cliente
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Datos del Cliente",
+        criterios=["Nombre", "Cédula"],
+        tituloValores="Ingrese los datos",
+        valores=[],
+        tipo=0,
+        comandoContinuar=reserva_de_los_clientes,
+        habilitado=[True, True]
+    )
+    label_procesos_bottom.grid(sticky="nsew")
+    # label_procesos_bottom.destroy()
+
+
+    # Retorna None inicialmente, el valor real se actualizará en reserva_de_los_clientes
+    return None
+###############################Interacción 1 Lista Termina acá
+###############################Interacción 2 comienza Acá
+
+def otro_metodo(cliente):
+    restaurantes = cliente.get_restaurante()
+    print(restaurantes.get_nombre())
+
+
+# ##INTERACCIÓN 1 FINALIZA ACÁ
+
+
+# ###################INTERACCIÓN 2
+def interaccion2_recomendarEvento():
+    ##CREAR LOS OBJETOS
+    ##PRIMERO CUMPLEAÑOS
+    global label_procesos_bottom, label_procesos_mid
+
+    label_procesos_mid.config(text="Tenemos los siguientes eventos, ¿cual desea?")
+
+    ###Aca irian las sub interacciones
+    def opcion_cumpleanos():
+        global label_procesos_bottom, label_procesos_mid
+        label_procesos_mid.config(text="El evento tiene un costo de 210.000$")
+
+        def opcion_cumpleanos_si():
+            global label_procesos_bottom, label_procesos_mid
+
+            def invitados_cumple_nombre():
+                global label_procesos_bottom
+                try:
+                    nombre_festejado = label_procesos_bottom.getValue("Nombre del Festejado")
+                    cantidad_invitados = label_procesos_bottom.getValue("Numero de acompañantes")
+
+                    if not nombre_festejado:
+                        raise ExcepcionDatosErroneos("Nombre del Festejado no puede estar vacío")
+
+                    if not (1 <= int(cantidad_invitados) <= 40):
+                        raise ExcepcionFueraRango(cantidad_invitados, "1-40 (El restaurante solo tiene capacidad para esto 😞)")
+
+                    coste_evento = 210000
+                    descripcion_evento = "¡Feliz Cumpleaños! Te deseamos lo mejor en esta etapa, " + nombre_festejado
+                    nombre_evento = "Feliz Cumpleaños"
+                    evento_elegido = Evento(nombre_evento, coste_evento)
+                    evento_elegido.set_descripcion(descripcion_evento)
+                    EstadoGlobal.evento_final = evento_elegido
+                    EstadoGlobal.factura_final = Factura()
+                    EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+                    recomendar_torta(cantidad_invitados)
+
+                except ExcepcionFueraRango as e:
+                    print(f"Error: {e}")
+                    messagebox.showerror("Error de Invitados", str(e))
+                
+                except ErrorAplicacion as e:
+                    print(f"Error: {e}")
+                    messagebox.showerror("Error de Aplicación", str(e))
+
+                except ValueError:
+                    messagebox.showerror("Error de Formato", "El número de acompañantes debe ser un número entero válido.")
+        
+                            
+            
+
+            mensaje_cumpleanos = ("Nosotros encantados de atenderte en tu cumpleaños.\n"
+                                "Somos felices de tenerlos en el restaurante 😈.\n"
+                                "Por favor, danos los siguientes datos del cumpleañero:")
+    
+    # Configura el label con texto ajustado para imprimir
+            label_procesos_mid.config(text=mensaje_cumpleanos, wraplength=400, justify="left", font=("Arial", 8), fg="#fff")
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(
+                frame_procesos_bottom,
+                tituloCriterios="Rellena por favor algunos daticos",
+                criterios=["Nombre del Festejado", "Numero de acompañantes"],
+                tituloValores="Digite uno por uno",
+                valores=[],
+                tipo=0,
+                comandoContinuar=invitados_cumple_nombre,
+                habilitado=[True, True]
+                )
+            label_procesos_bottom.grid(sticky="nsew")
+
+            print("Si se mete")
+        
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Desea",
+        criterios=None,
+        tituloValores="continuar con el evento?",
+        tipo=1,
+        comandoContinuar=opcion_cumpleanos_si,
+        comandoCancelar=interaccion2_recomendarEvento
+        )
+        label_procesos_bottom.grid(sticky="nsew")
+
+
+
+    def opcion_meetings():
+        global label_procesos_bottom, label_procesos_mid
+        label_procesos_mid.config(text="El evento de meetings tiene un coste de 410.000%")
+        
+        def opcion_meetings_si():
+            global label_procesos_bottom, label_procesos_mid
+
+            def caracteristicas_de_la_empresa():
+                global label_procesos_bottom
+                try:
+                    NIT_empresa = label_procesos_bottom.getValue("NIT")
+                    cantidad_proletariado = label_procesos_bottom.getValue("Cantidad de Asistentes")
+
+                    if not NIT_empresa.isdigit() or len(NIT_empresa) != 7:
+                        raise ExcepcionDatosErroneos("El NIT debe ser un número, aparte de ello contener 7 números")
+
+                    if not (1 <= int(cantidad_proletariado) <= 40):
+                        raise ExcepcionFueraRango(cantidad_proletariado, "1-40 (El restaurante solo tiene capacidad para esto 😞)")
+
+                    cata_vinos_champagne(cantidad_proletariado)
+
+                except ExcepcionFueraRango as e:
+                    print(f"Error: {e}")
+                    messagebox.showerror("Error de Invitados", str(e))
+                
+                except ErrorAplicacion as e:
+                    print(f"Error: {e}")
+                    messagebox.showerror("Error de Aplicación", str(e))
+
+                except ValueError:
+                    messagebox.showerror("Error de Formato", "El número de acompañantes debe ser un número entero válido.")               
+                
+            mensaje_meeting = ("Ningún mejor lugar para tus esclavos laborales que este\n"
+                                "Somos felices de tenerlos en el restaurante 😈.\n"
+                                "Por favor, danos los siguientes datos de la empresa:")
+    
+    # Configura el label con texto ajustado para imprimir
+            label_procesos_mid.config(text=mensaje_meeting, wraplength=400, justify="left", font=("Arial", 10), fg="#fff")
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(
+                frame_procesos_bottom,
+                tituloCriterios="Rellena por favor algunos daticos",
+                criterios=["NIT", "Cantidad de Asistentes"],
+                tituloValores="Digite uno por uno",
+                valores=[],
+                tipo=0,
+                comandoContinuar=caracteristicas_de_la_empresa,
+                habilitado=[True, True]
+                )
+            label_procesos_bottom.grid(sticky="nsew")
+
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Desea",
+        criterios=None,
+        tituloValores="continuar con el evento Meetings?",
+        tipo=1,
+        comandoContinuar=opcion_meetings_si,
+        comandoCancelar=interaccion2_recomendarEvento
+        )
+        label_procesos_bottom.grid(sticky="nsew")
+        
+
+
+
+
+    def opcion_gastronomias():
+        print("se mete a gastronomias")
+
+
+    ###Hasta acá irían
+    label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Eventos disponibles: ",
+        criterios=None,
+        tituloValores="",
+        tipo=4,
+        comandoContinuar=opcion_cumpleanos,
+        comandoCancelar=opcion_meetings,
+        comandoOpcion3=opcion_gastronomias,
+        comandoOpcion4=funcionalidad_0
+    )
+    label_procesos_bottom.pack(expand=True, fill="both",padx=10, pady=20)
+    label_procesos_bottom.grid(sticky="nsew")
+    # label_procesos_bottom.destroy()
+##################################################3
+
+
+
+
+##Metodos Interacción 2 sub interacción 1
+def recomendar_torta(cantidad_invitados):
+    global label_procesos_bottom, label_procesos_mid
+    torta_pequena = Plato("Torta Pequeña", 120500, porciones=19)
+    torta_grande = Plato("Torta Grande", 350000, porciones=40)
+    Plato.platos_cumple.append(torta_grande)
+    Plato.platos_cumple.append(torta_pequena)    
+
+    platos_evento = Plato.get_platos_cumple()
+    plato_recomendado = None
+    diferencia_minima = float('inf')
+
+    for plato in platos_evento:
+        diferencia = plato.get_porciones() - int(cantidad_invitados)
+        if diferencia >= 0 and diferencia < diferencia_minima:
+            diferencia_minima = diferencia
+            plato_recomendado = plato
+    label_procesos_mid.config(text=f"Vemos que son {cantidad_invitados}, le recomendamos la torta {plato_recomendado.get_nombre()}")
+
+    # def finalizar_tortas(plato_recomendado):
+    #     global label_procesos_bottom
+    EstadoGlobal.evento_final.set_platos(plato_recomendado)
+    EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+    def finalizar():
+        global label_procesos_bottom
+        label_procesos_bottom.destroy()
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+    frame_procesos_bottom,
+    tituloCriterios="Acepta la",
+    criterios=None,
+    tituloValores="recomendación de las tortas?",
+    tipo=1,
+    comandoContinuar= finalizar,
+    comandoCancelar=interaccion2_recomendarEvento
+)
+    label_procesos_bottom.grid(sticky="nsew")
+
+
+
+
+#Metodos Interaccion 2 sub interaccion 1
+
+def cata_vinos_champagne(cantidad_proletariado):
+    global label_procesos_bottom, label_procesos_mid, EstadoGlobal
+    vino1 = Plato("Vino Catenna Deluxe", 128000, porciones=6, cantidad_de_plato=10)
+    vino2 = Plato("Vino Bourgon Le Pin", 188000, porciones=6, cantidad_de_plato=10)
+    vino3 = Plato("Vino del D1", 78000, porciones=8, cantidad_de_plato=10)
+    vinos = [vino1, vino2, vino3]
+    champagna1 = Plato("Champagna Mariscal G", 105000, porciones=6, cantidad_de_plato=10)
+    champagna2 = Plato("Champagna Pierre Mersault", 112000, porciones=6, cantidad_de_plato=10)
+    champagna3 = Plato("Champagna Cariñosa", 60000, porciones=6, cantidad_de_plato=10)
+    champagna = [champagna1, champagna2, champagna3]
+    Plato.vinos_champanas_meeting.append(vinos)
+    Plato.vinos_champanas_meeting.append(champagna)
+
+    def acepta_recomendacion():
+        global label_procesos_bottom, label_procesos_mid
+        label_procesos_mid.config(text="Desea vino o champagna?")
+        def opcion_vinos():
+            global label_procesos_bottom, label_procesos_mid, EstadoGlobal
+
+            if 0 < int(cantidad_proletariado) <= 8:  # Recomendación para pocos invitados
+                print("Son pocas personas, suponiendo su alto rango, os recomendamos:")
+                botellas_a_llevar = [caros for caros in Plato.vinos_champanas_meeting[0] if caros.get_precio() > 100000]
+                for i, finales in enumerate(botellas_a_llevar):
+                    print(f"{i + 1}. {finales.get_nombre()}")
+                nombres_vinos = []
+                for idx in botellas_a_llevar:
+                    nombres_vinos.append(idx.get_nombre())
+                label_procesos_bottom.destroy()
+                mensaje = ("Ya que son poquitos invitados (y suponemos son gerentes)\n"
+                            "Estos son los vinos que les tenemos para ofecer")
+                label_procesos_mid.config(text= mensaje)
+
+                def vinos_pedidos():
+                    nonlocal cantidad_proletariado
+                    global label_procesos_bottom
+                    
+                    nombre_vino_elegido = label_procesos_bottom.valores[0]
+
+                    for plato in Plato.vinos_champanas_meeting[0]:
+                        if plato.get_nombre() == nombre_vino_elegido:
+                            plato_vino_champana = plato
+                    print("dsfsgdhfh")
+                    
+                    ##Definir la cantidad a llevar
+                    cuenta_botellas = int((int(cantidad_proletariado) + plato_vino_champana.get_porciones() - 1) / plato_vino_champana.get_porciones())
+                    print(f"Un total de {cuenta_botellas} botellas")
+
+
+                    plato_vino_champana.set_veces_pedido(cuenta_botellas)
+                    coste_evento = 450000
+                    descripcion_evento = "Una empresa que demustra su talento, seriedad y humanidad"
+                    nombre_evento = "Meetings Empresarial"
+                    evento_elegido = Evento(nombre_evento, coste_evento, [plato_vino_champana])
+                    evento_elegido.set_descripcion(descripcion_evento)
+                    EstadoGlobal.evento_final = evento_elegido
+                    EstadoGlobal.factura_final = Factura()
+                    EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+                    def finalizar():
+                        pass
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(
+                    frame_procesos_bottom,
+                    tituloCriterios="Vinos",
+                    criterios="Estos son los mas cachés",
+                    tituloValores="Seleccione",
+                
+                    tipo=1,
+                    comandoContinuar=finalizar,
+                    habilitado=[True]
+                    )
+                    label_procesos_bottom.grid(sticky="nsew")
+                    return plato_vino_champana
+
+
+                       
+                label_procesos_bottom = FieldFrame(
+                frame_procesos_bottom,
+                tituloCriterios=["Vinos"],
+                criterios=["Estos son los mas cachés"],
+                tituloValores="Seleccione",
+                valores=[nombres_vinos],
+                tipo=2,
+                comandoContinuar=vinos_pedidos,
+                habilitado=[True]
+                )
+                label_procesos_bottom.grid(sticky="nsew")
+
+
+
+
+            else:
+                print("Son bastantes invitados, para su economía os recomendamos:")
+                botellas_a_llevar = [baratos for baratos in Plato.vinos_champanas_meeting[0] if baratos.get_precio() < 100000]
+                for i, finales in enumerate(botellas_a_llevar):
+                    print(f"{i + 1}. {finales.get_nombre()}")
+                nombres_vinos = []
+                for idx in botellas_a_llevar:
+                    nombres_vinos.append(idx.get_nombre())
+                label_procesos_bottom.destroy()                
+                
+
+                # plato_final = Plato(producto_ofrecido.get_nombre(), cuenta_botellas, producto_ofrecido.get_precio())
+                mensaje = ("Ya que son bastantes invitados (y suponemos son a termino indefinido)\n"
+                            "Estos son los vinos que les tenemos para ofecer")
+                label_procesos_mid.config(text= mensaje)
+
+                
+                def vinos_pedidos():
+                    nonlocal cantidad_proletariado
+                    global label_procesos_bottom
+                    
+                    nombre_vino_elegido = label_procesos_bottom.valores[0]
+
+                    for plato in Plato.vinos_champanas_meeting[0]:
+                        if plato.get_nombre() == nombre_vino_elegido:
+                            plato_vino_champana = plato
+                    print("dsfsgdhfh")
+                    
+                    ##Definir la cantidad a llevar
+                    cuenta_botellas = int((int(cantidad_proletariado) + plato_vino_champana.get_porciones() - 1) / plato_vino_champana.get_porciones())
+                    print(f"Un total de {cuenta_botellas} botellas")
+
+
+
+                    plato_vino_champana.set_veces_pedido(cuenta_botellas)
+                    coste_evento = 450000
+                    descripcion_evento = "Una empresa que demustra su talento, seriedad y humanidad"
+                    nombre_evento = "Meetings Empresarial"
+                    evento_elegido = Evento(nombre_evento, coste_evento, [plato_vino_champana])
+                    evento_elegido.set_descripcion(descripcion_evento)
+                    EstadoGlobal.evento_final = evento_elegido
+                    EstadoGlobal.factura_final = Factura()
+                    EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+                    def finalizar():
+                        pass
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(
+                    frame_procesos_bottom,
+                    tituloCriterios="Vinos",
+                    criterios="Estos son los mas cachés",
+                    tituloValores="Seleccione",
+                
+                    tipo=1,
+                    comandoContinuar=finalizar,
+                    habilitado=[True]
+                    )
+                    label_procesos_bottom.grid(sticky="nsew")
+                    return plato_vino_champana
+
+                label_procesos_bottom = FieldFrame(
+                frame_procesos_bottom,
+                tituloCriterios=["Vinos"],
+                criterios=["Estos son los mas baratos"],
+                tituloValores="Seleccione",
+                valores=[nombres_vinos],
+                tipo=2,
+                comandoContinuar=vinos_pedidos,
+                habilitado=[True]
+                )
+                label_procesos_bottom.grid(sticky="nsew")
+
+        def opcion_champanas():
+            global label_procesos_bottom, label_procesos_mid
+            if 0 < int(cantidad_proletariado) <= 8:  # Recomendación para pocos invitados
+                print("Son pocas personas, suponiendo su alto rango, os recomendamos:")
+                botellas_a_llevar = [caros for caros in Plato.vinos_champanas_meeting[1] if caros.get_precio() > 100000]
+                for i, finales in enumerate(botellas_a_llevar):
+                    print(f"{i + 1}. {finales.get_nombre()}")
+                nombres_champanas = []
+                for idx in botellas_a_llevar:
+                    nombres_champanas.append(idx.get_nombre())
+                label_procesos_bottom.destroy()
+                mensaje = ("Ya que son poquitos invitados (y suponemos son gerentes)\n"
+                            "Estos son las champanas que les tenemos para ofecer")
+                label_procesos_mid.config(text= mensaje)
+
+                def champanas_pedidos():
+                    nonlocal cantidad_proletariado
+                    global label_procesos_bottom
+                    
+                    nombre_vino_elegido = label_procesos_bottom.valores[0]
+
+                    for plato in Plato.vinos_champanas_meeting[1]:
+                        if plato.get_nombre() == nombre_vino_elegido:
+                            plato_vino_champana = plato
+                    print("dsfsgdhfh")
+                    
+                    ##Definir la cantidad a llevar
+                    cuenta_botellas = int((int(cantidad_proletariado) + plato_vino_champana.get_porciones() - 1) / plato_vino_champana.get_porciones())
+                    print(f"Un total de {cuenta_botellas} botellas")
+
+
+
+                    plato_vino_champana.set_veces_pedido(cuenta_botellas)
+                    coste_evento = 450000
+                    descripcion_evento = "Una empresa que demustra su talento, seriedad y humanidad"
+                    nombre_evento = "Meetings Empresarial"
+                    evento_elegido = Evento(nombre_evento, coste_evento, [plato_vino_champana])
+                    evento_elegido.set_descripcion(descripcion_evento)
+                    EstadoGlobal.evento_final = evento_elegido
+                    EstadoGlobal.factura_final = Factura()
+                    EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+                    # EstadoGlobal.evento_final.platos = plato_vino_champana
+                    # EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+                    def finalizar():
+                        pass
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(
+                    frame_procesos_bottom,
+                    tituloCriterios="champmañas",
+                    criterios="Estos son los mas cachés",
+                    tituloValores="Seleccione",
+                
+                    tipo=1,
+                    comandoContinuar=finalizar,
+                    habilitado=[True]
+                    )
+                    label_procesos_bottom.grid(sticky="nsew")
+                    return plato_vino_champana
+
+                       
+                label_procesos_bottom = FieldFrame(
+                frame_procesos_bottom,
+                tituloCriterios=["Champañas"],
+                criterios=["Estos son los mas cachés"],
+                tituloValores="Seleccione",
+                valores=[nombres_champanas],
+                tipo=2,
+                comandoContinuar=champanas_pedidos,
+                habilitado=[True]
+                )
+                label_procesos_bottom.grid(sticky="nsew")
+
+
+
+
+            else:
+                print("Son bastantes invitados, para su economía os recomendamos:")
+                botellas_a_llevar = [baratos for baratos in Plato.vinos_champanas_meeting[1] if baratos.get_precio() < 100000]
+                for i, finales in enumerate(botellas_a_llevar):
+                    print(f"{i + 1}. {finales.get_nombre()}")
+                nombres_champanas = []
+                for idx in botellas_a_llevar:
+                    nombres_champanas.append(idx.get_nombre())
+                label_procesos_bottom.destroy()                
+                
+
+                # plato_final = Plato(producto_ofrecido.get_nombre(), cuenta_botellas, producto_ofrecido.get_precio())
+                mensaje = ("Ya que son bastantes invitados (y suponemos son a termino indefinido)\n"
+                            "Estos son las champañas que les tenemos para ofecer")
+                label_procesos_mid.config(text= mensaje)
+
+                def champanas_pedidos():
+                    nonlocal cantidad_proletariado
+                    global label_procesos_bottom
+                    
+                    nombre_vino_elegido = label_procesos_bottom.valores[0]
+
+                    for plato in Plato.vinos_champanas_meeting[1]:
+                        if plato.get_nombre() == nombre_vino_elegido:
+                            plato_vino_champana = plato
+                    print("dsfsgdhfh")
+                    
+                    ##Definir la cantidad a llevar
+                    cuenta_botellas = int((int(cantidad_proletariado) + plato_vino_champana.get_porciones() - 1) / plato_vino_champana.get_porciones())
+                    print(f"Un total de {cuenta_botellas} botellas")
+
+                    plato_vino_champana.set_veces_pedido(cuenta_botellas)
+                    coste_evento = 450000
+                    descripcion_evento = "Una empresa que demustra su talento, seriedad y humanidad"
+                    nombre_evento = "Meetings Empresarial"
+                    evento_elegido = Evento(nombre_evento, coste_evento, [plato_vino_champana])
+                    evento_elegido.set_descripcion(descripcion_evento)
+                    EstadoGlobal.evento_final = evento_elegido
+                    EstadoGlobal.factura_final = Factura()
+                    EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+                    def finalizar():
+                        pass
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(
+                    frame_procesos_bottom,
+                    tituloCriterios="Chamapñas",
+                    criterios="Estos son los mas cachés",
+                    tituloValores="Seleccione",
+                
+                    tipo=1,
+                    comandoContinuar=finalizar,
+                    habilitado=[True]
+                    )
+                    label_procesos_bottom.grid(sticky="nsew")
+                    return plato_vino_champana
+
+                       
+                label_procesos_bottom = FieldFrame(
+                frame_procesos_bottom,
+                tituloCriterios=["Champañas"],
+                criterios=["Estos son los mas baratos"],
+                tituloValores="Seleccione",
+                valores=[nombres_champanas],
+                tipo=2,
+                comandoContinuar=champanas_pedidos,
+                habilitado=[True]
+                )
+                label_procesos_bottom.grid(sticky="nsew")
+
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(
+            frame_procesos_bottom,
+            tituloCriterios="Conteste según sus deseos: ",
+            criterios=None,
+            tituloValores="",
+            tipo=5,
+            comandoContinuar=opcion_vinos,
+            comandoCancelar=opcion_champanas,)
+        label_procesos_bottom.pack(expand=True, fill="both",padx=10, pady=20)
+        label_procesos_bottom.grid(sticky="nsew")
+        
+
+    def elige_por_su_cuenta():
+        global label_procesos_bottom, label_procesos_mid, EstadoGlobal
+        listado = Plato.vinos_champanas_meeting[0] + Plato.vinos_champanas_meeting[1]
+        listado_bonito = []
+        for idx in listado:
+            listado_bonito.append(idx.get_nombre())
+
+        def seleccionar_uno_mismo():
+            global label_procesos_bottom, label_procesos_mid
+            plato_vino_champana = label_procesos_bottom.valores[0]
+            def cantidades():
+                nonlocal plato_vino_champana, listado
+                global label_procesos_bottom
+                try:
+                    cantidades = label_procesos_bottom.getValue("Miralas")
+                    if not (1 <= int(cantidades) <= 7):
+                        raise ExcepcionFueraRango(cantidades, "1-7 (Mas de 7 nos quiebra😞)")
+                    if not cantidades.isdigit():
+                        raise ValueError("Debes de ingresar un numero, no una letra")
+                    bebida_final = None
+                    for platos in listado:
+                        if platos.get_nombre() == plato_vino_champana:
+                            bebida_final = platos
+
+                    bebida_final.set_veces_pedido(int(cantidades))
+                    coste_evento = 450000
+                    descripcion_evento = "Una empresa que demustra su talento, seriedad y humanidad"
+                    nombre_evento = "Meetings Empresarial"
+                    evento_elegido = Evento(nombre_evento, coste_evento, [bebida_final])
+                    evento_elegido.set_descripcion(descripcion_evento)
+                    EstadoGlobal.evento_final = evento_elegido
+                    EstadoGlobal.factura_final = Factura()
+                    EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+
+
+                except ExcepcionFueraRango as e:
+                        print(f"Error: {e}")
+                        messagebox.showerror("Error de Invitados", str(e))
+                    
+                except ErrorAplicacion as e:
+                    print(f"Error: {e}")
+                    messagebox.showerror("Error de Aplicación", str(e))
+
+                except ValueError:
+                    messagebox.showerror("Error de Formato", "El número debe ser un número entero válido.")
+
+
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(
+            frame_procesos_bottom,
+            tituloCriterios="Escoge las botellas que desees",
+            criterios=["Miralas"],
+            tituloValores="Seleccione",
+            valores=[],
+            tipo=0,
+            comandoContinuar=cantidades,
+            habilitado=[True]
+            )
+            label_procesos_bottom.grid(sticky="nsew")
+
+
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios=["Todas las bebidas"],
+        criterios=["Miralas"],
+        tituloValores="Seleccione",
+        valores=[listado_bonito],
+        tipo=2,
+        comandoContinuar=seleccionar_uno_mismo,
+        habilitado=[True]
+        )
+        label_procesos_bottom.grid(sticky="nsew")
+
+        
+
+    label_procesos_mid.config(text = "¿Desea que le recomendemos según la cantidad de asistentes?")
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Conteste según sus deseos: ",
+        criterios=None,
+        tituloValores="",
+        tipo=1,
+        comandoContinuar=acepta_recomendacion,
+        comandoCancelar=elige_por_su_cuenta,
+
+    )
+    label_procesos_bottom.pack(expand=True, fill="both",padx=10, pady=20)
+    label_procesos_bottom.grid(sticky="nsew")
+
+
+
+
+###HASTA ACÁ VA FUNCIONALIDAD 5
+
 def redimensionar_imagen(image, width, height):
     return image.resize((width, height), Image.LANCZOS)
 
@@ -449,6 +1299,10 @@ def cambiar_proceso(event, num_func):
     elif num_func == 1:
         label_procesos_top.config(text="Reservar Mesa")
         seleccion_mesa(None)
+    elif num_func == 5:
+        label_procesos_top.config(text="Crear Evento")
+        crearEvento()
+    
 
 def info_aplicacion():
     messagebox.showinfo(title="Información de la aplicación", message="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
