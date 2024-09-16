@@ -5,7 +5,14 @@
 # from Usuario.cliente import Cliente
 # from Usuario.trabajador import Trabajador
 
-from utilidad import *
+# from utilidad import *
+from collections import OrderedDict
+def combinar_listas(lista1, lista2):
+    # Usar OrderedDict para eliminar duplicados y mantener el orden
+    lista_combinada = list(OrderedDict.fromkeys(tuple(sublista) for sublista in lista1 + lista2))
+    
+    # Convertir las tuplas de vuelta a listas
+    return [list(item) for item in lista_combinada]
 
 class Restaurante:
     # Atributos de clase
@@ -188,15 +195,23 @@ class Restaurante:
     def actualizar_fechas_disponibles(self):
         total_fechas_disponibles_mesas = []
         for mesa in self.get_mesas():
-            total_fechas_disponibles_mesas = intersectar_listas(total_fechas_disponibles_mesas, mesa.get_fechas_disponibles())
+            total_fechas_disponibles_mesas = combinar_listas(total_fechas_disponibles_mesas, mesa.get_fechas_disponibles())
+
+        print(f"Total fechas disponibles mesas al generarlo: {total_fechas_disponibles_mesas}")
 
         nuevo_array = []
         anio_actual = total_fechas_disponibles_mesas[0][0]
         mes_actual = total_fechas_disponibles_mesas[0][1]
         lista_actual = [anio_actual, mes_actual]
 
+        print(f"Lista actual: {lista_actual}")
+
         for fila in total_fechas_disponibles_mesas:
-            anio, mes, dia = fila
+            anio, mes, dia = fila[:3]
+
+            print(f"\n{fila[:3]}")
+
+            print(f"Año: {anio}\nMes: {mes}\nDía: {dia}")
 
             if anio != anio_actual or mes != mes_actual:
                 nuevo_array.append(lista_actual)

@@ -18,9 +18,8 @@ from gestorAplicacion.Usuario.cliente import Cliente
 from gestorAplicacion.Usuario.persona import Persona
 from gestorAplicacion.Usuario.trabajador import Trabajador
 
-import datetime
 from datetime import datetime, timedelta
-# from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta
 import random
 from tkinter import *
 from tkinter import messagebox
@@ -29,6 +28,17 @@ from PIL import Image, ImageTk
 contador_clicks_cv = 0
 contador_pasa_img_res = 0
 funcionalidad_actual = 0
+
+def generar_fechas():
+    fechas_disponibles = []
+    hoy = datetime.now().date()
+    fin = hoy + relativedelta(months=6)
+    while hoy <= fin:
+        fechas = [hoy.year, hoy.month, hoy.day, 10, 12, 14, 16, 18, 20]
+        fechas_disponibles.append(fechas)
+        hoy += timedelta(days=1)
+    
+    return fechas_disponibles
 
 def reservar_mesa():
     Ciudad.get_ciudades().pop(0)
@@ -136,6 +146,117 @@ def seleccion_mesa(restaurante):
     restaurante = Restaurante(10, "Casa Stiven", [], comala, zona_centro, False)
     zona_centro.get_restaurantes().append(restaurante)
 
+    disposicion = [ 
+        ["╔", "═", "╦", "╗", "║", "╠", "╬", "╣", "╚", "╩", "╝", " "], 
+        ["B", "B", "B", "B", "B", "B", "B", "B", "B", "B"], 
+        ["B", " ", "V", " ", "V", " ", "V", " ", "V", "B"], 
+        ["W", " ", " ", " ", " ", " ", " ", " ", " ", "W"], 
+        ["B", " ", "T", " ", "T", " ", "T", " ", "T", "B"], 
+        ["B", " ", " ", " ", " ", " ", " ", " ", " ", "B"], 
+        ["B", " ", "T", " ", "T", " ", "T", " ", " ", "B"], 
+        ["B", " ", " ", " ", " ", " ", " ", " ", " ", "B"], 
+        ["W", " ", "T", " ", "T", " ", "T", " ", " ", "W"], 
+        ["B", " ", " ", " ", " ", " ", " ", " ", " ", "B"], 
+        ["B", "B", "B", "B", "B", "B", "B", "E", "B", "B"]
+    ]
+
+
+    restaurante.set_disposicion(disposicion)
+    restaurante.set_capacidad(1234)
+
+    # Mesas
+    mesa1 = Mesa(0, 3, 2, True, 4)
+    mesa1.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa1)
+    restaurante.get_mesas().append(mesa1)
+
+    mesa2 = Mesa(0, 5, 2, True, 4)
+    mesa2.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa2)
+    restaurante.get_mesas().append(mesa2)
+
+    mesa3 = Mesa(0, 7, 2, True, 4)
+    mesa3.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa3)
+    restaurante.get_mesas().append(mesa3)
+
+    mesa4 = Mesa(0, 9, 2, True, 4)
+    mesa4.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa4)
+    restaurante.get_mesas().append(mesa4)
+
+    mesa5 = Mesa(0, 3, 4, False, 4)
+    mesa5.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa5)
+    restaurante.get_mesas().append(mesa5)
+
+    mesa6 = Mesa(0, 5, 4, False, 4)
+    mesa6.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa6)
+    restaurante.get_mesas().append(mesa6)
+
+    mesa7 = Mesa(0, 7, 4, False, 4)
+    mesa7.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa7)
+    restaurante.get_mesas().append(mesa7)
+
+    mesa8 = Mesa(0, 9, 4, False, 4)
+    mesa8.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa8)
+    restaurante.get_mesas().append(mesa8)
+
+    mesa9 = Mesa(0, 3, 6, False, 4)
+    mesa9.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa9)
+    restaurante.get_mesas().append(mesa9)
+
+    mesa10 = Mesa(0, 5, 6, False, 4)
+    mesa10.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa10)
+    restaurante.get_mesas().append(mesa10)
+
+    mesa11 = Mesa(0, 7, 6, False, 4)
+    mesa11.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa11)
+    restaurante.get_mesas().append(mesa11)
+
+    mesa12 = Mesa(0, 3, 8, False, 4)
+    mesa12.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa12)
+    restaurante.get_mesas().append(mesa12)
+
+    mesa13 = Mesa(0, 5, 8, False, 4)
+    mesa13.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa13)
+    restaurante.get_mesas().append(mesa13)
+
+    mesa14 = Mesa(0, 7, 8, False, 4)
+    mesa14.set_restaurante(restaurante)
+    restaurante.get_casillas().append(mesa14)
+    restaurante.get_mesas().append(mesa14)
+
+    for mesa in restaurante.get_mesas():
+        mesa.set_fechas_disponibles(generar_fechas())
+    
+    restaurante.actualizar_fechas_disponibles()
+
+    # Casillas
+    casilla1 = Casilla(1, 1, 3)
+    restaurante.get_casillas().append(casilla1)
+
+    casilla2 = Casilla(1, 1, 8)
+    restaurante.get_casillas().append(casilla2)
+
+    casilla3 = Casilla(1, 10, 3)
+    restaurante.get_casillas().append(casilla3)
+
+    casilla4 = Casilla(1, 10, 8)
+    restaurante.get_casillas().append(casilla4)
+
+    casilla5 = Casilla(2, 8, 10)
+    restaurante.get_casillas().append(casilla5)
+
+
     clientes = []
 
     global label_procesos_bottom
@@ -161,7 +282,8 @@ def seleccion_mesa(restaurante):
             cliente = Utilidad.cliente_cedula(cliente)
         else:
             restaurante.get_clientes().append(cliente)
-            clientes.append(cliente)
+
+        clientes.append(cliente)
 
         def f1_i1_preferencias():
             global label_procesos_bottom
@@ -192,57 +314,8 @@ def seleccion_mesa(restaurante):
                     mesa.set_distancia_puerta(0)
                     mesa.set_distancia_ventana(0)
             
-            fecha_final_elegida = seleccion_fecha(restaurante, tipo_mesa, mesas_elegidas)
-            mesas_disponibles = []
-            for mesa in restaurante.get_mesas():
-                for fecha in mesa.get_fechas_disponibles():
-                    if (fecha[0] == fecha_final_elegida[0] and fecha[1] == fecha_final_elegida[1] and
-                            fecha[2] == fecha_final_elegida[2] and mesa.is_vip() == tipo_mesa and len(fecha) > 3):
-                        mesas_disponibles.append(mesa.get_num_mesa())
-                        print(f"Mesa #{mesa.get_num_mesa()}")
-
-            def f1_i1_escoger_num_mesa():
-                ### VOY ACÁ ###
-                global label_procesos_bottom
-                mesa_elegida = label_procesos_bottom.valores[0]
-                
-                indice_fecha_elegida = next(i for i, fecha in enumerate(mesa_elegida.get_fechas_disponibles())
-                                            if fecha[1] == fecha_elegida[1] and fecha[2] == fecha_elegida[2])
-
-                mesa_elegida.set_ultima_fecha_reserva(indice_fecha_elegida)
-
-                horarios_disponibles = []
-                for i in range(3, len(mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida])):
-                    horarios_disponibles.append(f"{mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida][i]}:00.")
-
-                def f1_i1_escoger_horario():
-                    global label_procesos_bottom
-                    hora_elegida = label_procesos_bottom.valores[0]
-
-                    fecha_elegida.append(mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida][hora_elegida + 2])
-                    reserva = Reserva(clientes, fecha_elegida)
-                    reserva.set_restaurante(restaurante)
-                    mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida].pop(hora_elegida + 2)
-                    restaurante.get_historial_reservas().append(reserva)
-
-                    for cliente in clientes:
-                        cliente.set_reserva(reserva)
-                        cliente.set_mesa(mesa_elegida)
-                        cliente.set_factura(Factura(Pedido()))
-
-                    print(f"Mesa Elegida: {mesa_elegida.get_fechas_disponibles()}")
-                    print(restaurante.get_historial_reservas())
-                    print("Su reserva ha sido exitosa")
-                
-                label_procesos_bottom.destroy()
-                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Horario mesa"], tituloValores = "Valor ingresado", valores=[horarios_disponibles], tipo = 2, habilitado = [True], comandoContinuar=f1_i1_escoger_horario)
-                label_procesos_bottom.grid(sticky="nsew")
-            
-            label_procesos_mid.config(text="Seleccione el número de la mesa de su preferencia.") 
-            #Idea: Agregar pop up con la distribución del restaurante
-            label_procesos_bottom.destroy()
-            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Número mesa"], tituloValores = "Valor ingresado", valores=[mesas_disponibles], tipo = 2, habilitado = [True], comandoContinuar=f1_i1_escoger_num_mesa)
-            label_procesos_bottom.grid(sticky="nsew")
+            print("\nClientes: ", clientes)
+            seleccion_fecha(restaurante, tipo_mesa, mesas_elegidas, clientes)
         
         if num_acompanantes > 0:
             num_acompanantes = min(num_acompanantes, 4)
@@ -301,9 +374,85 @@ def seleccion_mesa(restaurante):
     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Nombre", "Cédula", "Placa Vehículo", "Número de Acompañantes"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True, True, True], comandoContinuar=f1_i1_datos_clientes)
     label_procesos_bottom.grid(sticky="nsew")
 
-    return clientes[0]
+def continuar_seleccion_mesa(restaurante, fecha_elegida_reservar_mesa, tipo_mesa, clientes):
+    global label_procesos_bottom
+    mesas_disponibles = []
+    print("\n", fecha_elegida_reservar_mesa, "\n")
+    for mesa in restaurante.get_mesas():
+        print(mesa.get_fechas_disponibles())
+        for fecha in mesa.get_fechas_disponibles():
 
-def seleccion_fecha(restaurante, tipo_mesa, mesas_elegidas):
+            if (fecha[0] == fecha_elegida_reservar_mesa[0] and fecha[1] == fecha_elegida_reservar_mesa[1] and
+                    fecha[2] == fecha_elegida_reservar_mesa[2] and mesa.is_vip() == tipo_mesa and len(fecha) > 3):
+                mesas_disponibles.append(mesa.get_num_mesa())
+                print(f"Mesa #{mesa.get_num_mesa()}")
+
+    def f1_i1_escoger_num_mesa():
+        ### VOY ACÁ ###
+        global label_procesos_bottom
+        mesa_elegida = int(label_procesos_bottom.valores[0])
+
+        for mesa in restaurante.get_mesas():
+            if mesa.get_num_mesa() == mesa_elegida:
+                mesa_elegida = mesa
+                break
+        
+        indice_fecha_elegida = next(i for i, fecha in enumerate(mesa_elegida.get_fechas_disponibles())
+                                    if fecha[1] == fecha_elegida_reservar_mesa[1] and fecha[2] == fecha_elegida_reservar_mesa[2])
+
+        mesa_elegida.set_ultima_fecha_reserva(indice_fecha_elegida)
+
+        horarios_disponibles = []
+        for i in range(3, len(mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida])):
+            horarios_disponibles.append(f"{mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida][i]}:00")
+
+        def f1_i1_escoger_horario():
+            global label_procesos_bottom
+            hora_elegida = int(label_procesos_bottom.valores[0].replace(":00", ""))
+            if hora_elegida == 10:
+                hora_elegida = 1
+            elif hora_elegida == 12:
+                hora_elegida = 2
+            elif hora_elegida == 14:
+                hora_elegida = 3
+            elif hora_elegida == 16:
+                hora_elegida = 4
+            elif hora_elegida == 18:
+                hora_elegida = 5
+            elif hora_elegida == 20:
+                hora_elegida = 6
+            print(hora_elegida)
+
+            fecha_elegida_reservar_mesa.append(mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida][hora_elegida + 2])
+            reserva = Reserva(clientes, fecha_elegida_reservar_mesa)
+            reserva.set_restaurante(restaurante)
+            mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida].pop(hora_elegida + 2)
+            restaurante.get_historial_reservas().append(reserva)
+
+            print("Clientes: ", clientes)
+
+            for cliente in clientes:
+                cliente.set_reserva(reserva)
+                cliente.set_mesa(mesa_elegida)
+                cliente.set_factura(Factura(Pedido()))
+
+            print(f"Mesa Elegida: {mesa_elegida.get_fechas_disponibles()}")
+            print(restaurante.get_historial_reservas())
+            print("Su reserva ha sido exitosa")
+
+            return clientes[0]
+        
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Horario mesa"], tituloValores = "Valor ingresado", valores=[horarios_disponibles], tipo = 2, habilitado = [True], comandoContinuar=f1_i1_escoger_horario)
+        label_procesos_bottom.grid(sticky="nsew")
+    
+    label_procesos_mid.config(text="Seleccione el número de la mesa de su preferencia.") 
+    #Idea: Agregar pop up con la distribución del restaurante
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Número mesa"], tituloValores = "Valor ingresado", valores=[mesas_disponibles], tipo = 2, habilitado = [True], comandoContinuar=f1_i1_escoger_num_mesa)
+    label_procesos_bottom.grid(sticky="nsew")
+
+def seleccion_fecha(restaurante, tipo_mesa, mesas_elegidas, clientes):
     global label_procesos_bottom
     anios = []
     meses = []
@@ -312,17 +461,19 @@ def seleccion_fecha(restaurante, tipo_mesa, mesas_elegidas):
         if fechas_mes[0] not in anios:
             anios.append(fechas_mes[0])
     
-    def f1_i1_escoger_mes():
+    def f1_i1_escoger_mesa():
         global label_procesos_bottom
-        anio_elegido = label_procesos_bottom.valores[0]
+        anio_elegido = int(label_procesos_bottom.valores[2])
 
         for fechas_mes in restaurante.get_fechas_disponibles():
-            if anios[anio_elegido - 1] == fechas_mes[0]:
+            if anios[anio_elegido - 1] == fechas_mes[0] and fechas_mes[1] not in meses:
                 meses.append(fechas_mes[1])
+            
+        anio_elegido = anios[anio_elegido - 1]
 
         def f1_i1_escoger_dia():
             global label_procesos_bottom
-            mes_elegido = label_procesos_bottom.valores[0]
+            mes_elegido = int(label_procesos_bottom.valores[0])
 
             indice_mes = 0
 
@@ -331,13 +482,14 @@ def seleccion_fecha(restaurante, tipo_mesa, mesas_elegidas):
                     indice_mes = i
                     break
             
-            def f1_i1_retornar_fecha_elegida():
-                global label_procesos_bottom, fecha_elegida
-                dia_elegido = label_procesos_bottom.valores[0]
-                fecha_elegida = [anio_elegido, mes_elegido, dia_elegido]
+            def f1_i1_definir_fecha_elegida():
+                global label_procesos_bottom
+                dia_elegido = int(label_procesos_bottom.valores[0])
+                fecha_elegida_reservar_mesa = [anio_elegido, mes_elegido, dia_elegido]
+                continuar_seleccion_mesa(restaurante, fecha_elegida_reservar_mesa, tipo_mesa, clientes)
 
             label_procesos_bottom.destroy()
-            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Día"], tituloValores = "Valor ingresado", tipo = 2, valores=[restaurante.get_fechas_disponibles()[indice_mes][2::]], habilitado = [True], comandoContinuar=f1_i1_retornar_fecha_elegida)
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Día"], tituloValores = "Valor ingresado", tipo = 2, valores=[restaurante.get_fechas_disponibles()[indice_mes][2::]], habilitado = [True], comandoContinuar=f1_i1_definir_fecha_elegida)
             label_procesos_bottom.grid(sticky="nsew")
         
         label_procesos_bottom.destroy()
@@ -345,10 +497,517 @@ def seleccion_fecha(restaurante, tipo_mesa, mesas_elegidas):
         label_procesos_bottom.grid(sticky="nsew")
     
     label_procesos_bottom.destroy()
-    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Año"], tituloValores = "Valor ingresado", tipo = 2, valores=[anios], habilitado = [True], comandoContinuar=f1_i1_escoger_mes)
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Año 1", "Año 2", "Año"], tituloValores = "Valor ingresado", tipo = 2, valores=[[anios[0]], [anios[1]], [1,2]], habilitado = [False, False, True], comandoContinuar=f1_i1_escoger_mesa)
     label_procesos_bottom.grid(sticky="nsew")
 
-    return fecha_elegida
+def agregar_sede():
+    Ciudad.get_ciudades().pop(0)
+    Zona.get_zonas().pop(0)
+    comala = Ciudad("Comala")
+    zona_centro = Zona(14, "Centro", comala)
+    comala.agregar_zona(zona_centro)
+    restaurante_sti = Restaurante(10, "Casa Stiven", [], comala, zona_centro, False)
+    zona_centro.get_restaurantes().append(restaurante_sti)
+    comala.get_restaurantes().append(restaurante_sti)
+
+    global label_procesos_bottom
+    restaurante_creado = Restaurante()
+
+    def f4_i1_continuar_interaccion():
+        restaurante = elegir_zona(restaurante_creado)
+        # establecer_disposicion(restaurante)
+        # establecer_menu_y_encargos(restaurante)
+
+    label_procesos_mid.config(text="Seleccione sí o no dependiendo de si quiere continuar")
+    #Sí o No desea continuar con la funcionalidad 1
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea", criterios=None, tituloValores="continuar?", tipo=1, comandoContinuar=f4_i1_continuar_interaccion, comandoCancelar=funcionalidad_0)
+    label_procesos_bottom.grid(sticky="nsew")
+
+def elegir_zona(restaurante):
+    global label_procesos_bottom
+
+    def f4_i1_establecer_parametros():
+        global label_procesos_bottom
+        nombre_ciudad_elegida = label_procesos_bottom.valores[0]
+        print(nombre_ciudad_elegida)
+        ciudad_actual = None
+        for ciudad in Ciudad.get_ciudades(): 
+            if ciudad.get_nombre() == nombre_ciudad_elegida:
+                ciudad_actual = ciudad
+                break
+        print(ciudad_actual)
+        
+        if not ciudad_actual.get_restaurantes():
+            print(ciudad_actual.get_zonas_ciudad())
+            parametros_basicos(ciudad_actual, restaurante)
+        else:
+            def f4_i1_confirmar_establecer_parametros():
+                global label_procesos_bottom
+                continuar_proceso = label_procesos_bottom.valores[0]
+
+                if continuar_proceso == 1:
+                    parametros_basicos(ciudad_actual, restaurante)
+
+            label_procesos_mid.config(text="Seleccione sí o no.")
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="La ciudad ya tiene restarantes.", criterios=None, tituloValores="¿Desea continuar igualmente?", tipo=1, comandoContinuar=f4_i1_confirmar_establecer_parametros, comandoCancelar=funcionalidad_0)
+            label_procesos_bottom.grid(sticky="nsew")
+
+    label_procesos_mid.config(text="Seleccione la ciudad donde desea agregar la sede.")
+    nombre_ciudades = []
+    for ciudad in Ciudad.get_ciudades(): 
+        nombre_ciudades.append(ciudad.get_nombre())
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Ciudad"], tituloValores = "Valor ingresado", valores = [nombre_ciudades], tipo = 2, comandoContinuar = f4_i1_establecer_parametros, habilitado = [True])
+    label_procesos_bottom.grid(sticky="nsew")
+
+    return restaurante
+
+#Este método obtiene promedios necesarios para luego
+def obtener_promedios():
+    valores = [0] * 5
+    ancho = 0  # 0
+    alto = 0  # 1
+    mesas_estandar = 0  # 2
+    mesas_vip = 0  # 3
+    ventanas = 0  # 4
+
+    for zona in Zona.get_zonas():
+        for restaurante in zona.get_restaurantes():
+            valores[0] += restaurante.get_coord_x()
+            valores[1] += restaurante.get_coord_y()
+            for mesa in restaurante.get_mesas():
+                if not mesa.is_vip():
+                    valores[2] += 1
+                else:
+                    valores[3] += 1
+            for i in range(1, restaurante.get_coord_y() + 1):
+                for string in restaurante.get_disposicion().get(i):
+                    if string == "W":
+                        valores[4] += 1
+    return valores
+
+# Este método se encarga de definir los parámetros básicos del restaurante: Ciudad, Zona, Zona VIP y Calificación.
+def parametros_basicos(ciudad, restaurante):
+    global label_procesos_bottom
+
+    def f4_i1_continuar_parametros():
+        global label_procesos_bottom
+
+        nombre_zona_elegida = label_procesos_bottom.valores[0]
+
+        zona_actual = None
+        for zona in Zona.get_zonas(): 
+            if zona.get_nombre() == nombre_zona_elegida:
+                zona_actual = zona
+                break
+
+        # Se evalúa si existen restaurantes enlazados a esta zona.
+        if not zona_actual.get_restaurantes():  # Si la zona elegida no tiene restaurantes
+            # Se enlaza la ciudad al restaurante
+            restaurante.set_ciudad(ciudad)
+            # Se enlaza la zona al restaurante
+            restaurante.set_zona(zona_actual)
+            # Se enlaza el restaurante a la zona
+            zona_actual.get_restaurantes().append(restaurante)
+            # Se enlaza el restaurante a la ciudad
+            ciudad.get_restaurantes().append(restaurante)
+
+            def f4_i1_establecer_parametros():
+                global label_procesos_bottom
+                restaurante.set_nombre(label_procesos_bottom.valores[0].capitalize())
+
+                def f4_i1_terminar_parametros():
+                    global label_procesos_bottom
+                    if label_procesos_bottom.valores[0] == 1:
+                        restaurante.set_zona_vip(True)
+                    elif label_procesos_bottom.valores[0] == 2:
+                        restaurante.set_zona_vip(False)
+                    restaurante.set_calificacion(int((random.random() * 5) + 1))
+                    print(restaurante)
+                
+                label_procesos_mid.config(text="Seleccione sí o no.")
+
+                label_procesos_bottom.destroy()
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios=f"¿{label_procesos_bottom.valores[0].capitalize()}", criterios=None, tituloValores="tendrá zona VIP?", tipo=1, comandoContinuar=f4_i1_terminar_parametros, comandoCancelar=f4_i1_terminar_parametros)
+                label_procesos_bottom.grid(sticky="nsew")
+
+            label_procesos_mid.config(text="Escriba el nombre del nuevo restaurante.")
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Nombre restaurante"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True], comandoContinuar=f4_i1_establecer_parametros)
+            label_procesos_bottom.grid(sticky="nsew")
+
+        else:  # Si la zona elegida tiene restaurantes
+            print("Entró al análisis")
+            # Análisis de reservas
+            reservas_ultimos_treinta = []
+            intentos_ultimos_treinta = []
+            mesas_restaurantes = []
+
+            reservas_satisfactorias = 0
+            total_intentos = 0
+
+            # Agregamos los datos que corresponden a los últimos 30 días de funcionamiento de los restaurantes de la ciudad correspondiente.
+            for restaurante_zona in zona_actual.get_restaurantes():
+                print(restaurante_zona)
+                reservas_restaurante = []
+                intentos_restaurante = []
+                for reserva in restaurante_zona.get_historial_reservas():
+                    if reserva.is_satisfaccion():
+                        reservas_satisfactorias += 1
+                    fecha_to_date_time = datetime.datetime(reserva.get_fecha()[0], reserva.get_fecha()[1], reserva.get_fecha()[2], reserva.get_fecha()[3], 0)
+                    if (fecha_to_date_time > datetime.now() - datetime.timedelta(days=30)) and (fecha_to_date_time < datetime.now()):
+                        if fecha_to_date_time not in reservas_restaurante:
+                            reservas_restaurante.append(reserva)
+                
+                print(restaurante_zona.get_intentos_reserva())
+                if restaurante_zona.get_intentos_reserva() is not []:
+                    for intento in restaurante_zona.get_intentos_reserva():
+                        total_intentos += 1
+                        fecha_to_date = datetime.date(intento[0], intento[1], intento[2])
+                        if (fecha_to_date > datetime.date.today() - datetime.timedelta(days=30)) and (fecha_to_date < datetime.date.today()):
+                            intentos_restaurante.append(intento)
+
+                for mesa in restaurante_zona.get_mesas():
+                    print(mesa)
+                    mesas_restaurantes.append(mesa)
+
+                reservas_ultimos_treinta.extend(reservas_restaurante)
+                intentos_ultimos_treinta.extend(intentos_restaurante)
+
+            # Demanda por Hora
+            intentos_reserva = len(intentos_ultimos_treinta)
+            horas_funcionamiento = len(reservas_ultimos_treinta)
+            total_mesas = len(mesas_restaurantes)
+
+            if total_mesas != 0 and horas_funcionamiento != 0:
+                demanda_por_hora = (intentos_reserva / horas_funcionamiento) / total_mesas
+
+                # Satisfacción del Cliente
+                satisfaccion_del_cliente = (reservas_satisfactorias / total_mesas) * 100
+
+                # Conclusión Análisis
+                conclusion = (demanda_por_hora + satisfaccion_del_cliente) / 2
+
+                def f4_i1_crear_igualmente():
+                    # Se enlaza la ciudad al restaurante
+                    restaurante.set_ciudad(ciudad)
+                    # Se enlaza la zona al restaurante
+                    restaurante.set_zona(zona_actual)
+                    # Se enlaza el restaurante a la zona
+                    zona_actual.get_restaurantes().append(restaurante)
+                    # Se enlaza el restaurante a la ciudad
+                    ciudad.get_restaurantes().append(restaurante)
+
+                    def f4_i1_establecer_parametros():
+                        global label_procesos_bottom
+                        restaurante.set_nombre(label_procesos_bottom.valores[0].capitalize())
+
+                        def f4_i1_terminar_parametros():
+                            global label_procesos_bottom
+                            if label_procesos_bottom.valores[0] == 1:
+                                restaurante.set_zona_vip(True)
+                            elif label_procesos_bottom.valores[0] == 2:
+                                restaurante.set_zona_vip(False)
+                            restaurante.set_calificacion(int((random.random() * 5) + 1))
+                        
+                        label_procesos_mid.config(text="Seleccione sí o no.")
+
+                        label_procesos_bottom.destroy()
+                        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios=f"¿{label_procesos_bottom.valores[0].capitalize()}", criterios=None, tituloValores="tendrá zona VIP?", tipo=1, comandoContinuar=f4_i1_terminar_parametros, comandoCancelar=f4_i1_terminar_parametros)
+                        label_procesos_bottom.grid(sticky="nsew")
+
+                    label_procesos_mid.config(text="Escriba el nombre del nuevo restaurante.")
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Nombre restaurante"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True], comandoContinuar=f4_i1_establecer_parametros)
+                    label_procesos_bottom.grid(sticky="nsew")
+
+                if conclusion < 0.5:
+                    label_procesos_mid.config(text="Seleccione sí o no dependiendo de si quiere continuar.")
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Según el algoritmo de análisis hecho, no es recomendable crear un nuevo restaurante en " + ciudad.get_nombre() + ".\nEsto se debe a que los restaurantes de la ciudad tienen un flujo bajo de clientes y\nno están cumpliendo con las expectativas de la gran mayoría de sus usuarios.\nTeniendo esto en cuenta, ¿Desea crear una nueva sede?", criterios=None, tituloValores="", tipo=1, comandoContinuar=f4_i1_crear_igualmente, comandoCancelar=funcionalidad_0)
+                    label_procesos_bottom.grid(sticky="nsew")
+
+                elif 0.5 <= conclusion <= 0.7:
+                    label_procesos_mid.config(text="Seleccione sí o no dependiendo de si quiere continuar.")
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Según el algoritmo de análisis hecho, es medianamente recomendable crear un nuevo restaurante en " + ciudad.get_nombre() + ".\nEsto se debe a que los restaurantes tienen un flujo medio de clientes y\nestán cumpliendo con las expectativas la mayoría de los usuarios.\nTeniendo esto en cuenta, ¿Desea crear una nueva sede?", criterios=None, tituloValores="", tipo=1, comandoContinuar=f4_i1_crear_igualmente, comandoCancelar=funcionalidad_0)
+                    label_procesos_bottom.grid(sticky="nsew")
+
+                else:
+                    label_procesos_mid.config(text="Seleccione sí o no dependiendo de si quiere continuar.")
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Según el algoritmo de análisis hecho, es altamente recomendable crear un nuevo restaurante en " + ciudad.get_nombre() + ".\nEsto se debe a que los restaurantes tienen un flujo alto de clientes y\nestán cumpliendo con las expectativas la gran mayoría de los usuarios.\nTeniendo esto en cuenta, ¿Desea crear una nueva sede?", criterios=None, tituloValores="", tipo=1, comandoContinuar=f4_i1_crear_igualmente, comandoCancelar=funcionalidad_0)
+                    label_procesos_bottom.grid(sticky="nsew")
+
+
+    label_procesos_mid.config(text="Seleccione la zona donde desea reservar su mesa.")
+
+    nombre_zonas = []
+    for zona in ciudad.get_zonas_ciudad():
+        nombre_zonas.append(zona.get_nombre())
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Zona"], tituloValores = "Valor ingresado", valores = [nombre_zonas], tipo = 2, comandoContinuar = f4_i1_continuar_parametros, habilitado = [True])
+    label_procesos_bottom.grid(sticky="nsew")
+
+ciclo_esquinas = ['B']
+ciclo_bordes = ['B', 'W', 'E']
+ciclo_central = [' ', 'T', 'V']
+
+# Variable para verificar si los cambios han sido guardados
+cambios_guardados = False
+
+def cambiar_estado(boton, fila, columna, estado_actual, M, N):
+    global cambios_guardados
+    cambios_guardados = False  # Cambios no guardados
+    # Identificar la zona del botón: esquina, borde, o central
+    if (fila == 0 or fila == M-1) and (columna == 0 or columna == N-1):
+        # Esquinas
+        ciclo = ciclo_esquinas
+    elif fila == 0 or fila == M-1 or columna == 0 or columna == N-1:
+        # Bordes (excepto esquinas)
+        ciclo = ciclo_bordes
+    else:
+        # Centro
+        ciclo = ciclo_central
+    
+    # Cambiar al siguiente estado en el ciclo correspondiente
+    nuevo_estado = (estado_actual + 1) % len(ciclo)
+    boton.config(text=ciclo[nuevo_estado])
+
+    fuente_normal = ("Arial", 10)
+    fuente_bold = ("Arial", 10, "bold")
+
+    # Cambiar la fuente a negrita si es 'Ventana' o 'Puerta' en los bordes
+    if ciclo == ciclo_bordes and (ciclo[nuevo_estado] == 'W' or ciclo[nuevo_estado] == 'E'):
+        boton.config(font=fuente_bold)  # Texto en negrita
+    elif ciclo == ciclo_central and (ciclo[nuevo_estado] == "T" or ciclo[nuevo_estado] == "V"):
+        boton.config(font=fuente_bold)
+    else:
+        boton.config(font=fuente_normal)  # Texto normal para otros estados
+    
+    # Actualizar el estado actual
+    matriz_estados[fila][columna] = nuevo_estado
+
+def generar_lista_estados(alto, ancho):
+    # Crear la lista de estados basada en el contenido actual de los botones
+    lista_estados = []
+    for fila in range(alto):
+        for columna in range(ancho):
+            texto_boton = matriz_botones[fila][columna].cget('text')
+            lista_estados.append(((columna+1, fila+1), texto_boton))
+    return lista_estados
+
+def validar_estados(lista_estados):
+    # Comprobar que hay al menos una Ventana, una Puerta y una Mesa
+    tiene_ventana = any('W' in fila for fila in lista_estados)
+    tiene_puerta = any('E' in fila for fila in lista_estados)
+    tiene_mesa = any('T' in fila for fila in lista_estados) or any('V' in fila for fila in lista_estados)
+
+    return tiene_ventana and tiene_puerta and tiene_mesa
+
+disposicion_nuevo_restaurante = []
+
+def guardar_cambios(alto, ancho):
+    global cambios_guardados, disposicion_nuevo_restaurante
+    disposicion_nuevo_restaurante = generar_lista_estados(alto, ancho)
+    
+    if validar_estados([estado for _, estado in disposicion_nuevo_restaurante]):
+        # Aquí puedes hacer lo que desees con la lista generada
+        cambios_guardados = True  # Cambios guardados
+        ventana_emergente.destroy()
+    else:
+        # Mostrar un mensaje de advertencia
+        messagebox.showwarning("Advertencia", "Debe haber al menos una Ventana (W), una Puerta (E) y una Mesa (T o V).")
+
+def on_close():
+    if not cambios_guardados:
+        messagebox.showwarning("Advertencia", "Debe guardar los cambios antes de cerrar la ventana.")
+    else:
+        ventana_emergente.destroy()
+
+def crear_ventana_emergente(alto, ancho):
+    global ventana_emergente
+    # Crear ventana emergente
+    ventana_emergente = Toplevel(bg="#838383")
+    ventana_emergente.title("Distribución Restaurante")
+    ventana_emergente.iconbitmap("src/Imagenes/susy-oveja.ico")
+
+    # Interceptar el cierre de la ventana
+    ventana_emergente.protocol("WM_DELETE_WINDOW", on_close)
+
+    global matriz_estados, matriz_botones
+    matriz_estados = [[0 for _ in range(ancho)] for _ in range(alto)]  # Inicializar todos los botones con el estado 0
+    matriz_botones = [[None for _ in range(ancho)] for _ in range(alto)]  # Para almacenar las referencias a los botones
+
+    frame_emergente = Frame(ventana_emergente, bg="#696969", bd=2, relief="solid")
+    frame_emergente.pack(side=TOP, fill = "both", expand=True, padx=10, pady=10)
+
+    frame_emergente_botones = Frame(frame_emergente, bg="#696969")
+    frame_emergente_botones.pack(side=TOP, fill = "both", expand=True, padx=10, pady=10)
+
+    for i in range(alto):
+        frame_emergente_botones.grid_rowconfigure(i, weight=1)
+        for j in range(ancho):
+            frame_emergente_botones.grid_columnconfigure(j, weight=1)
+            # Crear botones y asignar la función de cambio de estado
+            boton = Button(frame_emergente_botones, text=ciclo_central[0], bg="#545454", font=("Arial", 10), fg="#fff")
+            boton.grid(row=i, column=j, sticky="nsew")
+            matriz_botones[i][j] = boton  # Almacenar referencia al botón
+            # Determinar el ciclo inicial de acuerdo a la posición del botón
+            if (i == 0 or i == alto-1) and (j == 0 or j == ancho-1):
+                # Esquinas
+                boton.config(text=ciclo_esquinas[0])
+            elif i == 0 or i == alto-1 or j == 0 or j == ancho-1:
+                # Bordes
+                boton.config(text=ciclo_bordes[0])
+            else:
+                # Centro
+                boton.config(text=ciclo_central[0])
+
+            # Vincular la función al evento de clic
+            boton.config(command=lambda b=boton, fila=i, col=j: cambiar_estado(b, fila, col, matriz_estados[fila][col], alto, ancho))
+
+    # Crear botón "Aceptar"
+    boton_aceptar = Button(ventana_emergente, text="Aceptar", command=lambda: guardar_cambios(alto, ancho), bg="#696969", font=("Arial", 10), fg="#fff")
+    boton_aceptar.pack(side="bottom", fill="x", padx=10, pady=10)
+
+def establecer_disposicion(restaurante):
+    global label_procesos_bottom
+    # Verificar si hay más de 3 restaurantes creados
+    print(restaurante.get_ciudad().get_restaurantes())
+    restaurante.get_ciudad().get_restaurantes().pop(0)
+    print(restaurante.get_ciudad().get_restaurantes())
+
+
+    if restaurante.get_ciudad().get_restaurantes() != []:
+        promedios = obtener_promedios()
+        label_procesos_mid.config(text=f"""Recomendación: Ancho = {promedios[0]}\tLargo = {promedios[1]}
+        Cantidad Mesas: Estándar = {promedios[2]}\tVIP = {promedios[3]} (En caso de tener Zona VIP)
+        Ventanas = {promedios[4]}""")
+    else:
+        label_procesos_mid.config(text="""Recomendación: Ancho = 10\tLargo = 10
+        Cantidad Mesas: Estándar = 2\tVIP = 1 (En caso de tener Zona VIP)
+        Ventanas = 2""")
+
+    def f4_i2_ventana_emergente():
+        global label_procesos_bottom
+
+        try:
+            alto_elegido = int(label_procesos_bottom.valores[0])
+            ancho_elegido = int(label_procesos_bottom.valores[1])
+            if alto_elegido < 8 or ancho_elegido < 8 or alto_elegido > 21 or ancho_elegido > 25:
+                raise ExcepcionDatosEntry
+            else:
+                crear_ventana_emergente(alto_elegido, ancho_elegido)
+                def f4_i2_instanciar_elementos():
+                    global disposicion_nuevo_restaurante
+                    for casilla in disposicion_nuevo_restaurante:
+                        if casilla[1] == "W":
+                            restaurante.get_casillas().append(Casilla(1, casilla[0][0], casilla[0][1]))
+                        elif casilla[1] == "E":
+                            restaurante.get_casillas().append(Casilla(2, casilla[0][0], casilla[0][1]))
+                        elif casilla[1] == "T":    
+                            mesa = Mesa(0, casilla[0][0], casilla[0][1], False)
+                            restaurante.get_casillas().append(mesa)
+                            restaurante.get_mesas().append(mesa)
+                            mesa.set_fechas_disponibles(generar_fechas())
+                        elif casilla[1] == "V":
+                            if restaurante.is_zona_vip() == False:
+                                mesa = Mesa(0, casilla[0][0], casilla[0][1], False)
+                                restaurante.get_casillas().append(mesa)
+                                restaurante.get_mesas().append(mesa)
+                                mesa.set_fechas_disponibles(generar_fechas())
+                            else:
+                                mesa = Mesa(0, casilla[0][0], casilla[0][1], True)
+                                restaurante.get_casillas().append(mesa)
+                                restaurante.get_mesas().append(mesa)
+                                mesa.set_fechas_disponibles(generar_fechas())
+                    print("Casillas Instanciadas:", restaurante.get_casillas())
+                label_procesos_mid.config(text="Seleccione sí o no dependiendo de si quiere continuar.")
+                label_procesos_bottom.destroy()
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea", criterios=None, tituloValores="continuar?", tipo=1, comandoContinuar=f4_i2_instanciar_elementos, comandoCancelar=funcionalidad_0)
+                label_procesos_bottom.grid(sticky="nsew")
+        except:
+            messagebox.showerror("Error: Tipo de dato erróneo", "Debe ingresar un número entero en ambos campos.") 
+    
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Alto", "Ancho"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True], comandoContinuar=f4_i2_ventana_emergente)
+    label_procesos_bottom.grid(sticky="nsew")
+
+def establecer_menu_y_encargos(restaurante):
+    if Restaurante.restaurantes_creados > 2:
+        # Establecer Menú
+        menu_transitorio = Utilidad.listado_platos_calificacion()  # Listado de platos con mejor calificación.
+        print("¿Desea modificar el menú generado?\n1. Sí.\n2. No.")
+        eleccion1 = Utilidad.readInt()
+
+        if eleccion1 == 2:  # Si se quiere adoptar el menú generado
+            restaurante.set_menu(menu_transitorio)
+        elif eleccion1 == 1:  # Si no se quiere adoptar el menú generado
+            encendido1 = True
+            while encendido1:
+                print("¿Qué desea hacer?\n1. Agregar.\n2. Eliminar.")
+                eleccion2 = Utilidad.readInt()
+
+                if eleccion2 == 1:  # Agregar
+                    print("Platos existentes:")
+                    for plato in Plato.get_platos():
+                        if plato not in menu_transitorio:
+                            print(plato.get_nombre().capitalize())
+
+                    print("En caso de que quiera agregar uno de los platos mostrados en la lista, ingrese el nombre tal como allí aparece.")
+                    plato = crear_plato()
+                    menu_transitorio.append(plato)
+
+                    print("¿Desea realizar otra modificación?\n1. Sí.\n2. No.")
+                    eleccion3 = Utilidad.readInt()
+                    if eleccion3 != 1:
+                        encendido1 = False
+
+                elif eleccion2 == 2:  # Eliminar
+                    for i, plato_transitorio in enumerate(menu_transitorio, start=1):
+                        print(f"{i}. {plato_transitorio.get_nombre()}")
+
+                    print(f"Ingrese el número del plato a eliminar [1 - {len(menu_transitorio)}].")
+                    eleccion4 = Utilidad.readInt()
+
+                    if eleccion4 < 1 or eleccion4 > len(menu_transitorio):
+                        print("Número inválido.")
+                    else:
+                        menu_transitorio.pop(eleccion4 - 1)
+
+                    print("¿Desea realizar otra modificación?\n1. Sí.\n2. No.")
+                    eleccion3 = Utilidad.readInt()
+                    if eleccion3 != 1:
+                        encendido1 = False
+
+                else:
+                    print("Ingrese un valor válido [1 - 2].")
+
+            restaurante.set_menu(menu_transitorio)
+        else:
+            print("Ingrese un valor válido [1 - 2].")
+            establecer_menu_y_encargos(restaurante)
+
+        # Establecer Encargos
+        cargamento(restaurante)
+
+    else:
+        # Establecer Menú
+        menu_restaurante = []
+        print("Ingrese la cantidad de platos que tendrá el menú:")
+        eleccion4 = Utilidad.readInt()
+        for i in range(eleccion4):
+            menu_restaurante.append(crear_plato())
+
+        restaurante.set_menu(menu_restaurante)
+
+        # Establecer Encargos
+        cargamento(restaurante)
 
 
 ###Parte de FUNCIONALIDAD 5, PENDIENTE PORT REVISAR
@@ -1294,15 +1953,24 @@ def cambiar_proceso(event, num_func):
         label_procesos_top.config(text="Funcionalidades")
         label_procesos_mid.config(text="Descripciones")
         label_procesos_bottom.destroy()
-        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Descripción", tituloValores="funcionamiento" , criterios=["Para acceder a las funcionalidades diríjase a la pestaña Procesos y Consultas.\nPosteriormente seleccione la funcionalidad a la que desea acceder."], tipo=3)
+        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información", tituloValores="" , criterios=["Para acceder a las funcionalidades diríjase a la pestaña Procesos y Consultas.\nPosteriormente seleccione la funcionalidad a la que desea acceder."], tipo=3)
         label_procesos_bottom.grid(sticky="nsew")
     elif num_func == 1:
         label_procesos_top.config(text="Reservar Mesa")
         seleccion_mesa(None)
+    elif num_func == 2:
+        label_procesos_top.config(text="Ordenar Comida")
+    elif num_func == 4:
+        label_procesos_top.config(text="Agregar Sede")
+        restaurante = Restaurante()
+        comala = Ciudad()
+        comala.get_restaurantes().append(restaurante)
+        restaurante.set_ciudad(comala)
+        establecer_disposicion(restaurante)
     elif num_func == 5:
         label_procesos_top.config(text="Crear Evento")
         crearEvento()
-    
+
 
 def info_aplicacion():
     messagebox.showinfo(title="Información de la aplicación", message="Esta aplicación simula el funcionamiento de una cadena de restaurantes a través de distintas funcionalidades como la de reservar una mesa, ordenar comida, agregar sedes y organizar eventos.")
@@ -1524,7 +2192,7 @@ frame_procesos_bottom.grid(row = 2, padx = 10, pady = 10, sticky="nsew")
 frame_procesos_bottom.grid_propagate(False)
 frame_procesos_bottom.grid_rowconfigure(0, weight=1)
 frame_procesos_bottom.grid_columnconfigure(0, weight=1)
-label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Descripción", tituloValores="funcionamiento" , criterios=["Para acceder a las funcionalidades diríjase a la pestaña Procesos y Consultas.\nPosteriormente seleccione la funcionalidad a la que desea acceder."], tipo=3)
+label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información", tituloValores="" , criterios=["Para acceder a las funcionalidades diríjase a la pestaña Procesos y Consultas.\nPosteriormente seleccione la funcionalidad a la que desea acceder."], tipo=3)
 label_procesos_bottom.grid(sticky="nsew")
 
 menu_inicio()
@@ -2691,599 +3359,8 @@ def aplicar_descuentos_cuenta(cliente, valor_por_persona):
     return valor_final
 
 # Funcionalidad 4
-def agregarSede():
-    restaurante = Restaurante()
-    encendido = True
-    while encendido:
-        print("""
-        ¿Desea añadir una nueva sede?
-        1. Sí.
-        2. No.
-        Escriba un número para elegir su opción.
-        """)
-        eleccion = Utilidad.readInt()
-
-        if eleccion == 1:
-            
-            print("Interacción 1.")
-            restaurante = elegirZona(restaurante)
-            establecerDisposicion(restaurante)
-            establecerMenuYEncargos(restaurante)
-            encendido = False
-        elif eleccion == 2:
-            # Volver al menú
-            # menu_principal()
-            encendido = False
-        else:
-            
-            print("Ingrese un número válido [1 - 2].")
-
-    return restaurante
-
-def elegirZona(restaurante):
-    encendido1 = True
-    while encendido1:
-        print("Ciudades:")
-        Utilidad.listado_ciudades()
-        print("Escriba un número para elegir la ciudad.\nEn caso de no encontrar la ciudad requerida escriba 0.")
-        eleccion1 = Utilidad.readInt()
-
-        if eleccion1 > len(Ciudad.get_ciudades()) or eleccion1 < 0:
-            print(f"Ingrese un número válido [1 - {len(Ciudad.get_ciudades())}].")
-        else:
-            
-            if eleccion1 != 0:  # Si se encuentra la ciudad
-                ciudad = Ciudad.get_ciudades()[eleccion1 - 1]
-                if not ciudad.get_restaurantes():  # Si la ciudad no tiene restaurantes
-                    parametrosBasicos(ciudad, restaurante)
-                else:  # Si la ciudad tiene restaurantes
-                    # Análisis de reservas
-                    reservas_ultimos_treinta = []
-                    intentos_ultimos_treinta = []
-                    mesas_restaurantes = []
-
-                    reservas_satisfactorias = 0
-                    total_intentos = 0
-
-                    # Agregamos los datos que corresponden a los últimos 30 días de funcionamiento de los restaurantes de la ciudad correspondiente.
-                    for zona in ciudad.get_zonas_ciudad():
-                        for restaurante_zona in zona.get_restaurantes():
-                            reservas_restaurante = []
-                            intentos_restaurante = []
-                            for reserva in restaurante_zona.get_historial_reservas():
-                                if reserva.is_satisfaccion():
-                                    reservas_satisfactorias += 1
-                                fecha_to_date_time = datetime.datetime(reserva.get_fecha()[0], reserva.get_fecha()[1], reserva.get_fecha()[2], reserva.get_fecha()[3], 0)
-                                if datetime.now() - datetime.timedelta(days=30) < fecha_to_date_time < datetime.now() and fecha_to_date_time not in reservas_restaurante:
-                                    reservas_restaurante.append(reserva)
-                            if restaurante_zona.get_intentos_reserva() is not None:
-                                for intento in restaurante_zona.get_intentos_reserva():
-                                    total_intentos += 1
-                                    fecha_to_date = datetime.date(intento[0], intento[1], intento[2])
-                                    if datetime.date.today() - datetime.timedelta(days=30) < fecha_to_date < datetime.date.today():
-                                        intentos_restaurante.append(intento)
-
-                            for mesa in restaurante_zona.get_mesas():
-                                mesas_restaurantes.append(mesa)
-
-                            reservas_ultimos_treinta.extend(reservas_restaurante)
-                            intentos_ultimos_treinta.extend(intentos_restaurante)
-
-                    # Demanda por Hora
-                    intentos_reserva = len(intentos_ultimos_treinta)
-                    horas_funcionamiento = len(reservas_ultimos_treinta)
-                    total_mesas = len(mesas_restaurantes)
-
-                    if total_mesas != 0 and horas_funcionamiento != 0:
-                        demanda_por_hora = (intentos_reserva / horas_funcionamiento) / total_mesas
-
-                        # Satisfacción del Cliente
-                        satisfaccion_del_cliente = (reservas_satisfactorias / total_mesas) * 100
-
-                        # Conclusión Análisis
-                        conclusion = (demanda_por_hora + satisfaccion_del_cliente) / 2
-
-                        if conclusion < 0.5:
-                            print(f"Según el algoritmo de análisis hecho, no es recomendable crear un nuevo restaurante en {ciudad.get_nombre()}.\nEsto se debe a que los restaurantes de la ciudad tienen un flujo bajo de clientes y no están cumpliendo con las expectativas de la gran mayoría de sus usuarios.\nTeniendo esto en cuenta, ¿Desea crear una nueva sede?\n1. Sí.\n2. No.")
-                            encendido2 = True
-                            while encendido2:
-                                eleccion2 = Utilidad.readInt()
-                                if eleccion2 == 1:
-                                    parametrosBasicos(ciudad, restaurante)
-                                    encendido2 = False
-                                elif eleccion2 == 2:
-                                    encendido2 = False
-                                else:
-                                    print("Ingrese un valor válido [1 - 2].")
-                        elif 0.5 <= conclusion <= 0.7:
-                            print(f"Según el algoritmo de análisis hecho, es medianamente recomendable crear un nuevo restaurante en {ciudad.get_nombre()}.\nEsto se debe a que los restaurantes tienen un flujo medio de clientes y están cumpliendo con las expectativas la mayoría de los usuarios.\nTeniendo esto en cuenta, ¿Desea crear una nueva sede?\n1. Sí.\n2. No.")
-                            encendido3 = True
-                            while encendido3:
-                                eleccion2 = Utilidad.readInt()
-                                if eleccion2 == 1:
-                                    parametrosBasicos(ciudad, restaurante)
-                                    encendido3 = False
-                                elif eleccion2 == 2:
-                                    encendido3 = False
-                                else:
-                                    print("Ingrese un valor válido [1 - 2].")
-                        else:
-                            parametrosBasicos(ciudad, restaurante)
-                    else:
-                        parametrosBasicos(ciudad, restaurante)
-
-            else:  # Si no se encuentra la ciudad
-                print("Por favor ingrese el nombre de la ciudad.")
-                ciudad = Ciudad(input().capitalize())
-                print("Por favor ingrese la cantidad de zonas que tiene la ciudad.")
-                cantidad_zonas = Utilidad.readInt()
-                # Este ciclo for se encarga de la creación de las zonas de la nueva ciudad.
-                for i in range(1, cantidad_zonas + 1):
-                    print(f"Por favor ingrese el nombre de la zona #{i}.")
-                    nombre_zona = input().capitalize()
-                    print(f"Por favor ingrese la población de la zona #{i}.")
-                    poblacion_zona = Utilidad.readInt()
-                    ciudad.get_zonas_ciudad().append(Zona(poblacion_zona, nombre_zona.capitalize(), ciudad))
-                    ciudad.actualizar_poblacion()
-                    print(ciudad.get_zonas_ciudad()[-1])
-                
-                parametrosBasicos(ciudad, restaurante)
-
-            encendido1 = False
-    return restaurante
-
-def obtenerPromedios():
-    valores = [0] * 5
-    ancho = 0  # 0
-    alto = 0  # 1
-    mesas_estandar = 0  # 2
-    mesas_vip = 0  # 3
-    ventanas = 0  # 4
-
-    for zona in Zona.get_zonas():
-        for restaurante in zona.get_restaurantes():
-            valores[0] += restaurante.get_coord_x()
-            valores[1] += restaurante.get_coord_y()
-            for mesa in restaurante.get_mesas():
-                if not mesa.is_vip():
-                    valores[2] += 1
-                else:
-                    valores[3] += 1
-            for i in range(1, restaurante.get_coord_y() + 1):
-                for string in restaurante.get_disposicion().get(i):
-                    if string == "W":
-                        valores[4] += 1
-
-    return valores
-
-# Este método se encarga de definir los parámetros básicos del restaurante: Ciudad, Zona, Zona VIP y Calificación.
-def parametrosBasicos(ciudad, restaurante):
-    print(ciudad.get_zonas_ciudad())
-    print("Zonas de " + ciudad.get_nombre() + ":")
-    Utilidad.listado_zonas_ciudad(ciudad)
-    print("Escriba un número para elegir la zona.\nEn caso de no encontrar la zona requerida escriba 0.")
-    eleccion_zona1 = Utilidad.readInt()
-    
-    if eleccion_zona1 > len(Ciudad.get_ciudades()) or eleccion_zona1 < 0:
-        print("Ingrese un número válido [1 - " + str(len(ciudad.get_zonas_ciudad())) + "].")
-        parametrosBasicos(ciudad, restaurante)
-    else:
-        
-        if eleccion_zona1 != 0:  # Si se encuentra la zona
-            zona_elegida = ciudad.get_zonas_ciudad()[eleccion_zona1 - 1]
-            # Se evalúa si existen restaurantes enlazados a esta zona.
-            if not zona_elegida.get_restaurantes():  # Si la zona elegida no tiene restaurantes
-                # Se enlaza la ciudad al restaurante
-                restaurante.set_ciudad(ciudad)
-                # Se enlaza la zona al restaurante
-                restaurante.set_zona(ciudad.get_zonas_ciudad()[eleccion_zona1 - 1])
-                # Se enlaza el restaurante a la zona
-                ciudad.get_zonas_ciudad()[eleccion_zona1 - 1].get_restaurantes().append(restaurante)
-                # Se enlaza el restaurante a la ciudad
-                ciudad.get_restaurantes().append(restaurante)
-                # Se establecen los parámetros básicos del restaurante
-                print("Ingrese el nombre del restaurante:")
-                nombre = input().capitalize()
-                restaurante.set_nombre(nombre)
-                print("¿El restaurante tendrá zona VIP?\n1. Sí.\n2. No.\nEscriba un número para elegir.")
-                tiene_vip = Utilidad.readInt()
-                if tiene_vip == 1:
-                    restaurante.set_zona_vip(True)
-                elif tiene_vip == 2:
-                    pass
-                else:
-                    print("Número no válido")
-                restaurante.set_calificacion(int((random.random() * 5) + 1))
-            else:  # Si la zona elegida tiene restaurantes
-                # Análisis de reservas
-                reservas_ultimos_treinta = []
-                intentos_ultimos_treinta = []
-                mesas_restaurantes = []
-
-                reservas_satisfactorias = 0
-                total_intentos = 0
-
-                # Agregamos los datos que corresponden a los últimos 30 días de funcionamiento de los restaurantes de la ciudad correspondiente.
-                for restaurante_zona in zona_elegida.get_restaurantes():
-                    reservas_restaurante = []
-                    intentos_restaurante = []
-                    for reserva in restaurante_zona.get_historial_reservas():
-                        if reserva.is_satisfaccion():
-                            reservas_satisfactorias += 1
-                        fecha_to_date_time = datetime.datetime(reserva.get_fecha()[0], reserva.get_fecha()[1], reserva.get_fecha()[2], reserva.get_fecha()[3], 0)
-                        if (fecha_to_date_time > datetime.now() - datetime.timedelta(days=30)) and (fecha_to_date_time < datetime.now()):
-                            if fecha_to_date_time not in reservas_restaurante:
-                                reservas_restaurante.append(reserva)
-                    if restaurante_zona.get_intentos_reserva() is not None:
-                        for intento in restaurante_zona.get_intentos_reserva():
-                            total_intentos += 1
-                            fecha_to_date = datetime.date(intento[0], intento[1], intento[2])
-                            if (fecha_to_date > datetime.date.today() - datetime.timedelta(days=30)) and (fecha_to_date < datetime.date.today()):
-                                intentos_restaurante.append(intento)
-
-                    for mesa in restaurante_zona.get_mesas():
-                        mesas_restaurantes.append(mesa)
-
-                    reservas_ultimos_treinta.extend(reservas_restaurante)
-                    intentos_ultimos_treinta.extend(intentos_restaurante)
-
-                # Demanda por Hora
-                intentos_reserva = len(intentos_ultimos_treinta)
-                horas_funcionamiento = len(reservas_ultimos_treinta)
-                total_mesas = len(mesas_restaurantes)
-
-                if total_mesas != 0 and horas_funcionamiento != 0:
-                    demanda_por_hora = (intentos_reserva / horas_funcionamiento) / total_mesas
-
-                    # Satisfacción del Cliente
-                    satisfaccion_del_cliente = (reservas_satisfactorias / total_mesas) * 100
-
-                    # Conclusión Análisis
-                    conclusion = (demanda_por_hora + satisfaccion_del_cliente) / 2
-
-                    if conclusion < 0.5:
-                        print("Según el algoritmo de análisis hecho, no es recomendable crear un nuevo restaurante en " + ciudad.get_nombre() + ".\nEsto se debe a que los restaurantes de la ciudad tienen un flujo bajo de clientes y no están cumpliendo con las expectativas de la gran mayoría de sus usuarios.\nTeniendo esto en cuenta, ¿Desea crear una nueva sede?\n1. Sí.\n2. No.")
-                        encendido2 = True
-                        while encendido2:
-                            eleccion2 = Utilidad.readInt()
-                            if eleccion2 == 1:
-                                encendido2 = False
-                            elif eleccion2 == 2:
-                                agregarSede()
-                                encendido2 = False
-                            else:
-                                print("Ingrese un valor válido [1 - 2].")
-                    elif 0.5 <= conclusion <= 0.7:
-                        print("Según el algoritmo de análisis hecho, es medianamente recomendable crear un nuevo restaurante en " + ciudad.get_nombre() + ".\nEsto se debe a que los restaurantes tienen un flujo medio de clientes y están cumpliendo con las expectativas la mayoría de los usuarios.\nTeniendo esto en cuenta, ¿Desea crear una nueva sede?\n1. Sí.\n2. No.")
-                        encendido3 = True
-                        while encendido3:
-                            eleccion2 = Utilidad.readInt()
-                            if eleccion2 == 1:
-                                encendido3 = False
-                            elif eleccion2 == 2:
-                                agregarSede()
-                                encendido3 = False
-                            else:
-                                print("Ingrese un valor válido [1 - 2].")
-
-                # Se enlaza la ciudad al restaurante
-                restaurante.set_ciudad(ciudad)
-                # Se enlaza la zona al restaurante
-                restaurante.set_zona(ciudad.get_zonas_ciudad()[eleccion_zona1 - 1])
-                # Se enlaza el restaurante a la zona
-                ciudad.get_zonas_ciudad()[eleccion_zona1 - 1].get_restaurantes().append(restaurante)
-                # Se enlaza el restaurante a la ciudad
-                ciudad.get_restaurantes().append(restaurante)
-                # Se establecen los parámetros básicos del restaurante
-                print("Ingrese el nombre del restaurante:")
-                nombre = input().capitalize()
-                restaurante.set_nombre(nombre)
-                print("¿El restaurante tendrá zona VIP?\n1. Sí.\n2. No.\nEscriba un número para elegir.")
-                tiene_vip = Utilidad.readInt()
-                if tiene_vip == 1:
-                    restaurante.set_zona_vip(True)
-                elif tiene_vip == 2:
-                    pass
-                else:
-                    print("Número no válido")
-                restaurante.set_calificacion(int((random.random() * 5) + 1))
-
-        else:  # Si no se encuentra la zona
-            print("Por favor ingrese el nombre de la zona.")
-            nombre_zona = input().capitalize()
-            print("Por favor ingrese la población de la zona.")
-            poblacion_zona = Utilidad.readInt()
-            ciudad.get_zonas_ciudad().append(Zona(poblacion_zona, nombre_zona.capitalize(), ciudad))
-            ciudad.actualizar_poblacion()
-            restaurante.set_ciudad(ciudad)
-            print("Zonas de " + ciudad.get_nombre() + ":")
-            Utilidad.listado_zonas_ciudad(ciudad)
-            print("Escriba un número para elegir la zona.\nEn caso de no encontrar la zona requerida escriba 0.")
-            eleccion_zona2 = Utilidad.readInt()
-            if eleccion_zona2 > len(Ciudad.get_ciudades()) or eleccion_zona2 < 0:
-                print("Ingrese un número válido [1 - " + str(len(ciudad.get_zonas_ciudad())) + "].")
-            else:
-                
-                # Se enlaza la ciudad al restaurante
-                restaurante.set_ciudad(ciudad)
-                # Se enlaza la zona al restaurante
-                restaurante.set_zona(ciudad.get_zonas_ciudad()[eleccion_zona2 - 1])
-                # Se enlaza el restaurante a la zona
-                ciudad.get_zonas_ciudad()[eleccion_zona2 - 1].get_restaurantes().append(restaurante)
-                # Se establecen los parámetros básicos del restaurante
-                print("¿El restaurante tendrá zona VIP?\n1. Sí.\n2. No.\nEscriba un número para elegir.")
-                tiene_vip = Utilidad.readInt()
-                if tiene_vip == 1:
-                    restaurante.set_zona_vip(True)
-                else:
-                    pass
-                restaurante.set_calificacion(int((random.random() * 5) + 1))
 
 
-# Método para establecer la disposición del restaurante.
-def establecerDisposicion(restaurante):
-    # Verificar si hay más de 3 restaurantes creados
-    if Restaurante.restaurantes_creados > 3:
-        promedios = obtenerPromedios()
-        print(f"DISPOSICIÓN RECOMENDADA:\nTamaño:\n\tAncho = {promedios[0]}\n\tLargo = {promedios[1]}\n"
-              f"Mesas:\n\tEstándar = {promedios[2]}\n\tVIP = {promedios[3]} (En caso de tener Zona VIP)\n"
-              f"Ventanas = {promedios[4]}")
-    else:
-        print("""DISPOSICIÓN RECOMENDADA:
-        Tamaño:
-            Ancho = 10
-            Largo = 10
-        Mesas:
-            Estándar = 10
-            VIP = 4 (En caso de tener Zona VIP)
-        Ventanas = 4""")
-    
-    editarRestaurante(restaurante)
-    return restaurante
-
-def editarRestaurante(restaurante):
-    encendido = True
-    while encendido:
-        print("Ingresa el ancho del restaurante:")
-        coord_x = Utilidad.readInt()
-        print("Ingresa el largo del restaurante:")
-        coord_y = Utilidad.readInt()
-
-        if coord_x > 4 and coord_y > 4:
-            encendido = False
-        else:
-            print("El valor mínimo de ancho y largo es de 5.")
-
-    restaurante.set_capacidad(((coord_x - 1) * (coord_y - 1)) * 3)
-
-    chars = ["╔", "═", "╦", "╗", "║", "╠", "╬", "╣", "╚", "╩", "╝", " "]
-    restaurante.get_disposicion().append(chars)
-
-    for i in range(coord_y):
-        lista_actual = []
-        restaurante.get_disposicion().append(lista_actual)
-        if len(restaurante.get_disposicion()) == 2:
-            lista_actual.extend(["B"] * coord_x)
-        elif 2 < len(restaurante.get_disposicion()) < coord_y + 1:
-            lista_actual.append("B")
-            lista_actual.extend([" "] * (coord_x - 2))
-            lista_actual.append("B")
-        else:
-            lista_actual.extend(["B"] * coord_x)
-
-    top_row = chars[0] + chars[1] * 3
-    for i in range(2, coord_x):
-        top_row += chars[2] + chars[1] * 3
-    top_row += chars[2] + chars[1] * 3 + chars[3]
-
-    separator = chars[5] + chars[1] * 3
-    for i in range(2, coord_x):
-        separator += chars[6] + chars[1] * 3
-    separator += chars[6] + chars[1] * 3 + chars[7]
-
-    bottom_row = chars[8] + chars[1] * 3
-    for i in range(2, coord_x):
-        bottom_row += chars[9] + chars[1] * 3
-    bottom_row += chars[9] + chars[1] * 3 + chars[10]
-
-    imprimirDisposicionRestaurante(restaurante.get_disposicion(), coord_x, coord_y, chars, top_row, separator, bottom_row)
-    cambiarElemento(restaurante, coord_x, coord_y, chars, top_row, separator, bottom_row)
-
-    modificando = True
-    while modificando:
-        print("¿Desea realizar otra modificación?\n1. Sí.\n2. No.\nEscriba un número para elegir su opción")
-        decision = Utilidad.readInt()
-        if decision == 1:
-            cambiarElemento(restaurante, coord_x, coord_y, chars, top_row, separator, bottom_row)
-        elif decision == 2:
-            tiene_puerta = any(casilla.get_tipo() == "PUERTA" for casilla in restaurante.get_casillas())
-            tiene_ventana = any(casilla.get_tipo() == "VENTANA" for casilla in restaurante.get_casillas())
-            if restaurante.get_mesas() and tiene_puerta and tiene_ventana:
-                modificando = False
-            else:
-                # Utilidad.limpiar_pantalla()
-                print("Es necesario añadir como mínimo una entrada, una mesa y una ventana.")
-        else:
-            print("Ingresa un número válido [1 - 2].")
-
-def cambiarElemento(restaurante, coord_x, coord_y, chars, top_row, separator, bottom_row):
-    print("Escribe la coordenada en X:")
-    mod_coord_x = Utilidad.readInt()
-    print("Escribe la coordenada en Y:")
-    mod_coord_y = Utilidad.readInt()
-    casilla = eliminarCasillasRepetidas(restaurante, mod_coord_x, mod_coord_y)
-    
-    if mod_coord_y < 1 or mod_coord_y > coord_y or mod_coord_x < 1 or mod_coord_x > coord_x:
-        print(f"Escribe valores válidos para ambas coordenadas\nX = [1 - {coord_x}]\nY = [1 - {coord_y}]")
-        cambiarElemento(restaurante, coord_x, coord_y, chars, top_row, separator, bottom_row)
-    else:
-        if (mod_coord_y == 1 and mod_coord_x == 1) or (mod_coord_y == 1 and mod_coord_x == coord_x) or \
-           (mod_coord_y == coord_y and mod_coord_x == 1) or (mod_coord_y == coord_y and mod_coord_x == coord_x):
-            print("No es posible realizar cambios en las esquinas del restaurante.")
-            cambiarElemento(restaurante, coord_x, coord_y, chars, top_row, separator, bottom_row)
-        elif mod_coord_y == 1 or mod_coord_y == coord_y or mod_coord_x == 1 or mod_coord_x == coord_x:
-            print("Reemplazar por:\n1. Pared (B).\n2. Ventana (W).\n3. Entrada (E).")
-            tile_type = Utilidad.readInt()
-            if tile_type == 1:
-                restaurante.get_disposicion()[mod_coord_y][mod_coord_x - 1] = "B"
-                restaurante.get_casillas().remove(casilla)
-            elif tile_type == 2:
-                restaurante.get_disposicion()[mod_coord_y][mod_coord_x - 1] = "W"
-                restaurante.get_casillas().remove(casilla)
-                restaurante.get_casillas().append(Casilla(1, mod_coord_x, mod_coord_y))
-            elif tile_type == 3:
-                restaurante.get_disposicion()[mod_coord_y][mod_coord_x - 1] = "E"
-                restaurante.get_casillas().remove(casilla)
-                restaurante.get_casillas().append(Casilla(2, mod_coord_x, mod_coord_y))
-            else:
-                print("Dato inválido. Se reemplazará por una pared.")
-                restaurante.get_disposicion()[mod_coord_y][mod_coord_x - 1] = "B"
-                restaurante.get_casillas().remove(casilla)
-        else:
-            print("Reemplazar por:\n1. Espacio Vacío ( ).\n2. Mesa Estándar (T).\n3. Mesa VIP (V).")
-            tile_type = Utilidad.readInt()
-            if tile_type == 1:
-                restaurante.get_disposicion()[mod_coord_y][mod_coord_x - 1] = " "
-                restaurante.get_casillas().remove(casilla)
-                restaurante.get_mesas().remove(casilla)
-            elif tile_type == 2:
-                restaurante.get_disposicion()[mod_coord_y][mod_coord_x - 1] = "T"
-                restaurante.get_casillas().remove(casilla)
-                restaurante.get_mesas().remove(casilla)
-                mesa = Mesa(0, mod_coord_x, mod_coord_y, False, 4)
-                restaurante.get_casillas().append(mesa)
-                restaurante.get_mesas().append(mesa)
-                mesa.set_fechas_disponibles(generarFechas())
-            elif tile_type == 3:
-                if restaurante.is_zona_vip():
-                    restaurante.get_disposicion()[mod_coord_y][mod_coord_x - 1] = "V"
-                    restaurante.get_casillas().remove(casilla)
-                    restaurante.get_mesas().remove(casilla)
-                    mesa = Mesa(0, mod_coord_x, mod_coord_y, True, 4)
-                    restaurante.get_casillas().append(mesa)
-                    restaurante.get_mesas().append(mesa)
-                    mesa.set_fechas_disponibles(generarFechas())
-                else:
-                    restaurante.get_disposicion()[mod_coord_y][mod_coord_x - 1] = "T"
-                    restaurante.get_casillas().remove(casilla)
-                    restaurante.get_mesas().remove(casilla)
-                    mesa = Mesa(0, mod_coord_x, mod_coord_y, False, 4)
-                    restaurante.get_casillas().append(mesa)
-                    restaurante.get_mesas().append(mesa)
-                    mesa.set_fechas_disponibles(generarFechas())
-            else:
-                print("Dato inválido. Se reemplazará por un espacio vacío.")
-                restaurante.get_casillas().remove(casilla)
-                restaurante.get_mesas().remove(casilla)
-                restaurante.get_disposicion()[mod_coord_y][mod_coord_x - 1] = " "
-        
-        
-        imprimirDisposicionRestaurante(restaurante.get_disposicion(), coord_x, coord_y, chars, top_row, separator, bottom_row)
-
-def generarFechas():
-    fechas_disponibles = []
-    hoy = datetime.today()
-    fin = hoy + relativedelta(months=6)
-    while hoy <= fin:
-        fechas = [hoy.year, hoy.month, hoy.day, 10, 12, 14, 16, 18, 20]
-        fechas_disponibles.append(fechas)
-        hoy += timedelta(days=1)
-    
-    return fechas_disponibles
-
-def eliminarCasillasRepetidas(restaurante, mod_coord_x, mod_coord_y):
-    casilla_obsoleta = Casilla()
-    for casilla in restaurante.get_casillas():
-        if casilla.get_coord_x() == mod_coord_x and casilla.get_coord_y() == mod_coord_y:
-            casilla_obsoleta = casilla
-            break
-    return casilla_obsoleta
-
-def imprimirDisposicionRestaurante(plano_restaurante, coord_x, coord_y, chars, top_row, separator, bottom_row):
-    print(top_row)
-    for i in range(1, coord_y + 1):
-        j = 0
-        border_row = chars[4] + chars[11] + plano_restaurante[i][j] + chars[11]
-        for k in range(2, coord_x):
-            j += 1
-            border_row += chars[4] + chars[11] + plano_restaurante[i][j] + chars[11]
-        border_row += chars[4] + chars[11] + plano_restaurante[i][j + 1] + chars[11] + chars[4]
-        print(border_row)
-        if i == coord_y:
-            print(bottom_row)
-        else:
-            print(separator)
-
-def establecerMenuYEncargos(restaurante):
-    if Restaurante.restaurantes_creados > 2:
-        # Establecer Menú
-        menu_transitorio = Utilidad.listado_platos_calificacion()  # Listado de platos con mejor calificación.
-        print("¿Desea modificar el menú generado?\n1. Sí.\n2. No.")
-        eleccion1 = Utilidad.readInt()
-
-        if eleccion1 == 2:  # Si se quiere adoptar el menú generado
-            restaurante.set_menu(menu_transitorio)
-        elif eleccion1 == 1:  # Si no se quiere adoptar el menú generado
-            encendido1 = True
-            while encendido1:
-                print("¿Qué desea hacer?\n1. Agregar.\n2. Eliminar.")
-                eleccion2 = Utilidad.readInt()
-
-                if eleccion2 == 1:  # Agregar
-                    print("Platos existentes:")
-                    for plato in Plato.get_platos():
-                        if plato not in menu_transitorio:
-                            print(plato.get_nombre().capitalize())
-
-                    print("En caso de que quiera agregar uno de los platos mostrados en la lista, ingrese el nombre tal como allí aparece.")
-                    plato = crearPlato()
-                    menu_transitorio.append(plato)
-
-                    print("¿Desea realizar otra modificación?\n1. Sí.\n2. No.")
-                    eleccion3 = Utilidad.readInt()
-                    if eleccion3 != 1:
-                        encendido1 = False
-
-                elif eleccion2 == 2:  # Eliminar
-                    for i, plato_transitorio in enumerate(menu_transitorio, start=1):
-                        print(f"{i}. {plato_transitorio.get_nombre()}")
-
-                    print(f"Ingrese el número del plato a eliminar [1 - {len(menu_transitorio)}].")
-                    eleccion4 = Utilidad.readInt()
-
-                    if eleccion4 < 1 or eleccion4 > len(menu_transitorio):
-                        print("Número inválido.")
-                    else:
-                        menu_transitorio.pop(eleccion4 - 1)
-
-                    print("¿Desea realizar otra modificación?\n1. Sí.\n2. No.")
-                    eleccion3 = Utilidad.readInt()
-                    if eleccion3 != 1:
-                        encendido1 = False
-
-                else:
-                    print("Ingrese un valor válido [1 - 2].")
-
-            restaurante.set_menu(menu_transitorio)
-        else:
-            print("Ingrese un valor válido [1 - 2].")
-            establecerMenuYEncargos(restaurante)
-
-        # Establecer Encargos
-        cargamento(restaurante)
-
-    else:
-        # Establecer Menú
-        menu_restaurante = []
-        print("Ingrese la cantidad de platos que tendrá el menú:")
-        eleccion4 = Utilidad.readInt()
-        for i in range(eleccion4):
-            menu_restaurante.append(crearPlato())
-
-        restaurante.set_menu(menu_restaurante)
-
-        # Establecer Encargos
-        cargamento(restaurante)
 
 
 
@@ -3317,7 +3394,7 @@ def cargamento(restaurante):
     restaurante.set_cargamento(cargamento)
     cargamento.set_restaurante(restaurante)
 
-def crearPlato():
+def crear_plato():
     print("Ingrese el nombre del plato:")
     nombre = input().capitalize()
     existe = False
@@ -4130,7 +4207,7 @@ def datos_hora_reserva(restaurante, factura):
 #     elif eleccion == 3:
 #         dejar_restaurante()
 #     elif eleccion == 4:
-#         agregarSede()
+#         agregar_sede()
 #     elif eleccion == 5:
 #         crear_evento()
 #     elif eleccion == 6:

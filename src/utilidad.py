@@ -65,8 +65,8 @@ class Utilidad:
             # Ver mesas más cercanas a una puerta
             for casilla in puertas:
                 for mesa in mesas:
-                    distancia_puerta = abs((casilla.get_coord_x() - mesa.get_coord_x()) + 
-                                        (casilla.get_coord_y() - mesa.get_coord_y()))
+                    distancia_puerta = abs((casilla.get_coordX() - mesa.get_coordX()) + 
+                                        (casilla.get_coordY() - mesa.get_coordY()))
                     mesa.set_distancia_puerta(distancia_puerta)
                     if distancia_puerta < menor_distancia:
                         menor_distancia = distancia_puerta
@@ -84,8 +84,8 @@ class Utilidad:
             # Ver mesas más cercanas a una ventana
             for casilla in ventanas:
                 for mesa in mesas:
-                    distancia_ventana = abs(casilla.get_coord_x() - mesa.get_coord_x()) + \
-                                        abs(casilla.get_coord_y() - mesa.get_coord_y())
+                    distancia_ventana = abs(casilla.get_coordX() - mesa.get_coordX()) + \
+                                        abs(casilla.get_coordY() - mesa.get_coordY())
                     mesa.set_distancia_ventana(distancia_ventana)
                     if distancia_ventana < menor_distancia:
                         menor_distancia = distancia_ventana

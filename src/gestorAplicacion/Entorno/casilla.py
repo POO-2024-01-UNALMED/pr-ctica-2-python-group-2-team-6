@@ -4,7 +4,7 @@ class Casilla:
 
     def __init__(self, tipo=None, coordX=None, coordY=None):
         if tipo is not None and coordX is not None and coordY is not None:
-            self.tipo = Casilla.tipos[tipo]
+            self.tipo = Casilla.tipos[tipo] #0 Mesa, 1 ventana, 2 puerta
             self.coordX = coordX
             self.coordY = coordY
         else:

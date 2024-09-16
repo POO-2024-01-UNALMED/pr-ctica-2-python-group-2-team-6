@@ -91,7 +91,8 @@ class FieldFrame(Frame):
                 valor.bind("<<ComboboxSelected>>", self.on_select)  # Bind event to update default value
                 self.entradas.append(valor)
                 if self.habilitado is not None and not self.habilitado[i]:
-                    valor.configure(state="normal")  # Cambiar a normal si habilitado es False
+                    valor.set(self.valores[i])
+                    valor.configure(state="readonly")  # Cambiar a normal si habilitado es False
                 else:
                     valor.configure(state="readonly")
                 
@@ -100,7 +101,7 @@ class FieldFrame(Frame):
         elif tipo == 3: #Mensaje
             self.valoresLabel.destroy()
 
-            self.criteriosLabel.config(text="Información", font=("Arial", 20), bg = "#545454", fg="#fff")
+            self.criteriosLabel.config(text=self.tituloCriterios, font=("Arial", 20), bg = "#545454", fg="#fff")
             self.criteriosLabel.grid(columnspan=2)
 
             label_mensaje = Label(self, text = criterios[0], font=("Arial", 15), bg = "#545454", fg="#fff")
@@ -139,6 +140,9 @@ class FieldFrame(Frame):
             self.grid_rowconfigure(len(self.criterios) + 1, weight=1)
 
 
+            if self.comandoContinuar is not None:
+                self.crearBoton("Aceptar", self.yessir, 0)
+
     def save_original_widget(self, widget, row, column):
         """Guardar el widget y su posición"""
         self.original_widgets.append(widget)
@@ -160,10 +164,13 @@ class FieldFrame(Frame):
     def yessir(self):
         self.valores = [1]
         self.comandoContinuar()
+        print("Valores aceptados:", self.valores)
         
     def abortarMision(self):
         self.valores = [2]
-        self.comandoCancelar()
+        if self.comandoCancelar != None:
+            self.comandoCancelar()
+        print("Valores aceptados:", self.valores)
 
     def restore_original_widgets(self):
         """Volver a mostrar los widgets originales en sus posiciones originales"""
