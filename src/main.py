@@ -15,6 +15,7 @@ from gestorAplicacion.Gestion.plato import Plato
 from gestorAplicacion.Gestion.reserva import Reserva
 from gestorAplicacion.Gestion.restaurante import Restaurante
 from gestorAplicacion.Usuario.cliente import Cliente
+from gestorAplicacion.Usuario.cliente import Afiliacion
 from gestorAplicacion.Usuario.persona import Persona
 from gestorAplicacion.Usuario.trabajador import Trabajador
 
@@ -28,6 +29,10 @@ from PIL import Image, ImageTk
 contador_clicks_cv = 0
 contador_pasa_img_res = 0
 funcionalidad_actual = 0
+retorno_seleccion_mesa = ""
+retorno_extras_reserva = ""
+
+#Funcionalidad 1 Interacción 1
 
 def generar_fechas():
     fechas_disponibles = []
@@ -68,6 +73,7 @@ def reservar_mesa():
                 print("Main:", nombre_zona_elegida)
                 
                 def llamar_interacciones():
+                    global retorno_seleccion_mesa
                     #Definimos el restaurante seleccionado
                     restaurante_actual = None
 
@@ -79,14 +85,13 @@ def reservar_mesa():
                             break
                     
                     #Llamamos a seleccion_mesa y le pasamos como parámetro el restaurante seleccionado.
-                    cliente = seleccion_mesa(restaurante_actual)
-                    print("Cliente creado en seleccionar_mesa")
+                    seleccion_mesa(restaurante_actual)
 
                     #Llamamos a extras_reserva y le pasamos como parámetro cliente
-                    restaurante = extras_reserva(cliente)
+                    
 
                     #llamamos a pago_anticipado y le pasamos como parámetro restaurante
-                    pago_anticipado(restaurante)
+                    pago_anticipado(retorno_extras_reserva)
                 
                 #Elegir restaurante donde reservar mesa
                 zona_actual = None
@@ -270,6 +275,8 @@ def seleccion_mesa(restaurante):
         except:
             messagebox.showerror("Error: Tipo de dato erróneo", "Se intentó ingresar un dato erróneo en la el dato: Cédula")
         placa_cliente = label_procesos_bottom.valores[2]
+        if placa_cliente == "0":
+            placa_cliente = "Ninguna"
         try:
             num_acompanantes = int(label_procesos_bottom.valores[3])
         except:
@@ -375,7 +382,7 @@ def seleccion_mesa(restaurante):
     label_procesos_bottom.grid(sticky="nsew")
 
 def continuar_seleccion_mesa(restaurante, fecha_elegida_reservar_mesa, tipo_mesa, clientes):
-    global label_procesos_bottom
+    global label_procesos_bottom, retorno_seleccion_mesa
     mesas_disponibles = []
     print("\n", fecha_elegida_reservar_mesa, "\n")
     for mesa in restaurante.get_mesas():
@@ -439,9 +446,9 @@ def continuar_seleccion_mesa(restaurante, fecha_elegida_reservar_mesa, tipo_mesa
             print(f"Mesa Elegida: {mesa_elegida.get_fechas_disponibles()}")
             print(restaurante.get_historial_reservas())
             print("Su reserva ha sido exitosa")
+            extras_reserva(retorno_seleccion_mesa)
+            print("Cliente obtenido", retorno_seleccion_mesa)
 
-            return clientes[0]
-        
         label_procesos_bottom.destroy()
         label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Horario mesa"], tituloValores = "Valor ingresado", valores=[horarios_disponibles], tipo = 2, habilitado = [True], comandoContinuar=f1_i1_escoger_horario)
         label_procesos_bottom.grid(sticky="nsew")
@@ -451,6 +458,8 @@ def continuar_seleccion_mesa(restaurante, fecha_elegida_reservar_mesa, tipo_mesa
     label_procesos_bottom.destroy()
     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Número mesa"], tituloValores = "Valor ingresado", valores=[mesas_disponibles], tipo = 2, habilitado = [True], comandoContinuar=f1_i1_escoger_num_mesa)
     label_procesos_bottom.grid(sticky="nsew")
+
+    retorno_seleccion_mesa = clientes[0]
 
 def seleccion_fecha(restaurante, tipo_mesa, mesas_elegidas, clientes):
     global label_procesos_bottom
@@ -499,6 +508,206 @@ def seleccion_fecha(restaurante, tipo_mesa, mesas_elegidas, clientes):
     label_procesos_bottom.destroy()
     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Año 1", "Año 2", "Año"], tituloValores = "Valor ingresado", tipo = 2, valores=[[anios[0]], [anios[1]], [1,2]], habilitado = [False, False, True], comandoContinuar=f1_i1_escoger_mesa)
     label_procesos_bottom.grid(sticky="nsew")
+
+#Funcionalidad 1 Interacción 2
+
+def extras_reserva(cliente):
+    global label_procesos_bottom, retorno_extras_reserva
+    restaurante = cliente.get_restaurante()
+    retorno_extras_reserva = restaurante
+    label_procesos_mid.config(text="Desde la cadena de restaurantes ofrecemos los servicios de\nreserva de parqueadero y decoraciones para la mesa.\nElija un servicio en caso de necesitarlo:")
+
+    def f1_i2_decoraciones():
+        global label_procesos_bottom
+        tipo_decoracion_elegido = label_procesos_bottom.valores[0]
+        if tipo_decoracion_elegido == "Reserva de Parqueadero":
+            tipo_decoracion_elegido = 1
+        elif tipo_decoracion_elegido == "Decoraciones para la mesa":
+            tipo_decoracion_elegido = 2
+        else:
+            tipo_decoracion_elegido = 3
+        
+        if tipo_decoracion_elegido == 1:
+            label_procesos_mid.config(text="Reserva de Parqueadero")
+            placa = ""
+            cargo_extra1 = 0
+            if cliente.get_afiliacion() == Afiliacion.NINGUNA:
+                def f1_i2_parqueo_ninguna():
+                    cliente.get_factura().aumentar_valor(10000)
+                    indice_celda = restaurante.get_parqueadero().index(False)
+                    celda_parqueo = indice_celda + 1
+                    if cliente.get_placa_vehiculo() != "Ninguna":
+                        placa = cliente.get_placa_vehiculo()
+                    print(f"Parqueadero reservado con éxito para el vehículo con placa: {placa}.")
+                
+                label_procesos_bottom.destroy()
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="El servicio cuesta 10000.", criterios=None, tituloValores="¿Desea continuar?", tipo=1, comandoContinuar=f1_i2_parqueo_ninguna, comandoCancelar=extras_reserva(cliente))
+                label_procesos_bottom.grid(sticky="nsew")
+            else:
+                indice_celda = restaurante.get_parqueadero().index(False)
+                celda_parqueo = indice_celda + 1
+                if cliente.get_placa_vehiculo() != "Ninguna":
+                    placa = cliente.get_placa_vehiculo()
+                print(f"Parqueadero reservado con éxito para el vehículo con placa: {placa}.")
+            cliente.get_factura().aumentar_valor(cargo_extra1)
+            #Llamar tercera
+
+        elif tipo_decoracion_elegido == 2:
+            label_procesos_mid.config(text="Decoraciones para la mesa")
+            cargo_extra2 = 0
+            if cliente.get_afiliacion() != Afiliacion.NINGUNA:
+                cargo_extra2 += 42500
+            else:
+                cargo_extra2 += 50000
+            
+            def f1_i2_elegir_decoracion():
+                global label_procesos_bottom, cargo_extra2
+                decoracion_elegida = label_procesos_bottom.valores[0]
+                if decoracion_elegida == "Cena romántica (30000$)":
+                    decoracion_elegida = 1
+                elif decoracion_elegida == "Graduación (1200$ + 5000$ por cada comensal)":
+                    decoracion_elegida = 2
+                elif decoracion_elegida == "Descubrimiento (1200$ + 6000$ por cada comensal)":
+                    decoracion_elegida = 3
+                
+                if decoracion_elegida == 1:
+                    # restaurante.restar_de_bodega(indice_bodega_items("rosa", restaurante), 1)
+                    # restaurante.restar_de_bodega(indice_bodega_items("vela", restaurante), 3)
+                    # restaurante.restar_de_bodega_ingrediente(indice_bodega_ingredientes("vino blanco", restaurante), 1)
+                    cargo_extra2 += 30000
+                elif decoracion_elegida == 2:
+                    # restaurante.restar_de_bodega(indice_bodega_items("globo negro", restaurante), 3)
+                    # restaurante.restar_de_bodega(indice_bodega_items("globo dorado", restaurante), 3)
+                    # restaurante.restar_de_bodega(indice_bodega_items("birrete", restaurante), cliente.get_mesa().get_clientes().size())
+                    cargo_birretes = 5000 * len(cliente.get_mesa().get_clientes())
+                    cargo_extra2 += 1200 + cargo_birretes
+                elif decoracion_elegida == 3:
+                    print("Seleccione el género del bebé:\n1. Niño.\n2. Niña.")
+                    eleccion5 = Utilidad.readInt()
+                    if eleccion5 == 1:
+                        pass
+                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo azul", restaurante), 3)
+                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo blanco", restaurante), 3)
+                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("angel varon", restaurante), cliente.get_mesa().get_clientes().size())
+                    else:
+                        pass
+                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo rosado", restaurante), 3)
+                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo blanco", restaurante), 3)
+                        # restaurante.restar_de_bodega(Utilidad.indice_bodega_items("angel femenino", restaurante), cliente.get_mesa().get_clientes().size())
+                    cargo_angeles = 6000 * len(cliente.get_mesa().get_clientes())
+                    cargo_extra2 += 1200 + cargo_angeles
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Género"], tituloValores = "Valor ingresado", valores = [["Niño", "Niña"]], tipo = 2, comandoContinuar = f1_i2_elegir_decoracion, habilitado = [True])
+                    label_procesos_bottom.grid(sticky="nsew")
+
+                
+                cliente.get_factura().aumentar_valor(cargo_extra2)
+            
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Elegir decoración"], tituloValores = "Valor ingresado", valores = [["Cena romántica (30000$)", "Graduación (1200$ + 5000$ por cada comensal)", "Descubrimiento (1200$ + 6000$ por cada comensal)"]], tipo = 2, comandoContinuar = f1_i2_elegir_decoracion, habilitado = [True])
+            label_procesos_bottom.grid(sticky="nsew")
+
+            cliente.get_factura().aumentar_valor(cargo_extra2)
+            print(cliente.get_factura())
+            #Llamar tercera
+
+        else:
+            pass
+            #Llamar tercera
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Decoraciones"], tituloValores = "Valor ingresado", valores = [["Reserva de Parqueadero", "Decoraciones para la mesa", "No desea ningún servicio extra"]], tipo = 2, comandoContinuar = f1_i2_decoraciones, habilitado = [True])
+    label_procesos_bottom.grid(sticky="nsew")
+
+#Funcionalidad 1 Interacción 3
+
+def pago_anticipado(restaurante):
+    reserva = restaurante.get_historial_reservas()[-1]
+    clientes = reserva.get_clientes()
+    factura = clientes[0].get_factura()
+
+    print("¿Desea pagar ya mismo su reserva?\n1. Sí.\n2. No.")
+    eleccion1 = Utilidad.readInt()
+
+    def f1_i3_continuar_pago():
+        global label_procesos_bottom
+        pagar_ya = label_procesos_bottom.valores[0]
+
+        if pagar_ya == 1:
+            if clientes[0].get_afiliacion() == Afiliacion.NINGUNA:
+                def f1_i3_afiliarse():
+                    afiliarse = label_procesos_bottom.valores[0]
+                    if afiliarse == 1:
+                        factura.aumentar_valor(13500)  # Aplicar 10% de descuento al valor de la reserva.
+                        pagar_reserva(restaurante, reserva, clientes, factura)
+                    else:
+                        factura.aumentar_valor(15000)
+                        pagar_reserva(restaurante, reserva, clientes, factura)
+                label_procesos_bottom.destroy()
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea afiliarse?", criterios=None, tituloValores="Recibirá un descuento si lo hace.", tipo=1, comandoContinuar=f1_i3_continuar_pago, comandoCancelar=funcionalidad_0)
+                label_procesos_bottom.grid(sticky="nsew")
+
+            else:
+                factura.set_valor(14300)  # Aplicar 5% de descuento al valor de la reserva.
+                pagar_reserva(restaurante, reserva, clientes, factura)
+            clientes[0].get_factura().set_pago_preconsumo(True)
+        else:
+            factura.aumentar_valor(15000)
+            confirmar_reserva(restaurante, reserva, clientes)
+            clientes[0].get_factura().set_pago_preconsumo(False)
+    
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea pagar ya", criterios=None, tituloValores="mismo su reserva?", tipo=1, comandoContinuar=f1_i3_continuar_pago, comandoCancelar=funcionalidad_0)
+    label_procesos_bottom.grid(sticky="nsew")
+        
+    
+
+def pagar_reserva(restaurante, reserva, clientes, factura):
+    global label_procesos_bottom
+    if confirmar_reserva(restaurante, reserva, clientes):
+        escoger_metodo_pago(clientes[0])
+        factura.calcular_valor()
+        def f1_i3_confirmar_pago():
+            print("Transacción confirmada.")
+            clientes[0].get_factura().set_valor(0)
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea confirmar la transacción", criterios=None, tituloValores=f"con un valor de: {factura.get_valor()}?", tipo=1, comandoContinuar=f1_i3_confirmar_pago, comandoCancelar=funcionalidad_0)
+        label_procesos_bottom.grid(sticky="nsew")
+
+def confirmar_reserva(restaurante, reserva, clientes):
+    global label_procesos_bottom
+    confirmada = False
+    fecha_intento = datetime.now()
+    restaurante.get_intentos_reserva().append([fecha_intento.year, fecha_intento.month, fecha_intento.day])
+    
+    print("Resumen de su reserva:")
+    print(reserva)
+
+    def f1_i3_confirmar_final():
+        global label_procesos_bottom
+        confirmar = label_procesos_bottom.valores[0]
+        if confirmar == 1:
+            confirmada = True
+            print("Reserva confirmada.")
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Reserva confirmada", tituloValores="" , criterios=[f"Su código de reserva es: {reserva.get_codigo_reserva()}"], tipo=3, comandoContinuar=funcionalidad_0)
+            label_procesos_bottom.grid(sticky="nsew")
+        else:
+            print("Reserva cancelada.")
+            mesa_reserva = clientes[0].get_mesa()
+            fecha_reserva = mesa_reserva.get_fechas_disponibles()[mesa_reserva.get_ultima_fecha_reserva()]
+            fecha_reserva.append(reserva.get_fecha()[3])
+            mesa_reserva.set_clientes(None)
+            mesa_reserva.set_ultima_fecha_reserva(0)
+            for cliente in clientes:
+                cliente.reset_datos_reserva()
+            restaurante.get_historial_reservas().remove(reserva)
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea confirmar", criterios=None, tituloValores=f"la reservación?", tipo=1, comandoContinuar=f1_i3_confirmar_final, comandoCancelar=f1_i3_confirmar_final)
+    label_procesos_bottom.grid(sticky="nsew")
+
+#Funcionalidad 4 Interacción 1
 
 def agregar_sede():
     Ciudad.get_ciudades().pop(0)
@@ -753,6 +962,8 @@ def parametros_basicos(ciudad, restaurante):
     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Zona"], tituloValores = "Valor ingresado", valores = [nombre_zonas], tipo = 2, comandoContinuar = f4_i1_continuar_parametros, habilitado = [True])
     label_procesos_bottom.grid(sticky="nsew")
 
+#Funcionalidad 4 Interacción 2
+
 ciclo_esquinas = ['B']
 ciclo_bordes = ['B', 'W', 'E']
 ciclo_central = [' ', 'T', 'V']
@@ -811,70 +1022,6 @@ def validar_estados(lista_estados):
 
 disposicion_nuevo_restaurante = []
 
-def guardar_cambios(alto, ancho):
-    global cambios_guardados, disposicion_nuevo_restaurante
-    disposicion_nuevo_restaurante = generar_lista_estados(alto, ancho)
-    
-    if validar_estados([estado for _, estado in disposicion_nuevo_restaurante]):
-        # Aquí puedes hacer lo que desees con la lista generada
-        cambios_guardados = True  # Cambios guardados
-        ventana_emergente.destroy()
-    else:
-        # Mostrar un mensaje de advertencia
-        messagebox.showwarning("Advertencia", "Debe haber al menos una Ventana (W), una Puerta (E) y una Mesa (T o V).")
-
-def on_close():
-    if not cambios_guardados:
-        messagebox.showwarning("Advertencia", "Debe guardar los cambios antes de cerrar la ventana.")
-    else:
-        ventana_emergente.destroy()
-
-def crear_ventana_emergente(alto, ancho):
-    global ventana_emergente
-    # Crear ventana emergente
-    ventana_emergente = Toplevel(bg="#838383")
-    ventana_emergente.title("Distribución Restaurante")
-    ventana_emergente.iconbitmap("src/Imagenes/susy-oveja.ico")
-
-    # Interceptar el cierre de la ventana
-    ventana_emergente.protocol("WM_DELETE_WINDOW", on_close)
-
-    global matriz_estados, matriz_botones
-    matriz_estados = [[0 for _ in range(ancho)] for _ in range(alto)]  # Inicializar todos los botones con el estado 0
-    matriz_botones = [[None for _ in range(ancho)] for _ in range(alto)]  # Para almacenar las referencias a los botones
-
-    frame_emergente = Frame(ventana_emergente, bg="#696969", bd=2, relief="solid")
-    frame_emergente.pack(side=TOP, fill = "both", expand=True, padx=10, pady=10)
-
-    frame_emergente_botones = Frame(frame_emergente, bg="#696969")
-    frame_emergente_botones.pack(side=TOP, fill = "both", expand=True, padx=10, pady=10)
-
-    for i in range(alto):
-        frame_emergente_botones.grid_rowconfigure(i, weight=1)
-        for j in range(ancho):
-            frame_emergente_botones.grid_columnconfigure(j, weight=1)
-            # Crear botones y asignar la función de cambio de estado
-            boton = Button(frame_emergente_botones, text=ciclo_central[0], bg="#545454", font=("Arial", 10), fg="#fff")
-            boton.grid(row=i, column=j, sticky="nsew")
-            matriz_botones[i][j] = boton  # Almacenar referencia al botón
-            # Determinar el ciclo inicial de acuerdo a la posición del botón
-            if (i == 0 or i == alto-1) and (j == 0 or j == ancho-1):
-                # Esquinas
-                boton.config(text=ciclo_esquinas[0])
-            elif i == 0 or i == alto-1 or j == 0 or j == ancho-1:
-                # Bordes
-                boton.config(text=ciclo_bordes[0])
-            else:
-                # Centro
-                boton.config(text=ciclo_central[0])
-
-            # Vincular la función al evento de clic
-            boton.config(command=lambda b=boton, fila=i, col=j: cambiar_estado(b, fila, col, matriz_estados[fila][col], alto, ancho))
-
-    # Crear botón "Aceptar"
-    boton_aceptar = Button(ventana_emergente, text="Aceptar", command=lambda: guardar_cambios(alto, ancho), bg="#696969", font=("Arial", 10), fg="#fff")
-    boton_aceptar.pack(side="bottom", fill="x", padx=10, pady=10)
-
 def establecer_disposicion(restaurante):
     global label_procesos_bottom
     # Verificar si hay más de 3 restaurantes creados
@@ -894,50 +1041,109 @@ def establecer_disposicion(restaurante):
         Ventanas = 2""")
 
     def f4_i2_ventana_emergente():
-        global label_procesos_bottom
+        global label_procesos_bottom, matriz_estados, matriz_botones
 
-        try:
-            alto_elegido = int(label_procesos_bottom.valores[0])
-            ancho_elegido = int(label_procesos_bottom.valores[1])
-            if alto_elegido < 8 or ancho_elegido < 8 or alto_elegido > 21 or ancho_elegido > 25:
-                raise ExcepcionDatosEntry
-            else:
-                crear_ventana_emergente(alto_elegido, ancho_elegido)
-                def f4_i2_instanciar_elementos():
-                    global disposicion_nuevo_restaurante
-                    for casilla in disposicion_nuevo_restaurante:
-                        if casilla[1] == "W":
-                            restaurante.get_casillas().append(Casilla(1, casilla[0][0], casilla[0][1]))
-                        elif casilla[1] == "E":
-                            restaurante.get_casillas().append(Casilla(2, casilla[0][0], casilla[0][1]))
-                        elif casilla[1] == "T":    
+        # try:
+        alto_elegido = int(label_procesos_bottom.valores[0])
+        ancho_elegido = int(label_procesos_bottom.valores[1])
+        matriz_estados = [[0 for _ in range(ancho_elegido)] for _ in range(alto_elegido)]  # Inicializar todos los botones con el estado 0
+        matriz_botones = [[None for _ in range(ancho_elegido)] for _ in range(alto_elegido)] 
+        
+        ultimo_row = 0
+
+        def f4_i2_guardar_cambios():
+            global cambios_guardados, disposicion_nuevo_restaurante, label_procesos_bottom, frame_procesos_bottom
+            disposicion_nuevo_restaurante = generar_lista_estados(alto_elegido, ancho_elegido)
+            
+            def f4_i2_instanciar_elementos():
+                global disposicion_nuevo_restaurante
+                for casilla in disposicion_nuevo_restaurante:
+                    if casilla[1] == "W":
+                        restaurante.get_casillas().append(Casilla(1, casilla[0][0], casilla[0][1]))
+                    elif casilla[1] == "E":
+                        restaurante.get_casillas().append(Casilla(2, casilla[0][0], casilla[0][1]))
+                    elif casilla[1] == "T":    
+                        mesa = Mesa(0, casilla[0][0], casilla[0][1], False)
+                        restaurante.get_casillas().append(mesa)
+                        restaurante.get_mesas().append(mesa)
+                        mesa.set_fechas_disponibles(generar_fechas())
+                    elif casilla[1] == "V":
+                        if restaurante.is_zona_vip() == False:
                             mesa = Mesa(0, casilla[0][0], casilla[0][1], False)
                             restaurante.get_casillas().append(mesa)
                             restaurante.get_mesas().append(mesa)
                             mesa.set_fechas_disponibles(generar_fechas())
-                        elif casilla[1] == "V":
-                            if restaurante.is_zona_vip() == False:
-                                mesa = Mesa(0, casilla[0][0], casilla[0][1], False)
-                                restaurante.get_casillas().append(mesa)
-                                restaurante.get_mesas().append(mesa)
-                                mesa.set_fechas_disponibles(generar_fechas())
-                            else:
-                                mesa = Mesa(0, casilla[0][0], casilla[0][1], True)
-                                restaurante.get_casillas().append(mesa)
-                                restaurante.get_mesas().append(mesa)
-                                mesa.set_fechas_disponibles(generar_fechas())
-                    print("Casillas Instanciadas:", restaurante.get_casillas())
-                label_procesos_mid.config(text="Seleccione sí o no dependiendo de si quiere continuar.")
+                        else:
+                            mesa = Mesa(0, casilla[0][0], casilla[0][1], True)
+                            restaurante.get_casillas().append(mesa)
+                            restaurante.get_mesas().append(mesa)
+                            mesa.set_fechas_disponibles(generar_fechas())
+                print("Casillas Instanciadas:", restaurante.get_casillas())
+                #Llevar a interacción 3.
+
+            if validar_estados([estado for _, estado in disposicion_nuevo_restaurante]):
+                # Aquí puedes hacer lo que desees con la lista generada
+                print(disposicion_nuevo_restaurante)
+                for widget in frame_procesos_bottom.winfo_children():
+                    widget.destroy()
+                
+                frame_procesos_bottom = Frame(frame_procesos, bd = 2, height = 300, relief="solid", bg = "#545454")
+                frame_procesos_bottom.grid(row = 2, padx = 10, pady = 10, sticky="nsew")
+                frame_procesos_bottom.grid_propagate(False)
+                frame_procesos_bottom.grid_rowconfigure(0, weight=1)
+                frame_procesos_bottom.grid_columnconfigure(0, weight=1)
+
+                
                 label_procesos_bottom.destroy()
-                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea", criterios=None, tituloValores="continuar?", tipo=1, comandoContinuar=f4_i2_instanciar_elementos, comandoCancelar=funcionalidad_0)
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Disposición guardada con éxito.", criterios=None, tituloValores="¿Desea continuar?", tipo=1, comandoContinuar=f4_i2_instanciar_elementos, comandoCancelar=funcionalidad_0)
                 label_procesos_bottom.grid(sticky="nsew")
-        except:
-            messagebox.showerror("Error: Tipo de dato erróneo", "Debe ingresar un número entero en ambos campos.") 
+            else:
+                # Mostrar un mensaje de advertencia
+                messagebox.showwarning("Advertencia", "Debe haber al menos una Ventana (W), una Puerta (E) y una Mesa (T o V).")
+
+        if alto_elegido < 8 or ancho_elegido < 8 or alto_elegido > 16 or ancho_elegido > 20:
+            raise ExcepcionDatosEntry("7 < alto < 17 & 7 < ancho < 21")
+        else:
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = Frame(frame_procesos_bottom)
+            for i in range(alto_elegido):
+                frame_procesos_bottom.grid_rowconfigure(i, weight=1)
+                for j in range(ancho_elegido):
+                    print("Hola")
+                    frame_procesos_bottom.grid_columnconfigure(j, weight=1)
+                    # Crear botones y asignar la función de cambio de estado
+                    boton = Button(frame_procesos_bottom, text=ciclo_central[0], bg="#545454", font=("Arial", 10), fg="#fff")
+                    boton.grid(row=i, column=j, sticky="nsew")
+                    ultimo_row = i
+                    matriz_botones[i][j] = boton  # Almacenar referencia al botón
+                    # Determinar el ciclo inicial de acuerdo a la posición del botón
+                    if (i == 0 or i == alto_elegido-1) and (j == 0 or j == ancho_elegido-1):
+                        # Esquinas
+                        boton.config(text=ciclo_esquinas[0])
+                    elif i == 0 or i == alto_elegido-1 or j == 0 or j == ancho_elegido-1:
+                        # Bordes
+                        boton.config(text=ciclo_bordes[0])
+                    else:
+                        # Centro
+                        boton.config(text=ciclo_central[0])
+
+                    # Vincular la función al evento de clic
+                    boton.config(command=lambda b=boton, fila=i, col=j: cambiar_estado(b, fila, col, matriz_estados[fila][col], alto_elegido, ancho_elegido))
+
+            # Crear botón "Aceptar"
+            boton_aceptar = Button(frame_procesos_bottom, text="Aceptar", command=f4_i2_guardar_cambios, bg="#545454", font=("Arial", 10), fg="#fff")
+            boton_aceptar.grid(row=ultimo_row+1, column=0, columnspan=ancho_elegido, sticky="we")
+            
+        # except:
+        #     messagebox.showerror("Error: Tipo de dato erróneo", "Debe ingresar un número entero en ambos campos.")
+
+        
     
     label_procesos_bottom.destroy()
     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Alto", "Ancho"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True], comandoContinuar=f4_i2_ventana_emergente)
     label_procesos_bottom.grid(sticky="nsew")
 
+#Funcionalidad 4 Interacción 3
 def establecer_menu_y_encargos(restaurante):
     if Restaurante.restaurantes_creados > 2:
         # Establecer Menú
@@ -1957,7 +2163,7 @@ def cambiar_proceso(event, num_func):
         label_procesos_bottom.grid(sticky="nsew")
     elif num_func == 1:
         label_procesos_top.config(text="Reservar Mesa")
-        seleccion_mesa(None)
+        reservar_mesa()
     elif num_func == 2:
         label_procesos_top.config(text="Ordenar Comida")
     elif num_func == 4:
@@ -2205,188 +2411,6 @@ ventana_inicio.protocol("WM_DELETE_WINDOW", cerrado)
 ventana_funcional.protocol("WM_DELETE_WINDOW", cerrado)
 
 ventana_inicio.mainloop()
-
-#Funcionalidad 1
-#Interacción 1
-
-
-
-
-
-def extras_reserva(cliente):
-    restaurante = cliente.get_restaurante()
-    print("Desde la cadena de restaurantes ofrecemos los servicios de reserva de parqueadero y decoraciones para la mesa. Elija un servicio en caso de necesitarlo:")
-    print("1. Reserva de Parqueadero.\n2. Decoraciones para la mesa.\n3. No desea ningún servicio extra.")
-    eleccion = Utilidad.readInt()
-
-    if eleccion == 1:
-        print("Reserva de Parqueadero")
-        placa = ""
-        cargo_extra1 = 0
-        if cliente.get_afiliacion() == Cliente.Afiliacion.NINGUNA:
-            print("El servicio tiene un coste de $10.000. ¿Desea reservar el parqueadero?\n1. Sí.\n2. No.")
-            eleccion2 = Utilidad.readInt()
-            if eleccion2 == 1:
-                cargo_extra1 = 10000
-                indice_celda = restaurante.get_parqueadero().index(False)
-                print(f"Su celda de parqueo es la número: #{indice_celda + 1}")
-                if cliente.get_placa_vehiculo() == "Ninguna":
-                    print("Ingrese la placa del vehículo:")
-                    placa = Utilidad.read_string()
-                    cliente.set_placa_vehiculo(placa)
-                else:
-                    placa = cliente.get_placa_vehiculo()
-                print(f"Parqueadero reservado con éxito para el vehículo con placa: {placa}.")
-            else:
-                extras_reserva(cliente)
-        else:
-            if cliente.get_placa_vehiculo() == "Ninguna":
-                print("Ingrese la placa del vehículo:")
-                placa = Utilidad.read_string()
-                cliente.set_placa_vehiculo(placa)
-            else:
-                placa = cliente.get_placa_vehiculo()
-            for i in range(len(restaurante.get_parqueadero())):
-                if not restaurante.get_parqueadero()[i]:
-                    print(f"Parqueadero reservado con éxito para el vehículo con placa: {placa}.")
-                    break
-            print("Parqueadero reservado con éxito.")
-        cliente.get_factura().aumentar_valor(cargo_extra1)
-
-    elif eleccion == 2:
-        print("Decoraciones para la mesa")
-        if cliente.get_afiliacion() != Cliente.Afiliacion.NINGUNA:
-            print("Obtuvo un 15% de descuento en las decoraciones para mesa. El costo es de $42.500")
-        else:
-            print("El costo de las decoraciones es de $50.000")
-        print("¿Desea decorar la mesa?\n1. Sí.\n2. No.")
-        eleccion3 = Utilidad.readInt()
-        if eleccion3 == 1:
-            encendido1 = False
-            while not encendido1:
-                cargo_extra2 = 0
-                print("Disponemos de los siguientes paquetes de decoración:\n1. Cena romántica (30000$).\n2. Graduación (1200$ + 5000$ por cada comensal).\n3. Descubrimiento (1200$ + 6000$ por cada comensal).")
-                eleccion4 = Utilidad.readInt()
-                if eleccion4 == 1:
-                    restaurante.restar_de_bodega(Utilidad.indice_bodega_items("rosa", restaurante), 1)
-                    restaurante.restar_de_bodega(Utilidad.indice_bodega_items("vela", restaurante), 3)
-                    restaurante.restar_de_bodega_ingrediente(Utilidad.indice_bodega_ingredientes("vino blanco", restaurante), 1)
-                    cargo_extra2 = 30000
-                elif eleccion4 == 2:
-                    restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo negro", restaurante), 3)
-                    restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo dorado", restaurante), 3)
-                    restaurante.restar_de_bodega(Utilidad.indice_bodega_items("birrete", restaurante), cliente.get_mesa().get_clientes().size())
-                    cargo_birretes = 5000 * cliente.get_mesa().get_clientes().size()
-                    cargo_extra2 = 1200 + cargo_birretes
-                elif eleccion4 == 3:
-                    print("Seleccione el género del bebé:\n1. Niño.\n2. Niña.")
-                    eleccion5 = Utilidad.readInt()
-                    if eleccion5 == 1:
-                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo azul", restaurante), 3)
-                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo blanco", restaurante), 3)
-                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("angel varon", restaurante), cliente.get_mesa().get_clientes().size())
-                    else:
-                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo rosado", restaurante), 3)
-                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("globo blanco", restaurante), 3)
-                        restaurante.restar_de_bodega(Utilidad.indice_bodega_items("angel femenino", restaurante), cliente.get_mesa().get_clientes().size())
-                    cargo_angeles = 6000 * cliente.get_mesa().get_clientes().size()
-                    cargo_extra2 = 1200 + cargo_angeles
-                else:
-                    print("Ingrese un dato válido [1 - 3]")
-                    encendido1 = True
-
-                cliente.get_factura().aumentar_valor(cargo_extra2)
-                print(cliente.get_factura())
-        else:
-            extras_reserva(cliente)
-
-    elif eleccion == 3:
-        print("No desea ningún servicio extra.")
-
-    else:
-        print("Ingrese un número válido.")
-        extras_reserva(cliente)
-
-    return restaurante
-
-
-def pago_anticipado(restaurante):
-    reserva = restaurante.get_historial_reservas()[-1]
-    clientes = reserva.get_clientes()
-    factura = clientes[0].get_factura()
-
-    print("¿Desea pagar ya mismo su reserva?\n1. Sí.\n2. No.")
-    eleccion1 = Utilidad.readInt()
-
-    if eleccion1 == 1:
-        if clientes[0].get_afiliacion() == Cliente.Afiliacion.NINGUNA:
-            print("¿Desea afiliarse al restaurante? Hacerlo le daría un descuento extra por ser un nuevo socio\n1. Sí.\n2. No.")
-            eleccion2 = Utilidad.readInt()
-            if eleccion2 == 1:
-                factura.aumentar_valor(13500)  # Aplicar 10% de descuento al valor de la reserva.
-                pagar_reserva(restaurante, reserva, clientes, factura)
-            else:
-                factura.aumentar_valor(15000)
-                pagar_reserva(restaurante, reserva, clientes, factura)
-        else:
-            factura.set_valor(14300)  # Aplicar 5% de descuento al valor de la reserva.
-            pagar_reserva(restaurante, reserva, clientes, factura)
-        clientes[0].get_factura().set_pago_preconsumo(True)
-
-    else:
-        factura.aumentar_valor(15000)
-        print("Al realizar el pago postconsumo se solicitará una propina porcentual obligatoria.")
-        print("¿Teniendo esto en cuenta, desea continuar sin realizar el pago?\n1. Sí.\n2. No.")
-        eleccion6 = Utilidad.readInt()
-        if eleccion6 == 1:
-            confirmar_reserva(restaurante, reserva, clientes)
-        else:
-            pago_anticipado(restaurante)
-
-
-def pagar_reserva(restaurante, reserva, clientes, factura):
-    if confirmar_reserva(restaurante, reserva, clientes):
-        escoger_metodo_pago(clientes[0])
-        encendido1 = True
-        while encendido1:
-            factura.calcular_valor()
-            print(f"¿Desea confirmar la transacción con un valor de: {factura.get_valor()}?")
-            print("1. Sí.\n2. No.\nEscriba un número para elegir su opción.")
-            eleccion3 = Utilidad.readInt()
-            if eleccion3 == 1:
-                print("Transacción confirmada.")
-                clientes[0].get_factura().set_valor(0)
-                encendido1 = False
-            else:
-                encendido1 = False
-                print("Ingrese un valor válido [1 - 2].")
-
-def confirmar_reserva(restaurante, reserva, clientes):
-    confirmada = False
-    fecha_intento = datetime.now()
-    restaurante.get_intentos_reserva().append([fecha_intento.get_year(), fecha_intento.get_month_value(), fecha_intento.get_day_of_month()])
-    
-    print("Resumen de su reserva:")
-    print(reserva)
-    print("¿Desea confirmar su reserva?\n1. Sí.\n2. No.")
-    eleccion1 = Utilidad.readInt()
-
-    if eleccion1 == 1:
-        confirmada = True
-        print("Reserva confirmada.")
-        print(f"Su código de reserva es: {reserva.get_codigo_reserva()}")
-    else:
-        print("Reserva cancelada.")
-        mesa_reserva = clientes[0].get_mesa()
-        fecha_reserva = mesa_reserva.get_fechas_disponibles()[mesa_reserva.get_ultima_fecha_reserva()]
-        fecha_reserva.append(reserva.get_fecha()[3])
-        mesa_reserva.set_clientes(None)
-        mesa_reserva.set_ultima_fecha_reserva(0)
-        for cliente in clientes:
-            cliente.reset_datos_reserva()
-        restaurante.get_historial_reservas().remove(reserva)
-
-    return confirmada
 
 ##Funcionalidad 2 
 
@@ -3359,10 +3383,10 @@ def aplicar_descuentos_cuenta(cliente, valor_por_persona):
     return valor_final
 
 # Funcionalidad 4
-
-
-
-
+# a
+# a
+# a
+# a
 
 def cargamento(restaurante):
     cargamento = Cargamento()

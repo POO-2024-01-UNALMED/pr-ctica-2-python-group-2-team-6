@@ -106,6 +106,9 @@ class FieldFrame(Frame):
 
             label_mensaje = Label(self, text = criterios[0], font=("Arial", 15), bg = "#545454", fg="#fff")
             label_mensaje.grid(row=1, column=0, columnspan=2)
+
+            if comandoContinuar != None:
+                self.crearBoton("Aceptar", self.yessir, 0, 2)
         
         elif tipo == 4:  # Tres botones
             for i in range(len(self.criterios)):

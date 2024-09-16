@@ -42,6 +42,7 @@ class ExcepcionDatosEntry(ErrorAplicacion):
     def __init__(self, mensaje_error_hijo):
         if mensaje_error_hijo is not None:
             self.mensaje_error_inicio = f"Ha ocurrido un error en el Entry: {mensaje_error_hijo}"
+            messagebox.showerror("Error: Datos erróneos", self.mensaje_error_inicio)
         else:
             self.mensaje_error_inicio = "Ha ocurrido un error en el Entry"
         super().__init__(self.mensaje_error_inicio)
