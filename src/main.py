@@ -1221,6 +1221,7 @@ class EstadoGlobal:
     cliente_final = None
     factura_final = None
     evento_final = None
+    hora_reserva = None
 
 
 def crearEvento():
@@ -1324,7 +1325,16 @@ def llamar_interacciones():
     while EstadoGlobal.factura_final is None:
         frame_procesos_bottom.update()
 
-    print(EstadoGlobal.factura_final.get_evento().get_platos())
+    print(EstadoGlobal.factura_final.get_evento().get_platos()[0].get_nombre())
+    print(EstadoGlobal.factura_final.get_evento().get_coste())
+    print(EstadoGlobal.factura_final.get_evento().get_descripcion())
+    hora_reserva_funcion()
+    while EstadoGlobal.hora_reserva is None:
+        frame_procesos_bottom.update()
+    print(EstadoGlobal.hora_reserva)
+    mensaje = diseno_de_factura(EstadoGlobal.factura_final, EstadoGlobal.cliente_final, EstadoGlobal.hora_reserva)
+    factura_final(mensaje)
+
 
 ##########Interacción 1 Comienza acá
 
@@ -1418,11 +1428,7 @@ def pedir_datos_evento(restaurante):
     # Retorna None inicialmente, el valor real se actualizará en reserva_de_los_clientes
     return None
 ###############################Interacción 1 Lista Termina acá
-###############################Interacción 2 comienza Acá
-
-def otro_metodo(cliente):
-    restaurantes = cliente.get_restaurante()
-    print(restaurantes.get_nombre())
+###############################Interacción 2
 
 
 # ##INTERACCIÓN 1 FINALIZA ACÁ
@@ -1583,7 +1589,46 @@ def interaccion2_recomendarEvento():
 
 
     def opcion_gastronomias():
-        print("se mete a gastronomias")
+        global label_procesos_bottom, label_procesos_mid
+        label_procesos_mid.config(text="El servicio tiene un costo de 345000, ¿deseas continuar?")
+        def opcione_gastronomias_si():
+            global label_procesos_bottom, label_procesos_mid
+            listado_nombres_gastronomias = ["Japonesa", "Marroquí", "Francesa", "Italiana"]
+            mensaje = ("En esta sección conoceras las gastronomias de todas las /n"
+                    "partes del mundo, en especial las 4 más relevantes en /n"
+                    "termino de gusto, calidad y ricura😏😏😏")
+            label_procesos_mid.config(text=mensaje, wraplength=400, justify="left", font=("Arial", 10), fg="#fff")
+            def gastronomias_escoger():
+                gastronomia_requerida = label_procesos_bottom.valores[0]
+                gastronomias_semi_final(gastronomia_requerida)
+
+            
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(
+                frame_procesos_bottom,
+                tituloCriterios="Gastronomias Mundiales",
+                criterios=["Referentes"],
+                tituloValores="al Pais",
+                valores=[listado_nombres_gastronomias],
+                tipo=2,
+                comandoContinuar=gastronomias_escoger,
+                habilitado=[True])
+            label_procesos_bottom.grid(sticky="nsew")
+
+
+
+
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Desea",
+        criterios=None,
+        tituloValores="continuar con las opciones gastronomicas?",
+        tipo=1,
+        comandoContinuar=opcione_gastronomias_si,
+        comandoCancelar=interaccion2_recomendarEvento
+        )
+        label_procesos_bottom.grid(sticky="nsew")
 
 
     ###Hasta acá irían
@@ -1707,7 +1752,9 @@ def cata_vinos_champagne(cantidad_proletariado):
                     EstadoGlobal.evento_final = evento_elegido
                     EstadoGlobal.factura_final = Factura()
                     EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+
                     def finalizar():
+                        label_procesos_bottom.destroy()
                         pass
                     label_procesos_bottom.destroy()
                     label_procesos_bottom = FieldFrame(
@@ -2061,6 +2108,486 @@ def cata_vinos_champagne(cantidad_proletariado):
     label_procesos_bottom.grid(sticky="nsew")
 
 
+def gastronomias_semi_final(gastrononomia):
+    global label_procesos_bottom, label_procesos_mid
+    trabajador_italiano = Trabajador("Mario Guissepe", 876543, "Italiana", 2300000)
+    trabajador_japones = Trabajador("Rika Miyuka", 575288, "Japonesa", 2300000)
+    trabajador_marroqui = Trabajador("Hakin Hasan Ibrahim", 8428257, "Marroquí", 2300000)
+    trabajador_frances = Trabajador("Emmanuel Macrom", 95175, "Francesa", 2300000)
+
+
+    # Añadiendo cocineros
+    Trabajador.get_cocineros().append(trabajador_italiano)
+    Trabajador.get_cocineros().append(trabajador_japones)
+    Trabajador.get_cocineros().append(trabajador_marroqui)
+    Trabajador.get_cocineros().append(trabajador_frances)
+
+    # Creación de platos varios
+    bagget = Plato("Bagget", 2000, 100, "Meetings")
+    queso = Plato("Queso mediterraneo", 50000, 100, "Meetings")
+    mochi = Plato("Mochi", 4300, 100, "Japonesa")
+    postre_napolitano = Plato("Postre Napolitano", 4300, 100, "Italiana")
+    magrud = Plato("Maqrud", 4300, 100, "Marroquí")
+    macarons = Plato("Macarons", 4300, 100, "Francesa")
+
+    # Añadiendo platos varios
+    Plato.get_platos_varios().append(bagget)
+    Plato.get_platos_varios().append(queso)
+    Plato.get_platos_varios().append(mochi)
+    Plato.get_platos_varios().append(postre_napolitano)
+    Plato.get_platos_varios().append(magrud)
+    Plato.get_platos_varios().append(macarons)
+
+    # Creación de platos italianos
+    sopa_minestrone = Plato("Sopa Minnestrone", 54000, 5, "Italiana")
+    ensalada_caprese = Plato("Ensalada Caprese", 35300, 8, "Italiana")
+    carpaccio = Plato("Carpaccio", 44000, 1, "Italiana")
+    vitello_tonnatoe = Plato("Vitello Tonnatoe", 74000, 4, "Italiana")
+
+    # Añadiendo platos italianos
+    Plato.get_gastronomias_italiana().append(sopa_minestrone)
+    Plato.get_gastronomias_italiana().append(ensalada_caprese)
+    Plato.get_gastronomias_italiana().append(carpaccio)
+    Plato.get_gastronomias_italiana().append(vitello_tonnatoe)
+
+    # Creación de platos japoneses
+    sushi = Plato("Sushi Yarigato", 54000, 5, "Japonesa")
+    tempura = Plato("Tempura Ora Ora", 35300, 8, "Japonesa")
+    katsudon = Plato("Katsudon Primaveral", 44000, 3, "Japonesa")
+    kaisedon = Plato("Kaisedon Hokkaido", 74000, 4, "Japonesa")
+
+    # Añadiendo platos japoneses
+    Plato.get_gastronomias_japonesa().append(sushi)
+    Plato.get_gastronomias_japonesa().append(tempura)
+    Plato.get_gastronomias_japonesa().append(katsudon)
+    Plato.get_gastronomias_japonesa().append(kaisedon)
+
+    # Creación de platos marroquíes
+    tajin = Plato("Tajín Avepus", 54000, 5, "Marroquí")
+    cuscus = Plato("Cuscús Adriático", 35300, 8, "Marroquí")
+    harira = Plato("Harira Candente", 44000, 3, "Marroquí")
+    briouat = Plato("Briouat Sur", 74000, 4, "Marroquí")
+
+    # Añadiendo platos marroquíes
+    Plato.get_gastronomias_marroqui().append(tajin)
+    Plato.get_gastronomias_marroqui().append(cuscus)
+    Plato.get_gastronomias_marroqui().append(harira)
+    Plato.get_gastronomias_marroqui().append(briouat)
+
+    # Creación de platos franceses
+    ratatouille = Plato("Ratatouille Avignon", 54000, 5, "Francesa")
+    escargots = Plato("Escargots D' Bourgogne", 35300, 8, "Francesa")
+    fricase = Plato("Fricasé Le Mans", 44000, 1, "Francesa")
+    gratin = Plato("Le gratin dauphinois", 74000, 1, "Francesa")
+
+    # Añadiendo platos franceses
+    Plato.get_gastronomias_francesa().append(ratatouille)
+    Plato.get_gastronomias_francesa().append(escargots)
+    Plato.get_gastronomias_francesa().append(fricase)
+    Plato.get_gastronomias_francesa().append(gratin)
+
+    # Añadiendo gastronomías al conjunto de platos
+    Plato.get_platos_gastronomias().append(Plato.get_gastronomias_francesa())
+    Plato.get_platos_gastronomias().append(Plato.get_gastronomias_italiana())
+    Plato.get_platos_gastronomias().append(Plato.get_gastronomias_marroqui())
+    Plato.get_platos_gastronomias().append(Plato.get_gastronomias_japonesa())
+
+    if gastrononomia == "Japonesa":
+        comida_japonesa()
+
+    elif gastrononomia == "Italiana":
+        comida_italiana()
+
+    elif gastrononomia == "Marroquí":
+        comida_marroqui() 
+
+    elif gastrononomia == "Francesa":
+        comida_francesa()
+
+def comida_italiana():
+    global label_procesos_bottom, label_procesos_mid
+    chef_elegido = None
+    for personal in Trabajador.cocineros:
+        if personal.get_especialidad() == "Italiana":
+            chef_elegido = personal
+    nombre_platos=[]
+    for platos in Plato.gastronomias_italiana:
+        nombre_platos.append(platos.get_nombre())
+
+    mensaje = (f"El/la chef {chef_elegido.get_nombre()} ha escogido los siguientes platos para ti\n"
+            "Vi ringraziamo di avervi nel nostro ristorante La Sangue di Cristo ha Potere")
+    label_procesos_mid.config(text=mensaje, wraplength=400, justify="center", font=("Arial", 12), fg="#fff")
+
+    def cantidad_de_los_platos():
+        global label_procesos_bottom, label_procesos_mid
+        label_procesos_mid.config(text="Escoge la cantidad de platos que requieras en tu velada")
+        plato_final = label_procesos_bottom.valores[0]
+
+        def final_gastro():
+            nonlocal plato_final
+            global label_procesos_mid, label_procesos_bottom
+            cantidad_final = label_procesos_bottom.valores[0]
+            plato = None
+            for platos in Plato.gastronomias_italiana:
+                if platos.get_nombre() == plato_final:
+                    plato = platos
+
+            plato.set_veces_pedido(int(cantidad_final))
+            coste_evento = 345000
+            descripcion_evento = "..Toten o shinrai shite itadaki arigatogozaimasu.."
+            nombre_evento = "Gastronomias Mundiales"
+            evento_elegido = Evento(nombre_evento, coste_evento, [plato])
+            evento_elegido.set_descripcion(descripcion_evento)
+            EstadoGlobal.evento_final = evento_elegido
+            EstadoGlobal.factura_final = Factura()
+            EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)            
+
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Escoge la cantidad que desees",
+        criterios=["Miralas"],
+        tituloValores="Seleccione",
+        valores=[],
+        tipo=0,
+        comandoContinuar=final_gastro,
+        habilitado=[True]
+        )
+        label_procesos_bottom.grid(sticky="nsew")
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+    frame_procesos_bottom,
+    tituloCriterios="Platos Italianos Disponibles",
+    criterios=["Nombre"],
+    tituloValores="El que usted desea mi rey",
+    valores=[nombre_platos],
+    tipo=2,
+    comandoContinuar=cantidad_de_los_platos,
+    habilitado=[True]
+    )
+    label_procesos_bottom.grid(sticky="nsew")
+
+
+def comida_japonesa():
+    global label_procesos_bottom, label_procesos_mid
+    chef_elegido = None
+    for personal in Trabajador.cocineros:
+        if personal.get_especialidad() == "Japonesa":
+            chef_elegido = personal
+    nombre_platos=[]
+    for platos in Plato.gastronomias_japonesa:
+        nombre_platos.append(platos.get_nombre())
+
+    mensaje = (f"El/la chef {chef_elegido.get_nombre()} ha escogido los siguientes platos para ti\n"
+            "Anata-tachi o watashitachi no resutoran, kawaī chūgoku no on'nanoko ni mukaeru koto o kansha shimasu.")
+    label_procesos_mid.config(text=mensaje, wraplength=400, justify="center", font=("Arial", 12), fg="#fff")
+
+    def cantidad_de_los_platos():
+        global label_procesos_bottom, label_procesos_mid
+        label_procesos_mid.config(text="Escoge la cantidad de platos que requieras en tu velada")
+        plato_final = label_procesos_bottom.valores[0]
+
+        def final_gastro():
+            nonlocal plato_final
+            global label_procesos_mid, label_procesos_bottom
+            cantidad_final = label_procesos_bottom.valores[0]
+            plato = None
+            for platos in Plato.gastronomias_japonesa:
+                if platos.get_nombre() == plato_final:
+                    plato = platos
+
+            plato.set_veces_pedido(int(cantidad_final))
+            coste_evento = 345000
+            descripcion_evento = "..Toten o shinrai shite itadaki arigatogozaimasu.."
+            nombre_evento = "Gastronomias Mundiales"
+            evento_elegido = Evento(nombre_evento, coste_evento, [plato])
+            evento_elegido.set_descripcion(descripcion_evento)
+            EstadoGlobal.evento_final = evento_elegido
+            EstadoGlobal.factura_final = Factura()
+            EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Escoge la cantidad que desees",
+        criterios=["Miralas"],
+        tituloValores="Seleccione",
+        valores=[],
+        tipo=0,
+        comandoContinuar=final_gastro,
+        habilitado=[True]
+        )
+        label_procesos_bottom.grid(sticky="nsew")
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+    frame_procesos_bottom,
+    tituloCriterios="Platos Japoneses Disponibles",
+    criterios=["Nombre"],
+    tituloValores="El que usted desea mi rey",
+    valores=[nombre_platos],
+    tipo=2,
+    comandoContinuar=cantidad_de_los_platos,
+    habilitado=[True]
+    )
+    label_procesos_bottom.grid(sticky="nsew")
+
+def comida_marroqui():
+    global label_procesos_bottom, label_procesos_mid
+    chef_elegido = None
+    for personal in Trabajador.cocineros:
+        if personal.get_especialidad() == "Marroquí":
+            chef_elegido = personal
+    nombre_platos=[]
+    for platos in Plato.gastronomias_marroqui:
+        nombre_platos.append(platos.get_nombre())
+
+    mensaje = (f"El/la chef {chef_elegido.get_nombre()} ha escogido los siguientes platos para ti\n"
+            "شكراً لكم على وجودكم في مطعمنا 'دم المسيح له القدرة")
+    label_procesos_mid.config(text=mensaje, wraplength=400, justify="center", font=("Arial", 12), fg="#fff")
+
+    def cantidad_de_los_platos():
+        global label_procesos_bottom, label_procesos_mid
+        label_procesos_mid.config(text="Escoge la cantidad de platos que requieras en tu velada")
+        plato_final = label_procesos_bottom.valores[0]
+
+        def final_gastro():
+            nonlocal plato_final
+            global label_procesos_mid, label_procesos_bottom
+            cantidad_final = label_procesos_bottom.valores[0]
+            plato = None
+            for platos in Plato.gastronomias_marroqui:
+                if platos.get_nombre() == plato_final:
+                    plato = platos
+
+            plato.set_veces_pedido(int(cantidad_final))
+            coste_evento = 345000
+            descripcion_evento = ".......شكرا لك على الثقة في مطعمنا........"
+            nombre_evento = "Gastronomias Mundiales"
+            evento_elegido = Evento(nombre_evento, coste_evento, [plato])
+            evento_elegido.set_descripcion(descripcion_evento)
+            EstadoGlobal.evento_final = evento_elegido
+            EstadoGlobal.factura_final = Factura()
+            EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Escoge la cantidad que desees",
+        criterios=["Miralas"],
+        tituloValores="Seleccione",
+        valores=[],
+        tipo=0,
+        comandoContinuar=final_gastro,
+        habilitado=[True]
+        )
+        label_procesos_bottom.grid(sticky="nsew")
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+    frame_procesos_bottom,
+    tituloCriterios="Platos Marroquís Disponibles",
+    criterios=["Nombre"],
+    tituloValores="El que usted desea mi rey",
+    valores=[nombre_platos],
+    tipo=2,
+    comandoContinuar=cantidad_de_los_platos,
+    habilitado=[True]
+    )
+    label_procesos_bottom.grid(sticky="nsew")
+
+def comida_francesa():
+    global label_procesos_bottom, label_procesos_mid
+    chef_elegido = None
+    for personal in Trabajador.cocineros:
+        if personal.get_especialidad() == "Francesa":
+            chef_elegido = personal
+    nombre_platos=[]
+    for platos in Plato.gastronomias_francesa:
+        nombre_platos.append(platos.get_nombre())
+
+    mensaje = (f"El/la chef {chef_elegido.get_nombre()} ha escogido los siguientes platos para ti\n"
+            "Je vous remercie de votre présence dans notre restaurant La Sangre de Cristo tiene Poder.")
+    label_procesos_mid.config(text=mensaje, wraplength=400, justify="center", font=("Arial", 12), fg="#fff")
+
+    def cantidad_de_los_platos():
+        global label_procesos_bottom, label_procesos_mid
+        label_procesos_mid.config(text="Escoge la cantidad de platos que requieras en tu velada")
+        plato_final = label_procesos_bottom.valores[0]
+
+        def final_gastro():
+            nonlocal plato_final
+            global label_procesos_mid, label_procesos_bottom
+            cantidad_final = label_procesos_bottom.valores[0]
+            plato = None
+            for platos in Plato.gastronomias_francesa:
+                if platos.get_nombre() == plato_final:
+                    plato = platos
+
+            plato.set_veces_pedido(int(cantidad_final))
+            coste_evento = 345000
+            descripcion_evento = ".....Merci de faire confiance à notre restaurante"
+            nombre_evento = "Gastronomias Mundiales"
+            evento_elegido = Evento(nombre_evento, coste_evento, [plato])
+            evento_elegido.set_descripcion(descripcion_evento)
+            EstadoGlobal.evento_final = evento_elegido
+            EstadoGlobal.factura_final = Factura()
+            EstadoGlobal.factura_final.set_evento(EstadoGlobal.evento_final)
+
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Escoge la cantidad que desees",
+        criterios=["Miralas"],
+        tituloValores="Seleccione",
+        valores=[],
+        tipo=0,
+        comandoContinuar=final_gastro,
+        habilitado=[True]
+        )
+        label_procesos_bottom.grid(sticky="nsew")
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+    frame_procesos_bottom,
+    tituloCriterios="Platos Franceses Disponibles",
+    criterios=["Nombre"],
+    tituloValores="El que usted desea mi rey",
+    valores=[nombre_platos],
+    tipo=2,
+    comandoContinuar=cantidad_de_los_platos,
+    habilitado=[True]
+    )
+    label_procesos_bottom.grid(sticky="nsew")
+
+###Interacción 3 Final
+
+def hora_reserva_funcion():
+    global label_procesos_bottom, label_procesos_mid
+
+    def obtener_hora():
+        global label_procesos_bottom
+        try:
+            hora = label_procesos_bottom.getValue("Hora")
+            minutos= label_procesos_bottom.getValue("Minutos")
+            dia = label_procesos_bottom.getValue("Dia")
+            mes = label_procesos_bottom.getValue("Mes")
+
+            if (0> int(hora) >=24):
+                raise ExcepcionFueraRango(hora, "La hora debe ser un número, aparte de ello ser menos de 24")
+            if not hora.isdigit():
+                raise ValueError("Ingrese un dato numérico")
+            if not (1 <= int(minutos) <= 59):
+                raise ExcepcionFueraRango(minutos, "1-59 (Acuerdate que los minutos de una hora son 60)")
+            
+            if not (1 <= int(dia) <= 31):
+                raise ExcepcionFueraRango(minutos, "1-31 (Acuerdate que los dias maximos por mes son 31)")
+            if not (1 <= int(mes) <= 12):
+                raise ExcepcionFueraRango(minutos, "1-12 (Solo hay 12 meses, no más)")
+            
+            EstadoGlobal.hora_reserva = hora
+
+        except ExcepcionFueraRango as e:
+            print(f"Error: {e}")
+            messagebox.showerror("Error de Digitación", str(e))
+        
+        except ErrorAplicacion as e:
+            print(f"Error: {e}")
+            messagebox.showerror("Error de Aplicación", str(e))
+
+        except ValueError:
+            messagebox.showerror("Error de Formato", "Ingrese un número válido.")               
+        
+    mensaje_meeting = ("Por favor indicar la fechas en formato militar (HH:MM). Digite por favor el día y el mes")
+
+# Configura el label con texto ajustado para imprimir
+    label_procesos_mid.config(text=mensaje_meeting, wraplength=400, justify="left", font=("Arial", 10), fg="#fff")
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="No indica por favor la hora de su reserva",
+        criterios=["Hora", "Minutos", "Dia", "Mes", "Año"],
+        tituloValores="Digite uno por uno",
+        valores=[],
+        tipo=0,
+        comandoContinuar=obtener_hora,
+        habilitado=[True, True, True, True, False]
+        )
+    label_procesos_bottom.grid(sticky="nsew")
+
+
+
+def diseno_de_factura(evento, cliente, horario):
+    evento1 = evento.get_evento()
+    cliente1 = cliente
+    horario1 = horario
+
+    
+    plato = evento1.get_platos()[0]
+    cantidad = plato.get_veces_pedido()
+    cantidad_a_pagar = (cantidad * plato.get_precio()) + evento1.get_coste()
+
+    if int(horario1) > 20:
+        cantidad_a_pagar += int(cantidad_a_pagar * 0.08)
+    else:
+        cantidad_a_pagar += int(cantidad_a_pagar * 0.03)
+
+    valor = (f"{plato.get_nombre()}   X{plato.get_veces_pedido()}   ...   {plato.get_veces_pedido() * plato.get_precio()}\n")
+
+
+    
+    mensaje = (f"                                                                                             .......{cliente1.get_restaurante().get_nombre()}........\n\n"
+            f"                                                                                             Cliente: {cliente1.get_nombre()}..............\n"
+            f"                                                                                             Cédula: {cliente1.get_cedula()}..............\n\n\n"
+            f"                                                                                             {valor}\n\n"
+            f"                                                                                             Total a pagar ......... {cantidad_a_pagar}\n\n\n"
+            f"                                                                               ........{evento1.get_descripcion()} .......\n\n\n"
+            f"                                                                               ...............Mil Gracias a Todos y Todas..............")
+    return mensaje
+
+
+def factura_final(mensaje):
+    global label_procesos_bottom
+
+    # Verifica si el widget existe y lo destruye
+    if label_procesos_bottom:
+        label_procesos_bottom.destroy()
+
+    # Crea un frame que contendrá el Text y la scrollbar
+    frame_texto = Frame(frame_procesos_bottom, bg="#545454")
+    frame_texto.grid(sticky="nsew")
+
+    # Crea un widget Text
+    texto_widget = Text(
+        frame_texto,
+        wrap=WORD,  # Ajusta el texto automáticamente a la siguiente línea
+        font=("Arial", 14),  # Fuente ajustable
+        bg="#545454",  # Fondo oscuro para que coincida con el diseño
+        fg="#fff",  # Texto en color blanco
+        relief="flat",  # Sin borde visible
+        padx=10, pady=10  # Margen para que se vea mejor
+    )
+
+    # Barra de desplazamiento vertical
+    scrollbar = Scrollbar(frame_texto, command=texto_widget.yview)
+    texto_widget.config(yscrollcommand=scrollbar.set)
+
+    # Inserta el mensaje
+    texto_widget.insert(END, mensaje)
+
+    # Deshabilita la edición del texto (solo lectura)
+    texto_widget.config(state=DISABLED)
+
+    # Ubica el widget Text y la scrollbar en el frame
+    texto_widget.grid(row=0, column=0, sticky="nsew")
+    scrollbar.grid(row=0, column=1, sticky="ns")
+
+    # Configura el grid para que el Text se ajuste automáticamente
+    frame_texto.grid_rowconfigure(0, weight=1)
+    frame_texto.grid_columnconfigure(0, weight=1)
+
+
 
 
 ###HASTA ACÁ VA FUNCIONALIDAD 5
@@ -2087,7 +2614,7 @@ def cambiar_cv(event):
     rutas = [
         ["src/Imagenes/desarrolladores/arangoPrueba1.png", "src/Imagenes/desarrolladores/arangoPrueba2.png", "src/Imagenes/desarrolladores/arangoPrueba3.png", "src/Imagenes/desarrolladores/arangoPrueba4.png" ],
         ["src/Imagenes/desarrolladores/coloradoPrueba1.png", "src/Imagenes/desarrolladores/coloradoPrueba2.png", "src/Imagenes/desarrolladores/coloradoPrueba3.png", "src/Imagenes/desarrolladores/coloradoPrueba4.png"],
-        ["src/Imagenes/desarrolladores/stivenPrueba1.png", "src/Imagenes/desarrolladores/stivenPrueba2.png", "src/Imagenes/desarrolladores/stivenPrueba3.png","src/Imagenes/desarrolladores/stivenPrueba4.png" ]
+        ["src/Imagenes/desarrolladores/stivenPrueba1.jpeg", "src/Imagenes/desarrolladores/stivenPrueba2.jpeg", "src/Imagenes/desarrolladores/stivenPrueba3.jpeg","src/Imagenes/desarrolladores/stivenPrueba4.jpeg" ]
     ]
     #boton_right_top.config(text=cvs[contador_clicks_cv][0])
     # Actualizar las rutas de las imágenes de acuerdo al contador de clics
