@@ -6,8 +6,6 @@ class ErrorAplicacion(Exception):
     def __str__(self):
         return f"Error en la aplicación: {self.mensaje}"
     
-
-    
 class ExcepcionCajaCombo(ErrorAplicacion):
     def __init__(self, mensaje_error_hijo):
         if mensaje_error_hijo is not None:

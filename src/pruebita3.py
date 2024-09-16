@@ -156,12 +156,8 @@ def dejar_restaurante():
                             except ExcepcionDatosErroneos as e:
                                 print("Error:", e.mensaje_error_valor)
                                 label_procesos_bottom.limpiarEntradas()
-                        escoger_metodo_pago(cliente_pagador, valor_factura)
-                        print("biri biri")
-                        
-                        
-                        
-            
+                        else:
+                            escoger_metodo_pago(cliente_pagador, valor_factura)
 
                     label_procesos_bottom.destroy()
                     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Cédula de quién realizará el pago"], tituloValores="Espacio para diligenciar información", tipo=0, comandoContinuar=f3_i1_buscar_cedula, comandoCancelar=funcionalidad_0)
@@ -217,7 +213,6 @@ def comando_prueba():
 
 #         valor_final = valor_por_persona  # Valor por defecto sin descuento
 
-#         # Aplicar descuentos basados en la afiliación del cliente
 #         if cliente_pagador.get_afiliacion() != Afiliacion.NINGUNA:
 #             if cliente_pagador.get_afiliacion() == Afiliacion.ESTRELLITA:
 #                 if metodo_pago == "Efectivo":
@@ -230,11 +225,46 @@ def comando_prueba():
 #                         valor_final -= valor_por_persona * 0.03
 #                     else:
 #                         valor_final -= valor_por_persona * 0.05
+
 #             elif cliente_pagador.get_afiliacion() == Afiliacion.ESTRELLA:
 #                 if metodo_pago == "Efectivo":
-#                     valor_final -= valor_por_persona * 0.15
+#                     if valor_por_persona < 30000:
+#                         valor_final -= valor_por_persona * 0.07
+#                     else:
+#                         valor_final -= valor_por_persona * 0.15
 #                 elif metodo_pago == "Tarjeta":
-#                     valor_final -= valor_por_persona * 0.15
+#                     if valor_por_persona < 30000:
+#                         valor_final -= valor_por_persona * 0.08
+#                     else:
+#                         valor_final -= valor_por_persona * 0.15
+
+#             elif cliente_pagador.get_afiliacion() == Afiliacion.SUPERESTRELLOTA:
+#                 if metodo_pago == "Efectivo":
+#                     if valor_por_persona < 30000:
+#                         valor_final -= valor_por_persona * 0.1
+#                     else:
+#                         valor_final -= valor_por_persona * 0.2
+#                 elif metodo_pago == "Tarjeta":
+#                     if valor_por_persona < 30000:
+#                         valor_final -= valor_por_persona * 0.15
+#                     else:
+#                         valor_final -= valor_por_persona * 0.25
+#                 elif metodo_pago == "Cheque":
+#                     if valor_por_persona < 30000:
+#                         valor_final -= valor_por_persona * 0.05
+#                     else:
+#                         valor_final -= valor_por_persona * 0.08
+#         else:
+#             valor_final = valor_por_persona  # Sin afiliación no hay descuentos
+
+#         # Aplicar el descuento adicional por puntos acumulados
+#         if cliente_pagador.get_puntos_acumulados() >= 10:
+#             print("Felicidades, ha obtenido un descuento de 10.000 por sus puntos acumulados.")
+#             valor_final -= 10000
+#             cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() - 10)
+
+#         # Actualizar el mensaje con el valor final
+#         label_procesos_mid.config(text=f"El valor a pagar por {cliente_pagador.nombre} es de {valor_final}.")
 #             # Continúa aplicando más condiciones según la afiliación...
 #         else:
 #             label_procesos_mid.config(text=f"El valor a pagar sin descuentos es: {valor_final}.")
@@ -303,87 +333,109 @@ def escoger_metodo_pago(cliente_pagador, valor_por_persona):
         global label_procesos_bottom
         global label_procesos_mid
         valor_final = 0
-        
+
         if cliente_pagador.get_afiliacion() != Afiliacion.NINGUNA:
-            valor_final = valor_por_persona
-            
-            if cliente_pagador.get_afiliacion == Afiliacion.ESTRELLITA:
-                metodo_pago = cliente_pagador.get_factura().get_metodo_pago()
+            if cliente_pagador.get_afiliacion() == Afiliacion.ESTRELLITA:
                 if metodo_pago == "Efectivo":
-                    if cliente_pagador.get_factura().get_valor() < 30000:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.05))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+                    if valor_por_persona > 30000:
+                        valor_final -= valor_por_persona * 0.05
                     else:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.07))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+                        valor_final -= valor_por_persona * 0.07
                 elif metodo_pago == "Tarjeta":
-                    if cliente_pagador.get_factura().get_valor() < 30000:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.03))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+                    if valor_por_persona > 30000:
+                        valor_final -= valor_por_persona * 0.03
                     else:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.05))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
-                elif metodo_pago == "Cheque":
-                    if cliente_pagador.get_factura().get_valor() < 30000:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.02))
-                        cliente_pagador.set_puntos_acumulados(0)
-                    else:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.03))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
-                elif metodo_pago == "Puntos":
-                    pass
-            
+                        valor_final -= valor_por_persona * 0.05
+
             elif cliente_pagador.get_afiliacion() == Afiliacion.ESTRELLA:
-                metodo_pago = cliente_pagador.get_factura().get_metodo_pago()
                 if metodo_pago == "Efectivo":
-                    if cliente_pagador.get_factura().get_valor() < 30000:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.07))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+                    if valor_por_persona > 30000:
+                        valor_final -= valor_por_persona * 0.07
                     else:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.15))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 4)
+                        valor_final -= valor_por_persona * 0.15
                 elif metodo_pago == "Tarjeta":
-                    if cliente_pagador.get_factura().get_valor() < 30000:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.08))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+                    if valor_por_persona > 30000:
+                        valor_final -= valor_por_persona * 0.08
                     else:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.15))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 4)
-                elif metodo_pago == "Cheque":
-                    if cliente_pagador.get_factura().get_valor() < 30000:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.02))
-                        cliente_pagador.set_puntos_acumulados(0)
-                    else:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.1))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
-                elif metodo_pago == "Puntos":
-                    pass
-            
+                        valor_final -= valor_por_persona * 0.15
+
             elif cliente_pagador.get_afiliacion() == Afiliacion.SUPERESTRELLOTA:
-                metodo_pago = cliente_pagador.get_factura().get_metodo_pago()
                 if metodo_pago == "Efectivo":
-                    if cliente_pagador.get_factura().get_valor() < 30000:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.1))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 6)
+                    if valor_por_persona > 30000:
+                        valor_final -= valor_por_persona * 0.1
                     else:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.2))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 8)
+                        valor_final -= valor_por_persona * 0.2
                 elif metodo_pago == "Tarjeta":
-                    if cliente_pagador.get_factura().get_valor() < 30000:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.15))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 6)
+                    if valor_por_persona > 30000:
+                        valor_final -= valor_por_persona * 0.15
                     else:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.25))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 8)
+                        valor_final -= valor_por_persona * 0.25
                 elif metodo_pago == "Cheque":
-                    if cliente_pagador.get_factura().get_valor() < 30000:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.05))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+                    if valor_por_persona > 30000:
+                        valor_final -= valor_por_persona * 0.05
                     else:
-                        valor_final = int(valor_por_persona - (valor_por_persona * 0.08))
-                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
-                elif metodo_pago == "Puntos":
-                    pass
+                        valor_final -= valor_por_persona * 0.08
+        
+        
+        # if cliente_pagador.get_afiliacion() != Afiliacion.NINGUNA:
+        #     valor_final = valor_por_persona
+            
+        #     if cliente_pagador.get_afiliacion == Afiliacion.ESTRELLITA:
+        #         metodo_pago = cliente_pagador.get_factura().get_metodo_pago()
+        #         if metodo_pago == "Efectivo":
+        #             if cliente_pagador.get_factura().get_valor() < 30000:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.05))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+        #             else:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.07))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+        #         elif metodo_pago == "Tarjeta":
+        #             if cliente_pagador.get_factura().get_valor() < 30000:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.03))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+        #             else:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.05))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+        #         elif metodo_pago == "Puntos":
+        #             pass
+            
+        #     elif cliente_pagador.get_afiliacion() == Afiliacion.ESTRELLA:
+        #         metodo_pago = cliente_pagador.get_factura().get_metodo_pago()
+        #         if metodo_pago == "Efectivo":
+        #             if cliente_pagador.get_factura().get_valor() < 30000:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.07))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+        #             else:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.15))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 4)
+        #         elif metodo_pago == "Tarjeta":
+        #             if cliente_pagador.get_factura().get_valor() < 30000:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.08))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+        #             else:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.15))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 4)
+        #         elif metodo_pago == "Puntos":
+        #             pass
+            
+        #     elif cliente_pagador.get_afiliacion() == Afiliacion.SUPERESTRELLOTA:
+        #         metodo_pago = cliente_pagador.get_factura().get_metodo_pago()
+        #         if metodo_pago == "Efectivo":
+        #             if cliente_pagador.get_factura().get_valor() < 30000:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.1))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 6)
+        #             else:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.2))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 8)
+        #         elif metodo_pago == "Tarjeta":
+        #             if cliente_pagador.get_factura().get_valor() < 30000:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.15))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 6)
+        #             else:
+        #                 valor_final = int(valor_por_persona - (valor_por_persona * 0.25))
+        #                 cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 8)
+        #         elif metodo_pago == "Puntos":
+        #             pass
             label_procesos_mid.config(text=f"Gracias a que obtuvo descuentos, el valor a pagar por {cliente_pagador.nombre} es de {valor_final}.")
         
         else:
@@ -396,24 +448,22 @@ def escoger_metodo_pago(cliente_pagador, valor_por_persona):
             cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() - 10)
 
         
-        
-
         def confirmar_transaccion():
             global label_procesos_bottom
             global label_procesos_mid
             label_procesos_mid.config(text="¿Desea confirmar la transacción?")
 
             label_procesos_bottom.destroy()
-            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Confirmar transacción", criterios=None, tituloValores="", tipo=1, comandoContinuar=funcionalidad_0)
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Confirmar transacción", criterios=None, tituloValores="", tipo=1, comandoContinuar=comando_prueba)
             label_procesos_bottom.grid(sticky="nsew")
 
         label_procesos_bottom.destroy()
-        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Método de pago seleccionado"], tituloValores="Información suministrada", valores=metodo_pago, habilitado= False, tipo=0, comandoContinuar=confirmar_transaccion, comandoCancelar=funcionalidad_0)
+        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Presione aceptar para continuar"], tituloValores="", tipo=3, comandoContinuar=confirmar_transaccion)
         label_procesos_bottom.grid(sticky="nsew")
         
 
     label_procesos_bottom.destroy()
-    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Método de pago"], tituloValores="Seleccione un método de pago", valores=metodos_pago, tipo=2, comandoContinuar=aplicar_descuentos_cuenta, comandoCancelar=funcionalidad_0)
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Método de pago"], tituloValores="Seleccione un método de pago", valores=[metodos_pago], tipo=2, comandoContinuar=aplicar_descuentos_cuenta, comandoCancelar=funcionalidad_0)
     label_procesos_bottom.grid(sticky="nsew")
     
 

@@ -20,7 +20,7 @@ from gestorAplicacion.Usuario.persona import Persona
 from gestorAplicacion.Usuario.trabajador import Trabajador
 
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
+# from dateutil.relativedelta import relativedelta
 import random
 from tkinter import *
 from tkinter import messagebox
