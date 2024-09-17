@@ -2584,7 +2584,7 @@ def cambiar_cv(event):
 
     # Listas de rutas de imágenes
     cvs = [
-        ["Me gusta el Póker"],
+        ["Juan José Arango Marín\nTeléfono: 304 386 4396\nEdad: 19\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Algo, Otro algo\nAlgo más: mimimimi"],
         ["Samuel Colorado Castrillon\nTeléfono: 305 224 6361\nEdad: 18\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, Python\nHabilidades: Aprendizaje rápido, resolución de problemas"],
         ["Stiven Saldarriaga Mayorga\nTeléfono: 322 778 1217\nEdad: 18\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, ColdFusion, Metafísica pura\nExperiencia: Five Pack Alliance"]
     ]
@@ -2592,7 +2592,7 @@ def cambiar_cv(event):
     rutas = [
         ["src/Imagenes/desarrolladores/arango1.png", "src/Imagenes/desarrolladores/arango2.png", "src/Imagenes/desarrolladores/arango3.png", "src/Imagenes/desarrolladores/arango4.png"],
         ["src/Imagenes/desarrolladores/colorado1.png", "src/Imagenes/desarrolladores/colorado2.png", "src/Imagenes/desarrolladores/colorado3.png", "src/Imagenes/desarrolladores/colorado4.png"],
-        ["src/Imagenes/desarrolladores/stiven1.png", "src/Imagenes/desarrolladores/stiven2.png", "src/Imagenes/desarrolladores/stiven3.png","src/Imagenes/desarrolladores/stiven4.png"]
+        ["src/Imagenes/desarrolladores/saldarriaga1.png", "src/Imagenes/desarrolladores/saldarriaga2.png", "src/Imagenes/desarrolladores/saldarriaga3.png","src/Imagenes/desarrolladores/saldarriaga4.png"]
     ]
     #boton_right_top.config(text=cvs[contador_clicks_cv][0])
     # Actualizar las rutas de las imágenes de acuerdo al contador de clics
