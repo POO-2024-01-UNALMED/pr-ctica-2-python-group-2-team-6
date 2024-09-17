@@ -4,7 +4,7 @@ from tkinter.ttk import Combobox as Cajacombo
 from uiMain.errorAplicacion import ExcepcionSeleccionVacia
 
 class FieldFrame(Frame):
-    def __init__(self, root, tituloCriterios, criterios, tituloValores, valores=None, habilitado=None, tipo=0, comandoContinuar=None, comandoCancelar=None, comandoOpcion3=None, comandoOpcion4 = None):
+    def __init__(self, root, tituloCriterios, criterios, tituloValores, valores=None, habilitado=None, tipo=0, comandoContinuar=None, comandoCancelar=None, comandoOpcion3=None, comandoOpcion4 = None, argComando = None):
         super().__init__(root, width=400, height=300, bg = "#545454")
         self.root = root
         self.tituloCriterios = tituloCriterios
@@ -18,6 +18,7 @@ class FieldFrame(Frame):
         self.comandoCancelar = comandoCancelar
         self.comandoOpcion3 = comandoOpcion3
         self.comandoOpcion4 = comandoOpcion4
+        self.argComando = argComando
 
         # Configurar el grid
         self.grid_columnconfigure(0, weight=1)
@@ -172,7 +173,10 @@ class FieldFrame(Frame):
     def abortarMision(self):
         self.valores = [2]
         if self.comandoCancelar != None:
-            self.comandoCancelar()
+            if self.argComando != None:
+                self.comandoCancelar(self.argComando)
+            else:
+                self.comandoCancelar()
         print("Valores aceptados:", self.valores)
 
     def restore_original_widgets(self):

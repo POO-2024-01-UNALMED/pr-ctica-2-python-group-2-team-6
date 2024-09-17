@@ -1,26 +1,37 @@
 from utilidad import Utilidad
 from FieldFrame import FieldFrame
-from uiMain.errorAplicacion import ExcepcionSeleccionVacia, ExcepcionDatosErroneos, ExcepcionFueraRango
+from uiMain.errorAplicacion import *
+
+from gestorAplicacion.Entorno.casilla import Casilla
+from gestorAplicacion.Entorno.ciudad import Ciudad
 from gestorAplicacion.Entorno.mesa import Mesa
+from gestorAplicacion.Entorno.zona import Zona
+from gestorAplicacion.Gestion.cargamento import Cargamento
+from gestorAplicacion.Gestion.evento import Evento
 from gestorAplicacion.Gestion.factura import Factura
 from gestorAplicacion.Gestion.ingrediente import Ingrediente
 from gestorAplicacion.Gestion.pedido import Pedido
 from gestorAplicacion.Gestion.plato import Plato
-
+from gestorAplicacion.Gestion.reserva import Reserva
 from gestorAplicacion.Gestion.restaurante import Restaurante
 from gestorAplicacion.Usuario.cliente import Cliente
 from gestorAplicacion.Usuario.cliente import Afiliacion
 from gestorAplicacion.Usuario.persona import Persona
+from gestorAplicacion.Usuario.trabajador import Trabajador
+
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+import random
 from tkinter import *
 from tkinter import messagebox
 from PIL import Image, ImageTk
-from main import reservar_mesa
 
 contador_clicks_cv = 0
 contador_pasa_img_res = 0
 funcionalidad_actual = 0
 
 def dejar_restaurante():
+    print("Funcionalidad 3")
     global label_procesos_bottom
     global label_procesos_mid
     restaurante1 = Restaurante()
@@ -316,7 +327,7 @@ def escoger_metodo_pago(cliente_pagador, valor_por_persona):
             label_procesos_mid.config(text="¿Desea confirmar la transacción?")
 
             label_procesos_bottom.destroy()
-            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Confirmar transacción", criterios=None, tituloValores="", tipo=1, comandoContinuar=liberar_mesa(cliente_pagador.get_mesa()), comandoCancelar=funcionalidad_0)
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Confirmar transacción", criterios=None, tituloValores="", tipo=1, comandoContinuar=lambda: liberar_mesa(cliente_pagador.get_mesa()), comandoCancelar=funcionalidad_0)
             label_procesos_bottom.grid(sticky="nsew")
 
         label_procesos_bottom.destroy()
@@ -328,12 +339,15 @@ def escoger_metodo_pago(cliente_pagador, valor_por_persona):
     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Método de pago"], tituloValores="Seleccione un método de pago", valores=[metodos_pago], tipo=2, comandoContinuar=aplicar_descuentos_cuenta, comandoCancelar=funcionalidad_0)
     label_procesos_bottom.grid(sticky="nsew")
 
+def reservar_mesa():
+    print("Reservó")
 
 def liberar_mesa(mesa):
     global label_procesos_bottom
     global label_procesos_mid
+    # from main import reser
     for cliente in mesa.get_clientes():
-        if cliente.getAfiliacion() is Afiliacion.NINGUNA:
+        if cliente.get_afiliacion() is Afiliacion.NINGUNA:
             label_procesos_mid.config(text=f"{cliente.get_nombre()}, no está afiliado al restaurante, lo invitamos a que escoja uno de los niveles de afiliación.")
             def afiliar_cliente():
                 global label_procesos_bottom
@@ -393,7 +407,7 @@ def liberar_mesa(mesa):
 
 
     label_procesos_bottom.destroy()
-    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Algún cliente desea", criterios=None, tituloValores="reservar nuevamente?", tipo=1, comandoContinuar=reservar_mesa, comandoCancelar=calificar_restaurante)
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Algún cliente desea", criterios=None, tituloValores="reservar nuevamente?", tipo=1, comandoContinuar=reservar_mesa, comandoCancelar=calificar_restaurante, argComando=cliente)
     label_procesos_bottom.grid(sticky="nsew")
 
 
@@ -582,7 +596,6 @@ def cambiar_cv(event):
 
 def cambiar_img_restaurante(event):
     global contador_pasa_img_res
-    global photo  # Asegúrate de que la referencia a la imagen se mantenga viva
 
     lb_top_size = [frame_lb_top.winfo_width(), frame_lb_top.winfo_height()]
 
@@ -594,7 +607,7 @@ def cambiar_img_restaurante(event):
 
     photo = ImageTk.PhotoImage(img)
     
-    frame_lb_top.config(image=photo)
+    frame_lb_top.config(image = photo)
     frame_lb_top.image = photo
 
     contador_pasa_img_res = (contador_pasa_img_res + 1) % 5
