@@ -33,6 +33,7 @@ contador_pasa_img_res = 0
 funcionalidad_actual = 0
 contador_platos = 0
 contador_ingredientes = 0
+cantidad_platos = 0
 #Funcionalidad 1 Interacción 1
 
 def generar_fechas():
@@ -1024,8 +1025,9 @@ def establecer_disposicion(restaurante):
         Cantidad Mesas: Estándar = 2\tVIP = 1 (En caso de tener Zona VIP)
         Ventanas = 2""")
 
-    def f4_i2_ventana_emergente():
+    def f4_i2_disposicion_interactiva():
         global label_procesos_bottom, matriz_estados, matriz_botones
+        label_procesos_mid.config(text="Al darle click a las casillas estas cambiarán.\nB = Pared; W = Ventana; E = Puerta\nT = Mesa Estándar; V = Mesa VIP")
 
         try:
             alto_elegido = int(label_procesos_bottom.valores[0])
@@ -1082,7 +1084,7 @@ def establecer_disposicion(restaurante):
                 frame_procesos_bottom.grid_rowconfigure(0, weight=1)
                 frame_procesos_bottom.grid_columnconfigure(0, weight=1)
 
-                
+                label_procesos_mid.config(text="Seleccione sí o no.")
                 label_procesos_bottom.destroy()
                 label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Disposición guardada con éxito.", criterios=None, tituloValores="¿Desea continuar?", tipo=1, comandoContinuar=f4_i2_instanciar_elementos, comandoCancelar=funcionalidad_0)
                 label_procesos_bottom.grid(sticky="nsew")
@@ -1124,7 +1126,7 @@ def establecer_disposicion(restaurante):
             boton_aceptar.grid(row=ultimo_row+1, column=0, columnspan=ancho_elegido, sticky="we")
             
     label_procesos_bottom.destroy()
-    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Alto", "Ancho"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True], comandoContinuar=f4_i2_ventana_emergente)
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Alto", "Ancho"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True], comandoContinuar=f4_i2_disposicion_interactiva)
     label_procesos_bottom.grid(sticky="nsew")
 
 #Funcionalidad 4 Interacción 3
@@ -1141,15 +1143,19 @@ def establecer_menu_y_encargos(restaurante):
     menu_transitorio_nombres = []
     for plato in menu_transitorio:
         menu_transitorio_nombres.append(plato.get_nombre())
+    
+    if menu_transitorio_nombres == []:
+        menu_transitorio_nombres = "Menú vacío. Elegir Sí"
 
     def f4_i3_adoptar_o_crear():
         global label_procesos_bottom
         conservar = label_procesos_bottom.valores[0]
         if conservar == 1:  # Si se quiere adoptar el menú generado
             restaurante.set_menu(menu_transitorio)
+            cargamento()
         elif conservar == 2:  # Si no se quiere adoptar el menú generado
             def f4_i3_crear_platos():
-                global label_procesos_bottom, contador_platos
+                global label_procesos_bottom, contador_platos, cantidad_platos
                 if contador_platos == 0:
                     try:
                         cantidad_platos = int(label_procesos_bottom.valores[0])
@@ -1161,10 +1167,12 @@ def establecer_menu_y_encargos(restaurante):
                 #     label_procesos_bottom.grid(sticky="nsew")
                 def f4_i3_crear():
                     global label_procesos_bottom
+                    label_procesos_mid.config(text="Seleccione aceptar.")
                     label_procesos_bottom.destroy()
                     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Crear plato", criterios = ["Ir a la creación de plato"], tituloValores = "Valor ingresado", tipo = 3, comandoContinuar=crear_plato)
                     label_procesos_bottom.grid(sticky="nsew")
                 if contador_platos < cantidad_platos:
+                    label_procesos_mid.config(text="Seleccione aceptar.")
                     label_procesos_bottom.destroy()
                     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Creando...", criterios = ["Todavía tienes platos por crear"], tituloValores = "", tipo = 3, comandoContinuar=f4_i3_crear)
                     label_procesos_bottom.grid(sticky="nsew")
@@ -1250,16 +1258,19 @@ def establecer_menu_y_encargos(restaurante):
                                             contador_ingredientes += 1
                                             f4_i3_crear_platos()
                                     
+                                    label_procesos_mid.config(text="Ingrese los datos del ingrediente.")
                                     label_procesos_bottom.destroy()
                                     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Nombre Ingrediente", "Precio Ingrediente", "Cantidad Ingrediente"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True, True], comandoContinuar=f4_i3_establecer_ingrediente)
                                     label_procesos_bottom.grid(sticky="nsew")
                                 
                                 f4_i3_recursiva()
 
+                            label_procesos_mid.config(text="Ingrese los datos del plato.")
                             label_procesos_bottom.destroy()
                             label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Precio Plato", "Número de Ingredientes"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True, True], comandoContinuar=f4_i3_establecer_ingredientes_plato)
                             label_procesos_bottom.grid(sticky="nsew")
                         
+                        label_procesos_mid.config(text="Seleccione el tipo del plato.")
                         label_procesos_bottom.destroy()
                         label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Tipo Plato"], tituloValores = "Valor ingresado", valores = [["Entradas", "Platos Fuertes", "Bebidas", "Postres", "Menú Infantil", "Todos"]], tipo = 2, comandoContinuar = f4_i3_establecer_tipo, habilitado = [True])
                         label_procesos_bottom.grid(sticky="nsew")
@@ -1270,16 +1281,19 @@ def establecer_menu_y_encargos(restaurante):
                     for cantidad in cantidad_ingredientes:
                         plato_retorno.get_cantidad_ingredientes().append(cantidad)
                 
+                label_procesos_mid.config(text="Ingrese el nombre del plato a agregar.")
                 label_procesos_bottom.destroy()
                 label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Nombre Plato"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True], comandoContinuar=f4_i3_continuar_creacion_plato)
                 label_procesos_bottom.grid(sticky="nsew")
 
+            label_procesos_mid.config(text="Ingrese la cantidad de platos a crear.")
             label_procesos_bottom.destroy()
             label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Cantidad de Platos"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True], comandoContinuar=f4_i3_crear_platos)
             label_procesos_bottom.grid(sticky="nsew")
 
             restaurante.set_menu(menu_transitorio)
     
+    label_procesos_mid.config(text="Menú generado por orden de calificación de los platos.\nSeleccione sí o no.")
     label_procesos_bottom.destroy()
     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios=f"Menú generado:\n{menu_transitorio_nombres}\n¿Desea conservar", criterios=None, tituloValores="el menú?", tipo=1, comandoContinuar=f4_i3_adoptar_o_crear, comandoCancelar=f4_i3_adoptar_o_crear)
     label_procesos_bottom.grid(sticky="nsew")
