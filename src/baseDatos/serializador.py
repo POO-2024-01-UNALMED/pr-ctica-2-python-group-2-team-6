@@ -23,7 +23,6 @@ class Serializador:
             ruta = os.path.join(os.getcwd(), "src/baseDatos/temp", f"{nombre}.txt")
             with open(ruta, 'wb') as file:
                 pickle.dump(lista, file)
-            print("El objeto ha sido serializado")
         except FileNotFoundError as e:
             print(f"El archivo no se encontró: {e}")
         except IOError as e:
@@ -52,4 +51,3 @@ class Serializador:
         Serializador.serializar(Plato.get_gastronomias_marroqui(), "Gastronomia Marroquí")
         Serializador.serializar(Plato.get_vinos_champanas_meeting(), "Vinos champañas meetings")
         Serializador.serializar(Plato.get_platos_cumple(), "Platos del cumpleaños")
-        print("Listas serializadas")

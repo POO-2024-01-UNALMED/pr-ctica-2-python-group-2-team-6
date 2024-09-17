@@ -687,6 +687,503 @@ def confirmar_reserva(restaurante, reserva, clientes):
     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea confirmar", criterios=None, tituloValores=f"la reservación?", tipo=1, comandoContinuar=f1_i3_confirmar_final, comandoCancelar=f1_i3_confirmar_final)
     label_procesos_bottom.grid(sticky="nsew")
 
+# Funcionalidad 3 interacción 1
+def dejar_restaurante():
+    print("Funcionalidad 3")
+    global label_procesos_bottom
+    global label_procesos_mid
+    restaurante1 = Restaurante()
+    mesa1 = Mesa(3, False)
+    restaurante1.agregar_mesa(mesa1)
+    mesa1.set_restaurante(restaurante1)
+
+    clientes_mesa1 = []
+    cliente1 = Cliente("Juan", 123, Afiliacion.ESTRELLA, "1234567")
+    cliente1.set_mesa(mesa1)
+    clientes_mesa1.append(cliente1)
+
+    cliente2 = Cliente("Pedro", 456, Afiliacion.ESTRELLITA, "7654321")
+    cliente2.set_mesa(mesa1)
+    clientes_mesa1.append(cliente2)
+
+    cliente3 = Cliente("María", 789, "9876543")
+    cliente3.set_mesa(mesa1)
+    clientes_mesa1.append(cliente3)
+
+    mesa1.set_clientes(clientes_mesa1)
+    restaurante1.set_clientes(clientes_mesa1)
+
+    # Creación de ingredientes y platos
+    tomate = Ingrediente("Tomate", 500)
+    lechuga = Ingrediente("Lechuga", 300)
+    ingredientes_ensalada = [tomate, lechuga]
+    ensalada = Plato("Ensalada", 19000, ingredientes_ensalada)
+
+    carne = Ingrediente("Carne", 1000)
+    pan = Ingrediente("Pan", 500)
+    ingredientes_hamburguesa = [carne, pan]
+    hamburguesa = Plato("Hamburguesa", 25000, ingredientes_hamburguesa)
+
+    arroz = Ingrediente("Arroz", 800)
+    pollo = Ingrediente("Pollo", 700)
+    ingredientes_arroz_con_pollo = [arroz, pollo]
+    arroz_con_pollo = Plato("Arroz con pollo", 20000, ingredientes_arroz_con_pollo)
+
+    # Creación de pedidos
+    pedido1 = Pedido()
+    pedido2 = Pedido()
+    pedido3 = Pedido()
+
+    pedido1.agregar_plato(ensalada)
+    pedido2.agregar_plato(hamburguesa)
+    pedido3.agregar_plato(arroz_con_pollo)
+
+    # Creación de facturas
+    factura1 = Factura(pedido=pedido1, valor= 0, pago_preconsumo=False, propina=0)
+    factura2 = Factura(pedido=pedido2, valor= 0, pago_preconsumo=False, propina=0)
+    factura3 = Factura(pedido=pedido3, valor= 0, pago_preconsumo=False, propina=0)
+
+    cliente1.set_factura(factura1)
+    cliente2.set_factura(factura2)
+    cliente3.set_factura(factura3)    
+
+    def f3_i1_cobrar_factura():
+        global label_procesos_bottom
+        label_procesos_mid.config(text="Ingrese la cédula del cliente que va a abandonar el restaurante.")
+
+        # Función para buscar cliente por cédula
+        def f3_i1_buscar_cedula():
+            global label_procesos_bottom
+            # Obtener el valor ingresado en el FieldFrame
+            cedula_ingresada = int(label_procesos_bottom.valores[0])
+            
+            # Verificar si la cédula existe en la lista de clientes
+            cliente_encontrado = None
+            for restaurante in Restaurante.restaurantes:
+                for mesa in restaurante.get_mesas():
+                    for cliente in mesa.get_clientes():
+                        if cliente.cedula == cedula_ingresada:  # Convertir la entrada en entero
+                            cliente_encontrado = cliente
+                            break
+
+            if cliente_encontrado is None:
+                try:
+                    raise ExcepcionDatosErroneos([cedula_ingresada])
+                except ExcepcionDatosErroneos as e:
+                    # Mostrar el error y permitir al usuario ingresar otra cédula
+                    print("Error:", e.mensaje_error_valor)
+                    label_procesos_bottom.limpiarEntradas()
+            
+            mesa_cliente = cliente_encontrado.get_mesa()
+            valor_factura = 0
+            for cliente in mesa_cliente.get_clientes():
+                valor_factura += cliente.get_factura().calcular_valor()
+            label_procesos_mid.config(text="Mostrando el valor de la factura de la mesa. Si desea añadir propina escriba el valor y presione aceptar.")
+            propina = 0
+
+            def f3_i1_aceptar_propina():
+                global label_procesos_bottom
+                global label_procesos_mid
+                propina = int(label_procesos_bottom.valores[1])
+                valor_factura = int(label_procesos_bottom.valores[0]) + propina
+                label_procesos_mid.config(text="Valor total de la factura: " + str(valor_factura))
+
+                def f3_i1_separar_factura():
+                    global label_procesos_bottom
+                    global label_procesos_mid
+                    label_procesos_mid.config(text="Cada persona debe pagar: " + str(valor_factura // len(mesa_cliente.get_clientes())))
+                    
+                    def clientes_pagan_factura():
+                        global label_procesos_bottom
+                        global label_procesos_mid
+                        valor_por_persona = valor_factura // len(mesa_cliente.get_clientes())
+                        # escoger_metodo_pago(mesa_cliente.get_clientes(), valor_por_persona)
+                        for cliente in mesa_cliente.get_clientes():
+                            escoger_metodo_pago(cliente, valor_por_persona)
+                            
+                                                      
+
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="", criterios=None, tituloValores="", tipo=1, comandoContinuar=clientes_pagan_factura)
+                    label_procesos_bottom.grid(sticky="nsew")
+                
+                def f3_i1_pago_unitario():
+                    global label_procesos_bottom
+                    global label_procesos_mid
+                    label_procesos_mid.config(text="Indique el número de cédula de quién va a pagar la factura.")
+
+                    def f3_i1_buscar_cedula():
+                        global label_procesos_bottom
+                        global label_procesos_mid
+                        label_procesos_mid.config(text="¿Desea pagar la factura?")
+                        try:
+                            cedula_cliente = int(label_procesos_bottom.valores[0])
+                        except ExcepcionDatosErroneos as e:
+                            print("El campo está vacío:", e.mensaje_error)
+                            label_procesos_bottom.limpiarEntradas()
+                            return
+                        
+                        cliente_pagador = None
+                        for cliente in mesa_cliente.get_clientes():
+                            if cliente.cedula == cedula_cliente:
+                                cliente_pagador = cliente
+                                break
+                        if cliente_pagador is None:
+                            try:
+                                raise ExcepcionDatosErroneos([cedula_cliente])
+                            except ExcepcionDatosErroneos as e:
+                                print("Error:", e.mensaje_error_valor)
+                                label_procesos_bottom.limpiarEntradas()
+                        else:
+                            escoger_metodo_pago(cliente_pagador, valor_factura)
+
+                    label_procesos_bottom.destroy()
+                    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Cédula de quién realizará el pago"], tituloValores="Espacio para diligenciar información", tipo=0, comandoContinuar=f3_i1_buscar_cedula, comandoCancelar=funcionalidad_0)
+                    label_procesos_bottom.grid(sticky="nsew")
+
+                label_procesos_bottom.destroy()
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desean separar la factura?", criterios=None, tituloValores="", tipo=1, comandoContinuar=f3_i1_separar_factura, comandoCancelar=f3_i1_pago_unitario)
+                label_procesos_bottom.grid(sticky="nsew")
+    
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Valor parcial", "Propina"], tituloValores="Espacios para llenar", valores= [valor_factura, propina], tipo=0, habilitado=[False, True], comandoContinuar=f3_i1_aceptar_propina)
+            label_procesos_bottom.grid(sticky="nsew")
+
+        # Destruir el frame antiguo antes de crear uno nuevo
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Cédula", criterios=["Cédula"], tituloValores="Valor ingresado", tipo=0, comandoContinuar=f3_i1_buscar_cedula)
+        label_procesos_bottom.grid(sticky="nsew")
+    
+    label_procesos_mid.config(text="Seleccione sí o no dependiendo de si quiere continuar")
+    #Sí o No desea continuar con la funcionalidad 3
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Algún cliente desea", criterios=None, tituloValores="abandonar el restaurante?", tipo=1, comandoContinuar=f3_i1_cobrar_factura, comandoCancelar=funcionalidad_0)
+    label_procesos_bottom.grid(sticky="nsew")
+       
+
+def comando_prueba():
+    print("Comando de prueba.")
+
+def escoger_metodo_pago(cliente_pagador, valor_por_persona):
+    global label_procesos_bottom
+    global label_procesos_mid
+    
+    metodos_pago = ["Tarjeta", "Efectivo", "Puntos"]
+    label_procesos_mid.config(text=f"Seleccione el método de pago {cliente_pagador.nombre}.")
+
+    # Mostrar opciones de método de pago
+    mostrar_opciones_metodo_pago(metodos_pago, cliente_pagador, valor_por_persona)
+
+def mostrar_opciones_metodo_pago(metodos_pago, cliente_pagador, valor_por_persona):
+    global label_procesos_bottom
+
+    def aplicar_descuentos_cuenta():
+        aplicar_descuentos(cliente_pagador, valor_por_persona)
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Información solicitada",
+        criterios=["Método de pago"],
+        tituloValores="Seleccione un método de pago",
+        valores=[metodos_pago],
+        tipo=2,
+        comandoContinuar=aplicar_descuentos_cuenta,
+        comandoCancelar=funcionalidad_0
+    )
+    label_procesos_bottom.grid(sticky="nsew")
+
+def aplicar_descuentos(cliente_pagador, valor_por_persona):
+    global label_procesos_bottom
+    global label_procesos_mid
+
+    valor_final = valor_por_persona
+
+    if cliente_pagador.get_afiliacion() != Afiliacion.NINGUNA:
+        valor_final = calcular_descuento_por_afiliacion(cliente_pagador, valor_por_persona)
+
+    if cliente_pagador.get_puntos_acumulados() >= 10:
+        valor_final = aplicar_descuento_por_puntos(cliente_pagador, valor_final)
+
+    label_procesos_mid.config(text=f"El valor a pagar por {cliente_pagador.nombre} es de {valor_final}.")
+    mostrar_confirmacion_transaccion(cliente_pagador)
+
+def calcular_descuento_por_afiliacion(cliente_pagador, valor_por_persona):
+    metodo_pago = cliente_pagador.get_factura().get_metodo_pago()
+    valor_factura = cliente_pagador.get_factura().get_valor()
+    valor_final = valor_por_persona
+
+    if cliente_pagador.get_afiliacion() == Afiliacion.ESTRELLITA:
+        valor_final = aplicar_descuentos_estrellita(metodo_pago, valor_factura, valor_final, cliente_pagador)
+    elif cliente_pagador.get_afiliacion() == Afiliacion.ESTRELLA:
+        valor_final = aplicar_descuentos_estrella(metodo_pago, valor_factura, valor_final, cliente_pagador)
+    elif cliente_pagador.get_afiliacion() == Afiliacion.SUPERESTRELLOTA:
+        valor_final = aplicar_descuentos_supereestrellota(metodo_pago, valor_factura, valor_final, cliente_pagador)
+
+    return valor_final
+
+def aplicar_descuentos_estrellita(metodo_pago, valor_factura, valor_final, cliente_pagador):
+    if metodo_pago == "Efectivo":
+        if valor_factura < 30000:
+            valor_final -= valor_final * 0.05
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+        else:
+            valor_final -= valor_final * 0.07
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+    elif metodo_pago == "Tarjeta":
+        if valor_factura < 30000:
+            valor_final -= valor_final * 0.03
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+        else:
+            valor_final -= valor_final * 0.05
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+    elif metodo_pago == "Cheque":
+        if valor_factura < 30000:
+            valor_final -= valor_final * 0.02
+        else:
+            valor_final -= valor_final * 0.03
+        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+
+    return valor_final
+
+def aplicar_descuentos_estrella(metodo_pago, valor_factura, valor_final, cliente_pagador):
+    if metodo_pago == "Efectivo":
+        if valor_factura < 30000:
+            valor_final -= valor_final * 0.07
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+        else:
+            valor_final -= valor_final * 0.15
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 4)
+    elif metodo_pago == "Tarjeta":
+        if valor_factura < 30000:
+            valor_final -= valor_final * 0.08
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+        else:
+            valor_final -= valor_final * 0.15
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 4)
+    elif metodo_pago == "Cheque":
+        if valor_factura < 30000:
+            valor_final -= valor_final * 0.02
+        else:
+            valor_final -= valor_final * 0.10
+        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+
+    return valor_final
+
+def aplicar_descuentos_supereestrellota(metodo_pago, valor_factura, valor_final, cliente_pagador):
+    if metodo_pago == "Efectivo":
+        if valor_factura < 30000:
+            valor_final -= valor_final * 0.10
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 6)
+        else:
+            valor_final -= valor_final * 0.20
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 8)
+    elif metodo_pago == "Tarjeta":
+        if valor_factura < 30000:
+            valor_final -= valor_final * 0.15
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 6)
+        else:
+            valor_final -= valor_final * 0.25
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 8)
+    elif metodo_pago == "Cheque":
+        if valor_factura < 30000:
+            valor_final -= valor_final * 0.05
+        else:
+            valor_final -= valor_final * 0.08
+        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+
+    return valor_final
+
+def aplicar_descuento_por_puntos(cliente_pagador, valor_final):
+    print("Felicidades, ha obtenido un descuento de 10.000 por sus puntos acumulados.")
+    valor_final -= 10000
+    cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() - 10)
+    return valor_final
+
+def mostrar_confirmacion_transaccion(cliente_pagador):
+    global label_procesos_bottom
+    global label_procesos_mid
+
+    def confirmar_transaccion():
+        global label_procesos_bottom
+        global label_procesos_mid
+        label_procesos_mid.config(text="¿Desea confirmar la transacción?")
+
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(
+            frame_procesos_bottom,
+            tituloCriterios="Confirmar transacción",
+            criterios=None,
+            tituloValores="",
+            tipo=1,
+            comandoContinuar=lambda: liberar_mesa(cliente_pagador.get_mesa()),
+            comandoCancelar=funcionalidad_0
+        )
+        label_procesos_bottom.grid(sticky="nsew")
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(
+        frame_procesos_bottom,
+        tituloCriterios="Información solicitada",
+        criterios=["Presione aceptar para continuar"],
+        tituloValores="",
+        tipo=3,
+        comandoContinuar=confirmar_transaccion
+    )
+    label_procesos_bottom.grid(sticky="nsew")
+
+def liberar_mesa(mesa):
+    global label_procesos_bottom
+    global label_procesos_mid
+    # from main import reser
+    for cliente in mesa.get_clientes():
+        if cliente.get_afiliacion() is Afiliacion.NINGUNA:
+            label_procesos_mid.config(text=f"{cliente.get_nombre()}, no está afiliado al restaurante, lo invitamos a que escoja uno de los niveles de afiliación.")
+            def afiliar_cliente():
+                global label_procesos_bottom
+                global label_procesos_mid
+                if label_procesos_bottom.valores[0] == "Ninguna":
+                    afiliacion = Afiliacion.NINGUNA
+                elif label_procesos_bottom.valores[0] == "Estrella":
+                    afiliacion = Afiliacion.ESTRELLA
+                elif label_procesos_bottom.valores[0] == "Estrellita":
+                    afiliacion = Afiliacion.ESTRELLITA
+                elif label_procesos_bottom.valores[0] == "Superestrellota":
+                    afiliacion = Afiliacion.SUPERESTRELLOTA
+                cliente.set_afiliacion(afiliacion)
+                label_procesos_mid.config(text=f"{cliente.get_nombre()} ha sido afiliado con éxito.")
+                label_procesos_bottom.destroy()
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Proceda a calificar el restaurante", criterios=None, tituloValores="", tipo=3)
+                label_procesos_bottom.grid(sticky="nsew")
+            
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Afiliación", criterios=["Afiliación"], tituloValores="Seleccione una afiliación", valores=["Ninguna", "Estrella", "Estrellita", "Superestrellota"], tipo=2, comandoContinuar=afiliar_cliente, comandoCancelar=funcionalidad_0)
+            label_procesos_bottom.grid(sticky="nsew")
+
+    label_procesos_mid.config(text="Indique si algún cliente desea hacer una nueva reservación.")
+
+    def calificar_restaurante(cliente):
+        global label_procesos_bottom
+        global label_procesos_mid
+        label_procesos_mid.config(text=f"Por favor {cliente.get_nombre()} califique el restaurante con una nota del 1 al 5.")
+        calificacion = label_procesos_bottom.valores[0]
+        print("esta es la ", calificacion)
+
+        try:
+            if 1 <= calificacion <= 5:
+                label_procesos_mid.config(text="Gracias por su calificación.")
+                cliente.get_mesa().get_restaurante().set_calificacion(calificacion)
+            else:
+                raise ExcepcionFueraRango(calificacion, "1 - 5")
+        except ExcepcionFueraRango as e:
+            label_procesos_mid.config(text=f"Error: {e}")
+        
+        def escribir_resena():
+            global label_procesos_bottom
+            global label_procesos_mid
+
+            label_procesos_mid.config(text="Escriba la reseña.")
+            resena = label_procesos_bottom.valores[0]
+            cliente.get_mesa().get_restaurante().añadir_reseña(resena)
+            
+            def finalizar_proceso():
+                global label_procesos_bottom
+                global label_procesos_mid
+                if resena != "":
+                    if cliente.get_afiliacion() is not None:
+                        cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 1)
+                        label_procesos_mid.config(text="Gracias por su reseña. Obtuvo un punto extra por ayudarnos a mejorar.")
+                    else:
+                        label_procesos_mid.config(text="Gracias por su reseña.")
+                else:
+                    label_procesos_mid.config(text="Gracias por su calificación.")
+                
+                mesa = cliente.get_mesa()
+                mesa.set_clientes([])
+                cliente.set_mesa(None)
+                restaurante = mesa.get_restaurante()
+                restaurante.set_calificacion(calificacion)
+
+                label_procesos_bottom.destroy()
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Para finalizar el proceso presione aceptar.", criterios=["Finalizar"], tituloValores="", tipo=3, comandoContinuar=funcionalidad_0)
+                label_procesos_bottom.grid(sticky="nsew")
+            
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Reseña"], tituloValores="Reseña ingresada", valores=resena, tipo=0, comandoContinuar=finalizar_proceso, comandoCancelar=funcionalidad_0)
+            label_procesos_bottom.grid(sticky="nsew")
+
+
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Calificación"], tituloValores="Calificación proveída", tipo=2, valores= [["1", "2", "3", "4", "5"]], comandoContinuar=escribir_resena, comandoCancelar=funcionalidad_0)
+        label_procesos_bottom.grid(sticky="nsew")
+
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Algún cliente desea", criterios=None, tituloValores="reservar nuevamente?", tipo=1, comandoContinuar=reservar_mesa, comandoCancelar=calificar_restaurante, argComando=cliente)
+    label_procesos_bottom.grid(sticky="nsew")
+    
+
+
+
+def actualizar_platos(plato_calificado, mesa):
+    if plato_calificado.get_calificacion() >= 4.5 and plato_calificado.get_cantidad_calificaciones() >= 3:
+        mesa.get_restaurante().agregar_plato_recomendado(plato_calificado)
+        plato_calificado.set_recomendado(True)
+        nuevo_precio = int(plato_calificado.get_precio() + (plato_calificado.get_precio() * 0.2))
+        plato_calificado.set_precio(nuevo_precio)
+    
+    if plato_calificado.get_calificacion() <= 3.7 and plato_calificado.get_cantidad_calificaciones() >= 3:
+        mesa.get_restaurante().agregar_plato_descuento(plato_calificado)
+        nuevo_precio = int(plato_calificado.get_precio() - (plato_calificado.get_precio() * 0.15))
+        plato_calificado.set_precio(nuevo_precio)
+
+
+def actualizar_menu(mesa):
+    restaurante = mesa.get_restaurante()
+    
+    for plato in restaurante.get_platos_recomendados():
+        if plato.get_pedidos_recomendados() >= 2:
+            if plato.get_calificacion() <= 4.5:
+                restaurante.eliminar_plato_recomendado(plato)
+                nuevo_precio = int(plato.get_precio() - (plato.get_precio() * 0.2))
+                plato.set_precio(nuevo_precio)
+    
+    for plato in restaurante.get_platos_descuento():
+        if plato.get_pedidos_recomendados() >= 2:
+            if plato.get_calificacion() < 3.7:
+                restaurante.eliminar_plato(plato)
+                print(f"El plato {plato.get_nombre()} ha sido eliminado del menú.")
+                print("¿Qué desea hacer?")
+                print("""
+                    1. Añadir otro plato.
+                    2. Traer un plato de otra sede.
+                    Escriba un número para elegir su opción.""")
+                eleccion = int(input())
+                
+                if eleccion == 1:
+                    plato_nuevo = crear_plato()
+                    restaurante.agregar_plato(plato_nuevo)
+                    print("Se ha añadido un nuevo plato al menú.")
+                elif eleccion == 2:
+                    mejores_platos = Utilidad.listado_platos_calificacion()
+                    while True:
+                        print("¿Cuál de los platos presentados desea agregar al menú del restaurante?")
+                        eleccion_plato = int(input())
+                        if eleccion_plato < 1 or eleccion_plato > len(mejores_platos):
+                            print(f"Ingrese un valor válido [1 - {len(mejores_platos)}].")
+                        else:
+                            restaurante.get_menu().append(mejores_platos[eleccion_plato - 1])
+                            print("Nuevo plato añadido al menú.")
+                            break
+                else:
+                    print("Número no válido.")
+            else:
+                restaurante.eliminar_plato_descuento(plato)
+                nuevo_precio = int(plato.get_precio() + (plato.get_precio() * 0.15))
+                plato.set_precio(nuevo_precio)
+    
+    return restaurante
+
 #Funcionalidad 4 Interacción 1
 
 def agregar_sede():
@@ -2815,6 +3312,9 @@ def cambiar_proceso(event, num_func):
         reservar_mesa()
     elif num_func == 2:
         label_procesos_top.config(text="Ordenar Comida")
+    elif num_func == 3:
+        label_procesos_top.config(text="Dejar Restaurante")
+        dejar_restaurante()
     elif num_func == 4:
         label_procesos_top.config(text="Agregar Sede")
         restaurante = Restaurante()
