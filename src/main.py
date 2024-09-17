@@ -1181,6 +1181,7 @@ def establecer_menu_y_encargos(restaurante):
         cargamento(restaurante)
 
     else:
+
         # Establecer Menú
         menu_restaurante = []
         print("Ingrese la cantidad de platos que tendrá el menú:")
@@ -1193,6 +1194,210 @@ def establecer_menu_y_encargos(restaurante):
         # Establecer Encargos
         cargamento(restaurante)
 
+def cargamento(restaurante):
+    cargamento = Cargamento()
+
+    print("Seleccione la cantidad de ingredientes a encargar")
+    for plato in restaurante.get_menu():
+        print(f"Nombre: {plato.get_nombre()}\nVeces pedido: {plato.get_veces_pedido()}")
+        print("Ingredientes:")
+        plato.get_cantidad_ingredientes()
+        for cantidad_ingredientes in plato.get_cantidad_ingredientes():
+            print(f"Cantidad de {cantidad_ingredientes[0]} necesaria: {cantidad_ingredientes[1]}")
+            print(f"¿Cuánto de {cantidad_ingredientes[0]} quieres agregar?")
+            cantidad_agregar = Utilidad.readInt()
+            cargamento.aumentar_cantidad_ingrediente([cantidad_ingredientes[0], str(cantidad_agregar)])
+
+    print("Seleccione la cantidad de utilidades a encargar")
+    for utilidad in Cargamento.UTILIDADES:
+        print(f"Nombre: {utilidad}")
+        print(f"¿Cuánto de {utilidad} quieres agregar?")
+        cantidad_agregar = Utilidad.readInt()
+        cargamento.get_utilidades().append(cantidad_agregar)
+
+    fecha_actual = datetime.now()
+    print("¿Cada cuántos días quiere que venga el cargamento?")
+    frecuencia = Utilidad.readInt()
+    cargamento.set_frecuencia(frecuencia)
+    cargamento.set_proxima_entrega([fecha_actual.year, fecha_actual.month, fecha_actual.day])
+
+    restaurante.set_cargamento(cargamento)
+    cargamento.set_restaurante(restaurante)
+
+def crear_plato():
+    global label_procesos_bottom
+
+    def f4_i3_continuar_creacion_plato():
+        global label_procesos_bottom
+
+        existe = False
+        indice_existe = 0
+        plato_retorno = Plato()
+        cantidad_ingredientes = []
+        nombre = label_procesos_bottom.valores[0]
+
+        if not Plato.get_platos():
+            for plato in Plato.get_platos():
+                if plato.get_nombre() == nombre:
+                    existe = True
+                    indice_existe = Plato.get_platos().index(plato)
+                    break
+
+        if not existe:
+            global label_procesos_bottom
+            def f4_i3_establecer_tipo():
+                global label_procesos_bottom
+                tipo_plato = label_procesos_bottom.valores[0]
+
+                plato_retorno.set_tipo(tipo_plato)
+
+                print("Ingrese el precio del plato, sin decimales.")
+                precio = Utilidad.readInt()
+                print("Ingrese la cantidad de ingredientes que tiene el plato.")
+                num_ingredientes = Utilidad.readInt()
+
+                def f4_i3_establecer_ingredientes_plato():
+                    global label_procesos_bottom
+                    try:
+                        precio_plato = int(label_procesos_bottom.valores[0])
+                    except:
+                        raise ExcepcionDatosErroneos(["Precio Plato"])
+                    try:
+                        num_ingredientes = int(label_procesos_bottom.valores[1])
+                    except:
+                        raise ExcepcionDatosErroneos(["Precio Plato"])
+
+                    if num_ingredientes < 1:
+                        num_ingredientes = 1
+                    
+                    lista_ingredientes = Utilidad.listado_ingredientes()
+
+                    if lista_ingredientes:
+                        for i, ingrediente in enumerate(lista_ingredientes):
+                            print(f"{i + 1}. {ingrediente.get_nombre()}.")
+
+                        ingredientes_plato = []
+                        print("\nElija la opción que mejor se acomode a su situación actual con respecto a la lista presentada:\n1. Todos los ingredientes están presentes.\n2. Algunos ingredientes están presentes.\n3. Ningún ingrediente está presente.")
+                        encendido1 = True
+
+                        while encendido1:
+                            eleccion = Utilidad.readInt()
+
+                            if eleccion == 1:
+                                print(f"Escriba el número de lista donde está cada uno de los {num_ingredientes} ingredientes necesarios.")
+                                for i in range(num_ingredientes):
+                                    print(f"Ingresa el número del ingrediente #{i + 1}")
+                                    indice = Utilidad.readInt() - 1
+                                    ingrediente = Ingrediente.get_ingredientes()[indice]
+                                    ingredientes_plato.append(ingrediente)
+
+                                    print("Ingresa la cantidad necesaria de este ingrediente para la preparación del plato")
+                                    cantidad_ingrediente = Utilidad.readInt()
+                                    if cantidad_ingrediente < 1:
+                                        cantidad_ingrediente = 1
+
+                                    cantidad_ingredientes.append([ingrediente.get_nombre(), str(cantidad_ingrediente)])
+
+                                encendido1 = False
+
+                            elif eleccion == 2:
+                                print("Ingrese la cantidad de ingredientes que ya están presentes.")
+                                num_ing_existentes = Utilidad.readInt()
+
+                                if num_ing_existentes < 1:
+                                    num_ing_existentes = 1
+
+                                print(f"Escriba el número de lista donde está cada uno de los {num_ing_existentes} ingredientes necesarios.")
+                                for i in range(num_ing_existentes):
+                                    print(f"Ingresa el número del ingrediente #{i + 1}")
+                                    indice = Utilidad.readInt() - 1
+                                    ingrediente = Ingrediente.get_ingredientes()[indice]
+                                    ingredientes_plato.append(ingrediente)
+
+                                    print("Ingresa la cantidad necesaria de este ingrediente para la preparación del plato")
+                                    cantidad_ingrediente = Utilidad.readInt()
+                                    if cantidad_ingrediente < 1:
+                                        cantidad_ingrediente = 1
+
+                                    cantidad_ingredientes.append([ingrediente.get_nombre(), str(cantidad_ingrediente)])
+
+                                for i in range(num_ingredientes - num_ing_existentes):
+                                    cantidad_ingredientes = crear_ingrediente(cantidad_ingredientes, ingredientes_plato)
+
+                                encendido1 = False
+
+                            elif eleccion == 3:
+                                for i in range(num_ingredientes):
+                                    cantidad_ingredientes = crear_ingrediente(cantidad_ingredientes, ingredientes_plato)
+
+                                encendido1 = False
+
+                            else:
+                                print("Ingrese un valor válido [1 - 3].")
+
+                        plato_retorno = Plato(nombre, precio, ingredientes_plato, cantidad_ingredientes, 3)
+
+                    else:
+                        global label_procesos_bottom
+                        ingredientes_plato = []
+                        cantidad_ingredientes = []
+                        contador_ingredientes = 0
+                        # for i in range(num_ingredientes):
+                        def f4_i3_establecer_ingrediente():
+                            nombre_ingrediente = label_procesos_bottom.valores[0]
+                            try:
+                                precio_ingrediente = int(label_procesos_bottom.valores[1])
+                            except:
+                                raise ExcepcionDatosErroneos(["Precio Ingrediente"])
+                            try:
+                                cantidad_ingrediente = int(label_procesos_bottom.valores[2])
+                            except:
+                                raise ExcepcionDatosErroneos(["Cantidad Ingrediente"])
+
+                            if precio_ingrediente < 1:
+                                precio_ingrediente = 1
+                            
+                            if cantidad_ingrediente < 1:
+                                cantidad_ingrediente = 1
+
+                            ingrediente = Ingrediente(nombre_ingrediente, precio_ingrediente)
+                            ingredientes_plato.append(ingrediente)
+                            
+                            cantidad_ingredientes.append([ingrediente.get_nombre(), str(cantidad_ingrediente)])
+
+                            def f4_i3_definir_plato_retorno(nombre, precio, ingredientes, cantidad):
+                                plato_retorno = Plato(nombre, precio, ingredientes, cantidad)
+                                #Llamar a continuar menu
+
+                            if contador_ingredientes == cantidad_ingredientes:
+                                f4_i3_definir_plato_retorno(nombre_ingrediente, precio_ingrediente, ingredientes_plato, cantidad_ingredientes)
+                            else:
+                                contador_ingredientes += 1
+                                f4_i3_establecer_ingrediente()
+                        
+                        label_procesos_bottom.destroy()
+                        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Nombre Ingrediente", "Precio Ingrediente", "Cantidad Ingrediente"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True, True], comandoContinuar=f4_i3_establecer_ingrediente)
+                        label_procesos_bottom.grid(sticky="nsew")
+
+                label_procesos_bottom.destroy()
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Precio Plato", "Precio Ingrediente", "Cantidad Ingrediente"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True, True], comandoContinuar=f4_i3_establecer_ingredientes_plato)
+                label_procesos_bottom.grid(sticky="nsew")
+            
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Tipo Plato"], tituloValores = "Valor ingresado", valores = [["Entradas", "Platos Fuertes.", "Bebidas", "Postres", "Menú Infantil", "6. Todos."]], tipo = 2, comandoContinuar = f4_i3_establecer_tipo, habilitado = [True])
+            label_procesos_bottom.grid(sticky="nsew")
+
+        else:
+            plato_retorno = Plato.get_platos()[indice_existe]
+
+        for cantidad in cantidad_ingredientes:
+            plato_retorno.get_cantidad_ingredientes().append(cantidad)
+
+        return plato_retorno
+    
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Nombre Plato"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True], comandoContinuar=f4_i3_continuar_creacion_plato)
+    label_procesos_bottom.grid(sticky="nsew")
 
 ###Parte de FUNCIONALIDAD 5, PENDIENTE PORT REVISAR
 class EstadoGlobal:
@@ -3895,179 +4100,46 @@ def aplicar_descuentos_cuenta(cliente, valor_por_persona):
 # a
 # a
 
-def cargamento(restaurante):
-    cargamento = Cargamento()
 
-    print("Seleccione la cantidad de ingredientes a encargar")
-    for plato in restaurante.get_menu():
-        print(f"Nombre: {plato.get_nombre()}\nVeces pedido: {plato.get_veces_pedido()}")
-        print("Ingredientes:")
-        plato.get_cantidad_ingredientes()
-        for cantidad_ingredientes in plato.get_cantidad_ingredientes():
-            print(f"Cantidad de {cantidad_ingredientes[0]} necesaria: {cantidad_ingredientes[1]}")
-            print(f"¿Cuánto de {cantidad_ingredientes[0]} quieres agregar?")
-            cantidad_agregar = Utilidad.readInt()
-            cargamento.aumentar_cantidad_ingrediente([cantidad_ingredientes[0], str(cantidad_agregar)])
 
-    print("Seleccione la cantidad de utilidades a encargar")
-    for utilidad in Cargamento.UTILIDADES:
-        print(f"Nombre: {utilidad}")
-        print(f"¿Cuánto de {utilidad} quieres agregar?")
-        cantidad_agregar = Utilidad.readInt()
-        cargamento.get_utilidades().append(cantidad_agregar)
 
-    fecha_actual = datetime.now()
-    print("¿Cada cuántos días quiere que venga el cargamento?")
-    frecuencia = Utilidad.readInt()
-    cargamento.set_frecuencia(frecuencia)
-    cargamento.set_proxima_entrega([fecha_actual.year, fecha_actual.month, fecha_actual.day])
 
-    restaurante.set_cargamento(cargamento)
-    cargamento.set_restaurante(restaurante)
+# def crear_ingrediente(cantidad_ingredientes, ingredientes_plato):
+#     global label_procesos_bottom
+    
+#     def f4_i3_establecer_ingrediente():
+#         nombre_ingrediente = label_procesos_bottom.valores[0]
+#         try:
+#             precio_ingrediente = int(label_procesos_bottom.valores[1])
+#         except:
+#             raise ExcepcionDatosErroneos(["Precio Ingrediente"])
+#         try:
+#             cantidad_ingrediente = int(label_procesos_bottom.valores[2])
+#         except:
+#             raise ExcepcionDatosErroneos(["Cantidad Ingrediente"])
 
-def crear_plato():
-    print("Ingrese el nombre del plato:")
-    nombre = input().capitalize()
-    existe = False
-    indice_existe = 0
-    plato_retorno = Plato()
-    cantidad_ingredientes = []
-
-    if not Plato.get_platos():
-        for plato in Plato.get_platos():
-            if plato.get_nombre() == nombre:
-                existe = True
-                indice_existe = Plato.get_platos().index(plato)
-                break
-
-    if not existe:
-        print("Ingrese el tipo del plato:\n1. Entradas.\n2. Platos Fuertes.\n3. Bebidas.\n4. Postres.\n5. Menú Infantil.\n6. Todos.")
-        eleccion_tipo = Utilidad.readInt()
-
-        tipo_plato = {
-            1: "Entrada",
-            2: "Plato Fuerte",
-            3: "Bebida",
-            4: "Postre",
-            5: "Menú Infantil"
-        }.get(eleccion_tipo, "Todos")
-
-        plato_retorno.set_tipo(tipo_plato)
-
-        print("Ingrese el precio del plato, sin decimales.")
-        precio = Utilidad.readInt()
-        print("Ingrese la cantidad de ingredientes que tiene el plato.")
-        num_ingredientes = Utilidad.readInt()
-
-        if num_ingredientes < 1:
-            num_ingredientes = 1
-
+#         if precio_ingrediente < 1:
+#             precio_ingrediente = 1
         
-        lista_ingredientes = Utilidad.listado_ingredientes()
+#         if cantidad_ingrediente < 1:
+#             cantidad_ingrediente = 1
 
-        if lista_ingredientes:
-            for i, ingrediente in enumerate(lista_ingredientes):
-                print(f"{i + 1}. {ingrediente.get_nombre()}.")
-
-            ingredientes_plato = []
-            print("\nElija la opción que mejor se acomode a su situación actual con respecto a la lista presentada:\n1. Todos los ingredientes están presentes.\n2. Algunos ingredientes están presentes.\n3. Ningún ingrediente está presente.")
-            encendido1 = True
-
-            while encendido1:
-                eleccion = Utilidad.readInt()
-
-                if eleccion == 1:
-                    print(f"Escriba el número de lista donde está cada uno de los {num_ingredientes} ingredientes necesarios.")
-                    for i in range(num_ingredientes):
-                        print(f"Ingresa el número del ingrediente #{i + 1}")
-                        indice = Utilidad.readInt() - 1
-                        ingrediente = Ingrediente.get_ingredientes()[indice]
-                        ingredientes_plato.append(ingrediente)
-
-                        print("Ingresa la cantidad necesaria de este ingrediente para la preparación del plato")
-                        cantidad_ingrediente = Utilidad.readInt()
-                        if cantidad_ingrediente < 1:
-                            cantidad_ingrediente = 1
-
-                        cantidad_ingredientes.append([ingrediente.get_nombre(), str(cantidad_ingrediente)])
-
-                    encendido1 = False
-
-                elif eleccion == 2:
-                    print("Ingrese la cantidad de ingredientes que ya están presentes.")
-                    num_ing_existentes = Utilidad.readInt()
-
-                    if num_ing_existentes < 1:
-                        num_ing_existentes = 1
-
-                    print(f"Escriba el número de lista donde está cada uno de los {num_ing_existentes} ingredientes necesarios.")
-                    for i in range(num_ing_existentes):
-                        print(f"Ingresa el número del ingrediente #{i + 1}")
-                        indice = Utilidad.readInt() - 1
-                        ingrediente = Ingrediente.get_ingredientes()[indice]
-                        ingredientes_plato.append(ingrediente)
-
-                        print("Ingresa la cantidad necesaria de este ingrediente para la preparación del plato")
-                        cantidad_ingrediente = Utilidad.readInt()
-                        if cantidad_ingrediente < 1:
-                            cantidad_ingrediente = 1
-
-                        cantidad_ingredientes.append([ingrediente.get_nombre(), str(cantidad_ingrediente)])
-
-                    for i in range(num_ingredientes - num_ing_existentes):
-                        cantidad_ingredientes = crear_ingrediente(cantidad_ingredientes, ingredientes_plato)
-
-                    encendido1 = False
-
-                elif eleccion == 3:
-                    for i in range(num_ingredientes):
-                        cantidad_ingredientes = crear_ingrediente(cantidad_ingredientes, ingredientes_plato)
-
-                    encendido1 = False
-
-                else:
-                    print("Ingrese un valor válido [1 - 3].")
-
-            plato_retorno = Plato(nombre, precio, ingredientes_plato, cantidad_ingredientes, 3)
-
-        else:
-            ingredientes_plato = []
-            for i in range(num_ingredientes):
-                cantidad_ingredientes = crear_ingrediente(cantidad_ingredientes, ingredientes_plato)
-
-            plato_retorno = Plato(nombre, precio, ingredientes_plato, cantidad_ingredientes, 3)
-
-    else:
-        plato_retorno = Plato.get_platos()[indice_existe]
-
-    for cantidad in cantidad_ingredientes:
-        plato_retorno.get_cantidad_ingredientes().append(cantidad)
-
-    return plato_retorno
-
-def crear_ingrediente(cantidad_ingredientes, ingredientes_plato):
-    print("Ingrese el nombre del nuevo ingrediente.")
-    nombre_ingrediente = input().capitalize()
+#         ingrediente = Ingrediente(nombre_ingrediente, precio_ingrediente)
+#         ingredientes_plato.append(ingrediente)
+        
+#         print("Ingresa la cantidad necesaria de este ingrediente para la " +
+#             "preparación del plato")
+#         cantidad_ingrediente = Utilidad.readInt()
+        
+        
+        
+#         cantidad_ingredientes.append([ingrediente.get_nombre(), str(cantidad_ingrediente)])
     
-    print("Ingrese el precio unitario del nuevo ingrediente.")
-    precio_ingrediente = Utilidad.readInt()
+#     label_procesos_bottom.destroy()
+#     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Nombre Ingrediente", "Precio Ingrediente", "Cantidad Ingrediente"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True, True], comandoContinuar=f4_i3_establecer_ingrediente)
+#     label_procesos_bottom.grid(sticky="nsew")
     
-    if precio_ingrediente < 1:
-        precio_ingrediente = 1
-    
-    ingrediente = Ingrediente(nombre_ingrediente, precio_ingrediente)
-    ingredientes_plato.append(ingrediente)
-    
-    print("Ingresa la cantidad necesaria de este ingrediente para la " +
-          "preparación del plato")
-    cantidad_ingrediente = Utilidad.readInt()
-    
-    if cantidad_ingrediente < 1:
-        cantidad_ingrediente = 1
-    
-    cantidad_ingredientes.append([ingrediente.get_nombre(), str(cantidad_ingrediente)])
-    
-    return cantidad_ingredientes
+#     return cantidad_ingredientes
 
 
 #Funcionalidad 5
