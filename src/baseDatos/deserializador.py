@@ -53,4 +53,3 @@ class Deserializador:
         Deserializador.deserializar(Plato.get_gastronomias_marroqui(), "Gastronomia Marroquí")
         Deserializador.deserializar(Plato.get_vinos_champanas_meeting(), "Vinos champañas meetings")
         Deserializador.deserializar(Plato.get_platos_cumple(), "Platos del cumpleaños")
-        print("Listas deserializadas")
