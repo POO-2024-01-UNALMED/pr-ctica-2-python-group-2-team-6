@@ -14,6 +14,7 @@ from gestorAplicacion.Usuario.persona import Persona
 from tkinter import *
 from tkinter import messagebox
 from PIL import Image, ImageTk
+from main import reservar_mesa
 
 contador_clicks_cv = 0
 contador_pasa_img_res = 0
@@ -186,385 +187,226 @@ def dejar_restaurante():
 def comando_prueba():
     print("Comando de prueba.")
 
-def escoger_metodo_pago(clientes, valor_por_persona, indice=0):
+# def escoger_metodo_pago(clientes):
+#     global label_procesos_bottom
+#     global label_procesos_mid
+
+#     metodos_pago = ["Tarjeta", "Efectivo", "Puntos"]
+#     for cliente in clientes:
+#         label_procesos_mid.config(text=f"Seleccione el método de pago {cliente.nombre}.")
+#         metodo_pago = label_procesos_bottom.valores[0]
+#         cliente.get_factura().set_metodo_pago(metodo_pago)
+    
+#     label_procesos_bottom.destroy()
+#     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Método de pago"], tituloValores="Información proveída", valores=[metodos_pago], tipo=2, comandoContinuar=comando_prueba, comandoCancelar=funcionalidad_0)
+#     label_procesos_bottom.grid(sticky="nsew")        
+
+
+
+
+def escoger_metodo_pago(cliente_pagador, valor_por_persona):
     global label_procesos_bottom
     global label_procesos_mid
-    
-    if indice >= len(clientes):
-        label_procesos_mid.config(text="Todas las transacciones han sido procesadas.")
-        return
-
-    cliente_pagador = clientes[indice]
     metodos_pago = ["Tarjeta", "Efectivo", "Puntos"]
     label_procesos_mid.config(text=f"Seleccione el método de pago {cliente_pagador.nombre}.")
    
-    metodo_pago = label_procesos_bottom.valores[0]  # Aquí debes capturar el valor seleccionado en la interfaz
+    metodo_pago = label_procesos_bottom.valores[0]
     cliente_pagador.get_factura().set_metodo_pago(metodo_pago)
-
     def aplicar_descuentos_cuenta():
         global label_procesos_bottom
         global label_procesos_mid
         valor_final = valor_por_persona
 
-        # (El bloque de lógica de descuentos permanece igual)
-        # Afiliación NINGUNA, ESTRELLITA, ESTRELLA, SUPERESTRELLOTA
-        # Aplicar los descuentos según la afiliación del cliente_pagador...
+        if cliente_pagador.get_afiliacion() != Afiliacion.NINGUNA:
+            print("Se aplicaron descuentos por su nivel de afiliación.")
+            metodo_pago = cliente_pagador.get_factura().get_metodo_pago()
+            valor_factura = cliente_pagador.get_factura().get_valor()
 
-        label_procesos_mid.config(text=f"Obtuvo un descuento de: {valor_por_persona - valor_final}, el valor a pagar por {cliente_pagador.nombre} es de {valor_final}.")
+            # Afiliación ESTRELLITA
+            if cliente_pagador.get_afiliacion() == Afiliacion.ESTRELLITA:
+                if metodo_pago == "Efectivo":
+                    if valor_factura < 30000:
+                        valor_final -= valor_por_persona * 0.05
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+                    else:
+                        valor_final -= valor_por_persona * 0.07
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+                elif metodo_pago == "Tarjeta":
+                    if valor_factura < 30000:
+                        valor_final -= valor_por_persona * 0.03
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+                    else:
+                        valor_final -= valor_por_persona * 0.05
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+                elif metodo_pago == "Cheque":
+                    if valor_factura < 30000:
+                        valor_final -= valor_por_persona * 0.02
+                    else:
+                        valor_final -= valor_por_persona * 0.03
+                    cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+
+            # Afiliación ESTRELLA
+            elif cliente_pagador.get_afiliacion() == Afiliacion.ESTRELLA:
+                if metodo_pago == "Efectivo":
+                    if valor_factura < 30000:
+                        valor_final -= valor_por_persona * 0.07
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+                    else:
+                        valor_final -= valor_por_persona * 0.15
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 4)
+                elif metodo_pago == "Tarjeta":
+                    if valor_factura < 30000:
+                        valor_final -= valor_por_persona * 0.08
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+                    else:
+                        valor_final -= valor_por_persona * 0.15
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 4)
+                elif metodo_pago == "Cheque":
+                    if valor_factura < 30000:
+                        valor_final -= valor_por_persona * 0.02
+                    else:
+                        valor_final -= valor_por_persona * 0.10
+                    cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
+
+            # Afiliación SUPERESTRELLOTA
+            elif cliente_pagador.get_afiliacion() == Afiliacion.SUPERESTRELLOTA:
+                if metodo_pago == "Efectivo":
+                    if valor_factura < 30000:
+                        valor_final -= valor_por_persona * 0.10
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 6)
+                    else:
+                        valor_final -= valor_por_persona * 0.20
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 8)
+                elif metodo_pago == "Tarjeta":
+                    if valor_factura < 30000:
+                        valor_final -= valor_por_persona * 0.15
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 6)
+                    else:
+                        valor_final -= valor_por_persona * 0.25
+                        cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 8)
+                elif metodo_pago == "Cheque":
+                    if valor_factura < 30000:
+                        valor_final -= valor_por_persona * 0.05
+                    else:
+                        valor_final -= valor_por_persona * 0.08
+                    cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
+
+        # Descuento por puntos acumulados
+                if cliente_pagador.get_puntos_acumulados() >= 10:
+                    print("Felicidades, ha obtenido un descuento de 10.000 por sus puntos acumulados.")
+                    valor_final -= 10000
+                    cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() - 10)
+            label_procesos_mid.config(text=f"Obtuvo un descuento de: {valor_por_persona - valor_final}, el valor a pagar por {cliente_pagador.nombre} es de {valor_final}.")
+        
+        else:
+            valor_final = valor_por_persona
+            label_procesos_mid.config(text=f"El valor a pagar por {cliente_pagador.nombre} es de {valor_final}.")
+        
+        if cliente_pagador.get_puntos_acumulados() >= 10:
+            print("Felicidades, ha obtenido un descuento de 10.000 por sus puntos acumulados.")
+            valor_final -= 10000
+            cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() - 10)
+        
+        
+
         
         def confirmar_transaccion():
             global label_procesos_bottom
             global label_procesos_mid
-            
-            label_procesos_mid.config(text=f"¿Desea confirmar la transacción para {cliente_pagador.nombre}?")
-            
-            # Aquí puedes agregar la lógica de confirmación de transacción...
-            # Después de confirmar, pasas al siguiente cliente en la lista
-            def continuar_con_siguiente_cliente():
-                # Reiniciar la interfaz y procesar el siguiente cliente
-                escoger_metodo_pago(clientes, valor_por_persona, indice + 1)
+            label_procesos_mid.config(text="¿Desea confirmar la transacción?")
 
             label_procesos_bottom.destroy()
-            label_procesos_bottom = FieldFrame(
-                frame_procesos_bottom, 
-                tituloCriterios="Confirmar transacción", 
-                criterios=["Presione aceptar para continuar"], 
-                tituloValores="", 
-                tipo=3, 
-                comandoContinuar=continuar_con_siguiente_cliente
-            )
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Confirmar transacción", criterios=None, tituloValores="", tipo=1, comandoContinuar=liberar_mesa(cliente_pagador.get_mesa()), comandoCancelar=funcionalidad_0)
             label_procesos_bottom.grid(sticky="nsew")
 
         label_procesos_bottom.destroy()
-        label_procesos_bottom = FieldFrame(
-            frame_procesos_bottom, 
-            tituloCriterios="Información solicitada", 
-            criterios=["Presione aceptar para continuar"], 
-            tituloValores="", 
-            tipo=3, 
-            comandoContinuar=confirmar_transaccion
-        )
+        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Presione aceptar para continuar"], tituloValores="", tipo=3, comandoContinuar=confirmar_transaccion)
         label_procesos_bottom.grid(sticky="nsew")
         
-    # Lógica para seleccionar el método de pago
+
     label_procesos_bottom.destroy()
-    label_procesos_bottom = FieldFrame(
-        frame_procesos_bottom, 
-        tituloCriterios="Información solicitada", 
-        criterios=["Método de pago"], 
-        tituloValores="Seleccione un método de pago", 
-        valores=[metodos_pago], 
-        tipo=2, 
-        comandoContinuar=aplicar_descuentos_cuenta, 
-        comandoCancelar=funcionalidad_0
-    )
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Método de pago"], tituloValores="Seleccione un método de pago", valores=[metodos_pago], tipo=2, comandoContinuar=aplicar_descuentos_cuenta, comandoCancelar=funcionalidad_0)
     label_procesos_bottom.grid(sticky="nsew")
 
 
-# def escoger_metodo_pago(cliente_pagador, valor_por_persona):
-#     global label_procesos_bottom
-#     global label_procesos_mid
-#     metodos_pago = ["Tarjeta", "Efectivo", "Puntos"]
-#     label_procesos_mid.config(text=f"Seleccione el método de pago {cliente_pagador.nombre}.")
-   
-#     metodo_pago = label_procesos_bottom.valores[0]
-#     cliente_pagador.get_factura().set_metodo_pago(metodo_pago)
-#     def aplicar_descuentos_cuenta():
-#         global label_procesos_bottom
-#         global label_procesos_mid
-#         valor_final = valor_por_persona
-
-#         if cliente_pagador.get_afiliacion() != Afiliacion.NINGUNA:
-#             print("Se aplicaron descuentos por su nivel de afiliación.")
-#             metodo_pago = cliente_pagador.get_factura().get_metodo_pago()
-#             valor_factura = cliente_pagador.get_factura().get_valor()
-
-#             # Afiliación ESTRELLITA
-#             if cliente_pagador.get_afiliacion() == Afiliacion.ESTRELLITA:
-#                 if metodo_pago == "Efectivo":
-#                     if valor_factura < 30000:
-#                         valor_final -= valor_por_persona * 0.05
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
-#                     else:
-#                         valor_final -= valor_por_persona * 0.07
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
-#                 elif metodo_pago == "Tarjeta":
-#                     if valor_factura < 30000:
-#                         valor_final -= valor_por_persona * 0.03
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
-#                     else:
-#                         valor_final -= valor_por_persona * 0.05
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
-#                 elif metodo_pago == "Cheque":
-#                     if valor_factura < 30000:
-#                         valor_final -= valor_por_persona * 0.02
-#                     else:
-#                         valor_final -= valor_por_persona * 0.03
-#                     cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
-
-#             # Afiliación ESTRELLA
-#             elif cliente_pagador.get_afiliacion() == Afiliacion.ESTRELLA:
-#                 if metodo_pago == "Efectivo":
-#                     if valor_factura < 30000:
-#                         valor_final -= valor_por_persona * 0.07
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
-#                     else:
-#                         valor_final -= valor_por_persona * 0.15
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 4)
-#                 elif metodo_pago == "Tarjeta":
-#                     if valor_factura < 30000:
-#                         valor_final -= valor_por_persona * 0.08
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
-#                     else:
-#                         valor_final -= valor_por_persona * 0.15
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 4)
-#                 elif metodo_pago == "Cheque":
-#                     if valor_factura < 30000:
-#                         valor_final -= valor_por_persona * 0.02
-#                     else:
-#                         valor_final -= valor_por_persona * 0.10
-#                     cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 1)
-
-#             # Afiliación SUPERESTRELLOTA
-#             elif cliente_pagador.get_afiliacion() == Afiliacion.SUPERESTRELLOTA:
-#                 if metodo_pago == "Efectivo":
-#                     if valor_factura < 30000:
-#                         valor_final -= valor_por_persona * 0.10
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 6)
-#                     else:
-#                         valor_final -= valor_por_persona * 0.20
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 8)
-#                 elif metodo_pago == "Tarjeta":
-#                     if valor_factura < 30000:
-#                         valor_final -= valor_por_persona * 0.15
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 6)
-#                     else:
-#                         valor_final -= valor_por_persona * 0.25
-#                         cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 8)
-#                 elif metodo_pago == "Cheque":
-#                     if valor_factura < 30000:
-#                         valor_final -= valor_por_persona * 0.05
-#                     else:
-#                         valor_final -= valor_por_persona * 0.08
-#                     cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() + 2)
-
-#         # Descuento por puntos acumulados
-#                 if cliente_pagador.get_puntos_acumulados() >= 10:
-#                     print("Felicidades, ha obtenido un descuento de 10.000 por sus puntos acumulados.")
-#                     valor_final -= 10000
-#                     cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() - 10)
-#             label_procesos_mid.config(text=f"Obtuvo un descuento de: {valor_por_persona - valor_final}, el valor a pagar por {cliente_pagador.nombre} es de {valor_final}.")
-        
-#         else:
-#             valor_final = valor_por_persona
-#             label_procesos_mid.config(text=f"El valor a pagar por {cliente_pagador.nombre} es de {valor_final}.")
-        
-#         if cliente_pagador.get_puntos_acumulados() >= 10:
-#             print("Felicidades, ha obtenido un descuento de 10.000 por sus puntos acumulados.")
-#             valor_final -= 10000
-#             cliente_pagador.set_puntos_acumulados(cliente_pagador.get_puntos_acumulados() - 10)
-        
-        
-
-        
-#         def confirmar_transaccion():
-#             global label_procesos_bottom
-#             global label_procesos_mid
-#             label_procesos_mid.config(text="¿Desea confirmar la transacción?")
-
-#             label_procesos_bottom.destroy()
-#             label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Confirmar transacción", criterios=None, tituloValores="", tipo=1, comandoContinuar=comando_prueba)
-#             label_procesos_bottom.grid(sticky="nsew")
-
-#         label_procesos_bottom.destroy()
-#         label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Presione aceptar para continuar"], tituloValores="", tipo=3, comandoContinuar=confirmar_transaccion)
-#         label_procesos_bottom.grid(sticky="nsew")
-        
-
-#     label_procesos_bottom.destroy()
-#     label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Información solicitada", criterios=["Método de pago"], tituloValores="Seleccione un método de pago", valores=[metodos_pago], tipo=2, comandoContinuar=aplicar_descuentos_cuenta, comandoCancelar=funcionalidad_0)
-#     label_procesos_bottom.grid(sticky="nsew")
-
-
 def liberar_mesa(mesa):
-    encendido = True
-    while encendido:
-        print("Interacción 2.")
-        print("¿Algún cliente desea reservar nuevamente?")
-        print("""
-            1. Sí.
-            2. No.
-            Escriba un número para elegir su opción.""")
+    global label_procesos_bottom
+    global label_procesos_mid
+    for cliente in mesa.get_clientes():
+        if cliente.getAfiliacion() is Afiliacion.NINGUNA:
+            label_procesos_mid.config(text=f"{cliente.get_nombre()}, no está afiliado al restaurante, lo invitamos a que escoja uno de los niveles de afiliación.")
+            def afiliar_cliente():
+                global label_procesos_bottom
+                global label_procesos_mid
+                if label_procesos_bottom.valores[0] == "Ninguna":
+                    afiliacion = Afiliacion.NINGUNA
+                elif label_procesos_bottom.valores[0] == "Estrella":
+                    afiliacion = Afiliacion.ESTRELLA
+                elif label_procesos_bottom.valores[0] == "Estrellita":
+                    afiliacion = Afiliacion.ESTRELLITA
+                elif label_procesos_bottom.valores[0] == "Superestrellota":
+                    afiliacion = Afiliacion.SUPERESTRELLOTA
+                cliente.set_afiliacion(afiliacion)
+                label_procesos_mid.config(text=f"{cliente.get_nombre()} ha sido afiliado con éxito.")
+                label_procesos_bottom.destroy()
+                label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Proceda a calificar el restaurante", criterios=None, tituloValores="", tipo=3)
+                label_procesos_bottom.grid(sticky="nsew")
+            
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Afiliación", criterios=["Afiliación"], tituloValores="Seleccione una afiliación", valores=["Ninguna", "Estrella", "Estrellita", "Superestrellota"], tipo=2, comandoContinuar=afiliar_cliente, comandoCancelar=funcionalidad_0)
+            label_procesos_bottom.grid(sticky="nsew")
+
+    label_procesos_mid.config(text="Indique si algún cliente desea hacer una nueva reservación.")
+
+    def calificar_restaurante(cliente):
+        global label_procesos_bottom
+        global label_procesos_mid
+        label_procesos_mid.config(text=f"Por favor {cliente.get_nombre()} califique el restaurante con una nota del 1 al 5.")
+        calificacion = int(label_procesos_bottom.valores[0])
+
+        if 1 <= calificacion <= 5:
+            label_procesos_mid.config(text="Gracias por su calificación.")
+            cliente.get_mesa().get_restaurante().set_calificacion(calificacion)
+        else:
+            raise ExcepcionFueraRango(calificacion, "1 - 5")
         
-        eleccion = int(input())
-        if eleccion == 1:
-            print("¿Cuántos clientes desean hacer una reservación?")
-            numero_clientes = int(input())
-            for _ in range(numero_clientes):
-                print("Ingrese la cédula del cliente que desea reservar.")
-                cedula = int(input())
-                for cliente in mesa.get_clientes():
-                    if cliente.get_cedula() == cedula:
-                        if cliente.get_afiliacion() != Cliente.Afiliacion.NINGUNA:
-                            reservar_mesa()
-                        else:
-                            print("¿Desea afiliarse?")
-                            print("""
-                                1. Sí.
-                                2. No.
-                                Escriba un número para elegir su opción.""")
-                            
-                            eleccion2 = int(input())
-                            if eleccion2 == 1:
-                                print("¿Qué nivel de afiliación desea?")
-                                print("""
-                                    1. Estrellita.
-                                    2. Estrella.
-                                    3. Super estrellota.
-                                    Escriba un número para elegir su opción.""")
-                                
-                                nivel_afiliacion = int(input())
-                                if nivel_afiliacion == 1:
-                                    transaccion_confirmada = False
-                                    while not transaccion_confirmada:
-                                        print("¿Desea confirmar la transacción con un valor de: 35.900?")
-                                        print("""
-                                            1. Sí.
-                                            2. No.
-                                            Escriba un número para elegir su opción.""")
-                                        
-                                        confirmacion = int(input())
-                                        if confirmacion == 1:
-                                            print("Transacción confirmada.")
-                                            cliente.set_afiliacion(Cliente.Afiliacion.ESTRELLITA)
-                                            transaccion_confirmada = True
-                                        elif confirmacion == 2:
-                                            print("Afiliación no confirmada.")
-                                        else:
-                                            print("Número no válido.")
-                                elif nivel_afiliacion == 2:
-                                    transaccion_confirmada = False
-                                    while not transaccion_confirmada:
-                                        print("¿Desea confirmar la transacción con un valor de: 48.900?")
-                                        print("""
-                                            1. Sí.
-                                            2. No.
-                                            Escriba un número para elegir su opción.""")
-                                        
-                                        confirmacion = int(input())
-                                        if confirmacion == 1:
-                                            print("Transacción confirmada.")
-                                            cliente.set_afiliacion(Cliente.Afiliacion.ESTRELLA)
-                                            transaccion_confirmada = True
-                                        elif confirmacion == 2:
-                                            print("Afiliación no confirmada.")
-                                        else:
-                                            print("Número no válido.")
-                                elif nivel_afiliacion == 3:
-                                    transaccion_confirmada = False
-                                    while not transaccion_confirmada:
-                                        print("¿Desea confirmar la transacción con un valor de: 65.900?")
-                                        print("""
-                                            1. Sí.
-                                            2. No.
-                                            Escriba un número para elegir su opción.""")
-                                        
-                                        confirmacion = int(input())
-                                        if confirmacion == 1:
-                                            print("Transacción confirmada.")
-                                            cliente.set_afiliacion(Cliente.Afiliacion.SUPERESTRELLOTA)
-                                            transaccion_confirmada = True
-                                        elif confirmacion == 2:
-                                            print("Afiliación no confirmada.")
-                                        else:
-                                            print("Número no válido.")
-                                else:
-                                    print("Número no válido.")
-                                reservar_mesa()
-                            elif eleccion2 == 2:
-                                reservar_mesa()
-        elif eleccion == 2:
-            for cliente in mesa.get_clientes():
-                if cliente.get_afiliacion() == Cliente.Afiliacion.NINGUNA:
-                    print(f"{cliente.get_nombre()}, ¿desea afiliarse?")
-                    print("""
-                        1. Sí.
-                        2. No.
-                        Escriba un número para elegir su opción.""")
-                    
-                    eleccion3 = int(input())
-                    if eleccion3 == 1:
-                        print("¿Qué nivel de afiliación desea?")
-                        print("""
-                            1. Estrellita.
-                            2. Estrella.
-                            3. Super estrellota.
-                            Escriba un número para elegir su opción.""")
-                        
-                        nivel_afiliacion = int(input())
-                        if nivel_afiliacion == 1:
-                            transaccion_confirmada = False
-                            while not transaccion_confirmada:
-                                print("¿Desea confirmar la transacción con un valor de: 35.900?")
-                                print("""
-                                    1. Sí.
-                                    2. No.
-                                    Escriba un número para elegir su opción.""")
-                                
-                                confirmacion = int(input())
-                                if confirmacion == 1:
-                                    print("Transacción confirmada.")
-                                    cliente.set_afiliacion(Cliente.Afiliacion.ESTRELLITA)
-                                    transaccion_confirmada = True
-                                elif confirmacion == 2:
-                                    print("Afiliación no confirmada.")
-                                else:
-                                    print("Número no válido.")
-                        elif nivel_afiliacion == 2:
-                            transaccion_confirmada = False
-                            while not transaccion_confirmada:
-                                print("¿Desea confirmar la transacción con un valor de: 48.900?")
-                                print("""
-                                    1. Sí.
-                                    2. No.
-                                    Escriba un número para elegir su opción.""")
-                                
-                                confirmacion = int(input())
-                                if confirmacion == 1:
-                                    print("Transacción confirmada.")
-                                    cliente.set_afiliacion(Cliente.Afiliacion.ESTRELLA)
-                                    transaccion_confirmada = True
-                                elif confirmacion == 2:
-                                    print("Afiliación no confirmada.")
-                                else:
-                                    print("Número no válido.")
-                        elif nivel_afiliacion == 3:
-                            transaccion_confirmada = False
-                            while not transaccion_confirmada:
-                                print("¿Desea confirmar la transacción con un valor de: 65.900?")
-                                print("""
-                                    1. Sí.
-                                    2. No.
-                                    Escriba un número para elegir su opción.""")
-                                
-                                confirmacion = int(input())
-                                if confirmacion == 1:
-                                    print("Transacción confirmada.")
-                                    cliente.set_afiliacion(Cliente.Afiliacion.SUPERESTRELLOTA)
-                                    transaccion_confirmada = True
-                                elif confirmacion == 2:
-                                    print("Afiliación no confirmada.")
-                                else:
-                                    print("Número no válido.")
-                        else:
-                            print("Número no válido.")
-                    elif eleccion3 == 2:
-                        pass
-                calificar_restaurante(cliente)
-        mesa.set_clientes(None)
-        for cliente in mesa.get_clientes():
-            cliente.set_mesa(None)
-            cliente.set_factura(None)
+        def escribir_resena():
+            global label_procesos_bottom
+            global label_procesos_mid
+            label_procesos_mid.config(text="Escriba la reseña.")
+            resena = label_procesos_bottom.valores[0]
+            cliente.get_mesa().get_restaurante().anadir_reserva(resena)
+            if cliente.get_afiliacion() is not None:
+                cliente.set_puntos_acumulados(cliente.get_puntos_acumulados() + 1)
+                label_procesos_mid.config(text="Gracias por su reseña. Obtuvo un punto extra por ayudarnos a mejorar.")
+            else:
+                label_procesos_mid.config(text="Gracias por su reseña.")
+            
+            label_procesos_bottom.destroy()
+            label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="Finalizar proceso", criterios=None, tituloValores="", tipo=3)
+            label_procesos_bottom.grid(sticky="nsew")
+
+
+        label_procesos_bottom.destroy()
+        label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea añadir una reseña?", criterios=None, tituloValores="Escriba su reseña", tipo=1, comandoContinuar=escribir_resena, comandoCancelar=funcionalidad_0)
+        label_procesos_bottom.grid(sticky="nsew")
+
+
+    label_procesos_bottom.destroy()
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Algún cliente desea", criterios=None, tituloValores="reservar nuevamente?", tipo=1, comandoContinuar=reservar_mesa, comandoCancelar=calificar_restaurante)
+    label_procesos_bottom.grid(sticky="nsew")
+
+
+
+
+
+
+
+
+
+
+    
+
 
 def calificar_restaurante(cliente):
     print(f"Por favor {cliente.get_nombre()} califique el restaurante con una nota del 1 al 5.")
@@ -691,15 +533,15 @@ def cambiar_cv(event):
 
     # Listas de rutas de imágenes
     cvs = [
-        ["Me gusta el Póker"],
-        ["Me gusta el Mine"],
-        ["Me quiero follar a Borges"]
+        ["Juan José Arango Marín\nTeléfono: 304 386 4396\nEdad: 19\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, Cáida libre, AntiJudio 卐卐卐卐卐\nAlgo más: Mueran todos los negros"],
+        ["Samuel Colorado Castrillon\nTeléfono: 305 224 6361\nEdad: 18\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, Python\nHabilidades: Aprendizaje rápido, resolución de problemas"],
+        ["Stiven Saldarriaga Mayorga\nTeléfono: 322 778 1217\nEdad: 18\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, ColdFusion, Metafísica pura\nExperiencia: Five Pack Alliance"]
     ]
 
     rutas = [
-        ["src/Imagenes/desarrolladores/arangoPrueba1.png", "src/Imagenes/desarrolladores/arangoPrueba2.png", "src/Imagenes/desarrolladores/arangoPrueba3.png", "src/Imagenes/desarrolladores/arangoPrueba4.png" ],
-        ["src/Imagenes/desarrolladores/coloradoPrueba1.png", "src/Imagenes/desarrolladores/coloradoPrueba2.png", "src/Imagenes/desarrolladores/coloradoPrueba3.png", "src/Imagenes/desarrolladores/coloradoPrueba4.png"],
-        ["src/Imagenes/desarrolladores/stivenPrueba1.png", "src/Imagenes/desarrolladores/stivenPrueba2.png", "src/Imagenes/desarrolladores/stivenPrueba3.png","src/Imagenes/desarrolladores/stivenPrueba4.png" ]
+        ["src/Imagenes/desarrolladores/arango1.png", "src/Imagenes/desarrolladores/arango2.png", "src/Imagenes/desarrolladores/arango3.png", "src/Imagenes/desarrolladores/arango4.png"],
+        ["src/Imagenes/desarrolladores/colorado1.png", "src/Imagenes/desarrolladores/colorado2.png", "src/Imagenes/desarrolladores/colorado3.png", "src/Imagenes/desarrolladores/colorado4.png"],
+        ["src/Imagenes/desarrolladores/saldarriaga1.png", "src/Imagenes/desarrolladores/saldarriaga2.png", "src/Imagenes/desarrolladores/saldarriaga3.png","src/Imagenes/desarrolladores/saldarriaga4.png"]
     ]
     #boton_right_top.config(text=cvs[contador_clicks_cv][0])
     # Actualizar las rutas de las imágenes de acuerdo al contador de clics
@@ -733,15 +575,18 @@ def cambiar_cv(event):
     frame_rb_rb_img.config(image=photo_rb)
     frame_rb_rb_img.image = photo_rb
 
+    right_top.config(text=cvs[contador_clicks_cv][0])
+
     # Incrementar el contador para la próxima rotación
     contador_clicks_cv = (contador_clicks_cv + 1) % len(rutas)
 
 def cambiar_img_restaurante(event):
     global contador_pasa_img_res
+    global photo  # Asegúrate de que la referencia a la imagen se mantenga viva
 
     lb_top_size = [frame_lb_top.winfo_width(), frame_lb_top.winfo_height()]
 
-    rutas = ["src/Imagenes/restaurante/restaurante1.png", "src/Imagenes/restaurante/restaurante2.png", "src/Imagenes/restaurante/restaurante3.png", "src/Imagenes/restaurante/restaurante4.png", "src/Imagenes/restaurante/restaurante5.png"]
+    rutas = ["src/Imagenes/sistema/sistema1.png", "src/Imagenes/sistema/sistema2.png", "src/Imagenes/sistema/sistema3.png", "src/Imagenes/sistema/sistema4.png", "src/Imagenes/sistema/sistema5.png"]
     
     ruta = rutas[contador_pasa_img_res % 5]
 
@@ -749,7 +594,7 @@ def cambiar_img_restaurante(event):
 
     photo = ImageTk.PhotoImage(img)
     
-    frame_lb_top.config(image = photo)
+    frame_lb_top.config(image=photo)
     frame_lb_top.image = photo
 
     contador_pasa_img_res = (contador_pasa_img_res + 1) % 5
