@@ -1,4 +1,5 @@
 import abc
+import pickle
 
 class Persona(abc.ABC):
     def __init__(self, nombre=None, cedula=None):

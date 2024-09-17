@@ -1,5 +1,6 @@
 from gestorAplicacion.Usuario.cliente import Cliente
 from datetime import date
+import pickle
 
 class Evento:
     eventos = []

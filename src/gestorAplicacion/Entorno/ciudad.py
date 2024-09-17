@@ -1,4 +1,6 @@
 from gestorAplicacion.Entorno.zona import Zona
+import pickle
+
 class Ciudad(Zona):
     ciudades = []
 

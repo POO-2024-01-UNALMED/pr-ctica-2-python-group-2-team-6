@@ -1,3 +1,5 @@
+import pickle
+
 class Ingrediente:
     ingredientes = []
 

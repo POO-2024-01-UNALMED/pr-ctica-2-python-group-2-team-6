@@ -1,3 +1,5 @@
+import pickle
+
 class Plato:
     platos = []
     platos_cumple = []

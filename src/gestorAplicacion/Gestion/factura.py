@@ -1,3 +1,5 @@
+import pickle
+
 class Factura:
     facturas = []
     numero_factura = 0

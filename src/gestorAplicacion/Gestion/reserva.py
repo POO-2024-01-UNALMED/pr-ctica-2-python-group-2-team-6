@@ -1,4 +1,5 @@
 from gestorAplicacion.Usuario.cliente import Cliente
+import pickle
 
 class Reserva:
     contador_reservas = 0

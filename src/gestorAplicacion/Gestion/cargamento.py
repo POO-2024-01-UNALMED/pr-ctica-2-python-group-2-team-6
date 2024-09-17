@@ -1,3 +1,5 @@
+import pickle
+
 class Cargamento:
     cargamentos = []
     UTILIDADES = ["Rosa", "Vela", "Globo Negro", "Globo Blanco", "Globo Dorado", "Globo Rosado", "Globo Azul", "Birrete", "Angel Varon", "Angel Femenino"]

@@ -4,6 +4,7 @@ from gestorAplicacion.Gestion.pedido import Pedido
 from gestorAplicacion.Usuario.trabajador import Trabajador
 from gestorAplicacion.Usuario.cliente import Cliente
 from gestorAplicacion.Gestion.factura import Factura
+import pickle
 
 class Mesa(Casilla):
     mesas = []

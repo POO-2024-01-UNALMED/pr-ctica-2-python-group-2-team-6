@@ -1,5 +1,6 @@
 from gestorAplicacion.Usuario.cliente import Cliente
 from gestorAplicacion.Usuario.trabajador import Trabajador
+import pickle
 
 class Pedido:
     pedidos = []

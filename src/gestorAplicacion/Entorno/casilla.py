@@ -1,3 +1,5 @@
+import pickle
+
 class Casilla:
     casillas = []
     tipos = ["MESA", "VENTANA", "PUERTA"]

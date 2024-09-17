@@ -18,6 +18,8 @@ from gestorAplicacion.Usuario.cliente import Cliente
 from gestorAplicacion.Usuario.cliente import Afiliacion
 from gestorAplicacion.Usuario.persona import Persona
 from gestorAplicacion.Usuario.trabajador import Trabajador
+from baseDatos.serializador import Serializador
+from baseDatos.deserializador import Deserializador
 
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -1194,7 +1196,7 @@ def establecer_menu_y_encargos(restaurante):
         cargamento(restaurante)
 
 
-###Parte de FUNCIONALIDAD 5, PENDIENTE PORT REVISAR
+###Parte de FUNCIONALIDAD 5
 class EstadoGlobal:
     cliente_final = None
     factura_final = None
@@ -2584,7 +2586,7 @@ def cambiar_cv(event):
 
     # Listas de rutas de imágenes
     cvs = [
-        ["Juan José Arango Marín\nTeléfono: 304 386 4396\nEdad: 19\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, Cáida libre, AntiJudio 卐卐卐卐卐\nAlgo más: Mueran todos los negros"],
+        ["Juan José Arango Marín\nTeléfono: 304 386 4396\nEdad: 19\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, Inglés, Fútbol\nExperiencia: Acompañamiento de eventos, \natención en mostrador."],
         ["Samuel Colorado Castrillon\nTeléfono: 305 224 6361\nEdad: 18\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, Python\nHabilidades: Aprendizaje rápido, resolución de problemas"],
         ["Stiven Saldarriaga Mayorga\nTeléfono: 322 778 1217\nEdad: 18\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, ColdFusion, Metafísica pura\nExperiencia: Five Pack Alliance"]
     ]
@@ -2698,6 +2700,7 @@ def menu_inicio():
     ventana_inicio.geometry("1080x750")
 
 def menu_funcional():
+    entrar()
     ventana_inicio.withdraw()
     ventana_funcional.deiconify()
     ventana_funcional.state("zoomed")
@@ -2730,6 +2733,13 @@ def acerca_de():
     messagebox.showinfo("Acerca de", "Autores:\n- Juan José Arango Marín.\n- Samuel Colorado Castrillón.\n- Stiven Saldarriaga Mayorga.")
 
 hojas_de_vida = ["Juan José",  "Colorado", "Stiven"]
+
+def salir():
+    Serializador.serializar_listas()
+    ventana_inicio.quit()
+
+def entrar():
+    Deserializador.deserializar_listas()
     
 #MENU INICIO
 ventana_inicio = Tk()
@@ -2745,7 +2755,7 @@ menu_inicial = Menu(menu_bar_inicio, tearoff = 0)
 menu_bar_inicio.add_cascade(label = "Inicio", menu = menu_inicial)
 menu_inicial.add_command(label = "Descripción del sistema", command = info_aplicacion_p3)
 menu_inicial.add_separator()
-menu_inicial.add_command(label = "Salir", command = ventana_inicio.quit)
+menu_inicial.add_command(label = "Salir", command = salir)
 
 #Frame P1
 frame_left = Frame(ventana_inicio, bg = "#696969", bd = 2, relief="solid", width=100)
@@ -2912,7 +2922,7 @@ menu_inicio()
 
 #Asegurarse que al cerrar la ventana se cierre la ventana
 def cerrado():
-    ventana_inicio.quit()
+    salir()
 
 ventana_inicio.protocol("WM_DELETE_WINDOW", cerrado)
 ventana_funcional.protocol("WM_DELETE_WINDOW", cerrado)

@@ -1,5 +1,6 @@
 from enum import Enum
 from gestorAplicacion.Usuario.persona import Persona
+import pickle
 
 class Tipo(Enum):
     COCINERO = 1
@@ -64,6 +65,10 @@ class Trabajador(Persona):
 
     def set_mesa(self, mesa):
         self.mesa = mesa
+    
+    @classmethod
+    def get_trabajadores(cls):
+        return Trabajador.trabajadores
 
     def pago_extra_servicio(self, eventos, especialidad):
         for evento in eventos:

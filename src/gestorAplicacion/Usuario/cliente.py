@@ -1,5 +1,6 @@
 from gestorAplicacion.Usuario.persona import Persona
 from enum import Enum
+import pickle
 
 class Afiliacion(Enum):
     NINGUNA = 1

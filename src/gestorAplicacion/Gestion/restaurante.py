@@ -1,12 +1,6 @@
-# from Entorno.casilla import Casilla
-# from Entorno.ciudad import Ciudad
-# from Entorno.mesa import Mesa
-# from Entorno.zona import Zona
-# from Usuario.cliente import Cliente
-# from Usuario.trabajador import Trabajador
-
-# from utilidad import *
+from utilidad import *
 from collections import OrderedDict
+import pickle
 def combinar_listas(lista1, lista2):
     # Usar OrderedDict para eliminar duplicados y mantener el orden
     lista_combinada = list(OrderedDict.fromkeys(tuple(sublista) for sublista in lista1 + lista2))

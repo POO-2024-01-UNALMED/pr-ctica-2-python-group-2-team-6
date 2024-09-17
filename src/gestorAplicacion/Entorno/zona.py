@@ -1,3 +1,5 @@
+import pickle
+
 class Zona:
     zonas = []
 
