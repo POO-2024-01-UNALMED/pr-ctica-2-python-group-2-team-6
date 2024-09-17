@@ -1,5 +1,5 @@
 from utilidad import Utilidad
-from FieldFrame import FieldFrame
+from src.uiMain.FieldFrame import FieldFrame
 from uiMain.errorAplicacion import *
 
 from gestorAplicacion.Entorno.casilla import Casilla
