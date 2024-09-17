@@ -64,13 +64,11 @@ def reservar_mesa():
             global label_procesos_bottom
             label_procesos_mid.config(text="Seleccione la zona donde desea reservar su mesa.")
             nombre_ciudad_elegida = label_procesos_bottom.valores[0] #Obtener valor seleccionado
-            print("Main:", nombre_ciudad_elegida)
             
             def f1_i1_seleccion_restaurante():
                 global label_procesos_bottom
                 label_procesos_mid.config(text="Selecciona el restaurante donde desea reservar su mesa")
                 nombre_zona_elegida = label_procesos_bottom.valores[0] #Obtener valor seleccionado
-                print("Main:", nombre_zona_elegida)
                 
                 def llamar_interacciones():
                     global retorno_seleccion_mesa
@@ -97,7 +95,6 @@ def reservar_mesa():
                 nombre_restaurantes = []
                 for restaurante in zona_actual.get_restaurantes():
                     nombre_restaurantes.append(restaurante.get_nombre())
-                print("Restaurantes:", nombre_restaurantes)
 
                 label_procesos_bottom.destroy()
                 label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Restaurante"], tituloValores = "Valor ingresado", valores = [nombre_restaurantes], tipo = 2, comandoContinuar = llamar_interacciones, habilitado = [True])
@@ -115,6 +112,10 @@ def reservar_mesa():
                 if zona.get_restaurantes() != []:
                     nombre_zonas.append(zona.get_nombre())
             
+            
+            print("Zonas:", nombre_zonas)
+
+
             print("Zonas:", nombre_zonas)
 
             label_procesos_bottom.destroy()
@@ -125,7 +126,6 @@ def reservar_mesa():
         nombre_ciudades = []
         for ciudad in Ciudad.get_ciudades(): 
             nombre_ciudades.append(ciudad.get_nombre())
-        print("Ciudades:", nombre_ciudades)
         label_procesos_bottom.destroy()
         label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Ciudad"], tituloValores = "Valor ingresado", valores = [nombre_ciudades], tipo = 2, comandoContinuar = f1_i1_seleccion_zona, habilitado = [True])
         label_procesos_bottom.grid(sticky="nsew")
@@ -297,25 +297,21 @@ def seleccion_mesa(restaurante):
 
             if tipo_mesa_seleccionado == "Estándar":
                 if not any(mesa.is_vip() == tipo_mesa for mesa in restaurante.get_mesas()):
-                    print("Lo sentimos, pero no hay mesas estándar, la mesa tendrá que ser VIP.")
                     tipo_mesa = True
             elif tipo_mesa_seleccionado == "VIP":
                 tipo_mesa = True
                 if not any(mesa.is_vip() == tipo_mesa for mesa in restaurante.get_mesas()):
-                    print("Lo sentimos, pero no hay mesas VIP, la mesa tendrá que ser estándar.")
                     tipo_mesa = False
             
             mesas_elegidas = []
 
             if preferencia_seleccionada in ["Puerta", "Ventana"]: # Eleccion2 es la preferencia de cercanía
                 mesas_elegidas = Utilidad.calcular_distancia(restaurante, preferencia_seleccionada, tipo_mesa)
-                print("Distancia")
             elif preferencia_seleccionada == "Ninguna":
                 for mesa in restaurante.get_mesas():
                     mesa.set_distancia_puerta(0)
                     mesa.set_distancia_ventana(0)
             
-            print("\nClientes: ", clientes)
             seleccion_fecha(restaurante, tipo_mesa, mesas_elegidas, clientes)
         
         if num_acompanantes > 0:
@@ -329,6 +325,10 @@ def seleccion_mesa(restaurante):
                 habilitado.append(True)
                 habilitado.append(True)
             
+            
+            print(criterios_acompanantes, habilitado)
+
+
             print(criterios_acompanantes, habilitado)
 
             def f1_i1_datos_acompanantes():
@@ -356,7 +356,6 @@ def seleccion_mesa(restaurante):
                     else:
                         restaurante.get_clientes().append(acompanante)
                     clientes.append(acompanante)
-                    print(acompanante)
                 label_procesos_bottom.destroy()
                 label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Tipo mesa", "Cercanía"], tituloValores = "Valor ingresado", valores=[["Estándar", "VIP"], ["Puerta", "Ventana", "Ninguna"]], tipo = 2, habilitado = [True, True], comandoContinuar=f1_i1_preferencias)
                 label_procesos_bottom.grid(sticky="nsew")
@@ -378,15 +377,12 @@ def seleccion_mesa(restaurante):
 def continuar_seleccion_mesa(restaurante, fecha_elegida_reservar_mesa, tipo_mesa, clientes):
     global label_procesos_bottom, retorno_seleccion_mesa
     mesas_disponibles = []
-    print("\n", fecha_elegida_reservar_mesa, "\n")
     for mesa in restaurante.get_mesas():
-        print(mesa.get_fechas_disponibles())
         for fecha in mesa.get_fechas_disponibles():
 
             if (fecha[0] == fecha_elegida_reservar_mesa[0] and fecha[1] == fecha_elegida_reservar_mesa[1] and
                     fecha[2] == fecha_elegida_reservar_mesa[2] and mesa.is_vip() == tipo_mesa and len(fecha) > 3):
                 mesas_disponibles.append(mesa.get_num_mesa())
-                print(f"Mesa #{mesa.get_num_mesa()}")
 
     def f1_i1_escoger_num_mesa():
         ### VOY ACÁ ###
@@ -422,7 +418,6 @@ def continuar_seleccion_mesa(restaurante, fecha_elegida_reservar_mesa, tipo_mesa
                 hora_elegida = 5
             elif hora_elegida == 20:
                 hora_elegida = 6
-            print(hora_elegida)
 
             fecha_elegida_reservar_mesa.append(mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida][hora_elegida + 2])
             reserva = Reserva(clientes, fecha_elegida_reservar_mesa)
@@ -430,18 +425,12 @@ def continuar_seleccion_mesa(restaurante, fecha_elegida_reservar_mesa, tipo_mesa
             mesa_elegida.get_fechas_disponibles()[indice_fecha_elegida].pop(hora_elegida + 2)
             restaurante.get_historial_reservas().append(reserva)
 
-            print("Clientes: ", clientes)
-
             for cliente in clientes:
                 cliente.set_reserva(reserva)
                 cliente.set_mesa(mesa_elegida)
                 cliente.set_factura(Factura(Pedido()))
 
-            print(f"Mesa Elegida: {mesa_elegida.get_fechas_disponibles()}")
-            print(restaurante.get_historial_reservas())
-            print("Su reserva ha sido exitosa")
             extras_reserva(retorno_seleccion_mesa)
-            print("Cliente obtenido", retorno_seleccion_mesa)
 
         label_procesos_bottom.destroy()
         label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Horario mesa"], tituloValores = "Valor ingresado", valores=[horarios_disponibles], tipo = 2, habilitado = [True], comandoContinuar=f1_i1_escoger_horario)
@@ -531,7 +520,6 @@ def extras_reserva(cliente):
                     celda_parqueo = indice_celda + 1
                     if cliente.get_placa_vehiculo() != "Ninguna":
                         placa = cliente.get_placa_vehiculo()
-                    print(f"Parqueadero reservado con éxito para el vehículo con placa: {placa}.")
                 
                 label_procesos_bottom.destroy()
                 label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="El servicio cuesta 10000.", criterios=None, tituloValores="¿Desea continuar?", tipo=1, comandoContinuar=f1_i2_parqueo_ninguna, comandoCancelar=extras_reserva(cliente))
@@ -662,7 +650,6 @@ def pagar_reserva(restaurante, reserva, clientes, factura):
         escoger_metodo_pago(clientes[0])
         factura.calcular_valor()
         def f1_i3_confirmar_pago():
-            print("Transacción confirmada.")
             clientes[0].get_factura().set_valor(0)
         label_procesos_bottom.destroy()
         label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios="¿Desea confirmar la transacción", criterios=None, tituloValores=f"con un valor de: {factura.get_valor()}?", tipo=1, comandoContinuar=f1_i3_confirmar_pago, comandoCancelar=funcionalidad_0)
@@ -673,9 +660,6 @@ def confirmar_reserva(restaurante, reserva, clientes):
     # confirmada = False
     fecha_intento = datetime.now()
     restaurante.get_intentos_reserva().append([fecha_intento.year, fecha_intento.month, fecha_intento.day])
-    
-    print("Resumen de su reserva:")
-    print(reserva)
 
     def f1_i3_confirmar_final():
         global label_procesos_bottom
@@ -2601,14 +2585,14 @@ def cambiar_cv(event):
     # Listas de rutas de imágenes
     cvs = [
         ["Me gusta el Póker"],
-        ["Me gusta el Mine"],
-        ["Stiven Saldarriaga Mayorga\nTeléfono: 322 778 1217\nEdad: 18\nCursando: Ingeniería en Sistemas e Informática\nConocimientos: Java, ColdFusion, Metafísica pura\n Experiencia: Five Pack Alliance"]
+        ["Samuel Colorado Castrillon\nTeléfono: 305 224 6361\nEdad: 18\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, Python\nHabilidades: Aprendizaje rápido, resolución de problemas"],
+        ["Stiven Saldarriaga Mayorga\nTeléfono: 322 778 1217\nEdad: 18\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, ColdFusion, Metafísica pura\nExperiencia: Five Pack Alliance"]
     ]
 
     rutas = [
-        ["src/Imagenes/desarrolladores/arangoPrueba1.png", "src/Imagenes/desarrolladores/arangoPrueba2.png", "src/Imagenes/desarrolladores/arangoPrueba3.png", "src/Imagenes/desarrolladores/arangoPrueba4.png" ],
-        ["src/Imagenes/desarrolladores/coloradoPrueba1.png", "src/Imagenes/desarrolladores/coloradoPrueba2.png", "src/Imagenes/desarrolladores/coloradoPrueba3.png", "src/Imagenes/desarrolladores/coloradoPrueba4.png"],
-        ["src/Imagenes/desarrolladores/stivenPrueba1.jpeg", "src/Imagenes/desarrolladores/stivenPrueba2.jpeg", "src/Imagenes/desarrolladores/stivenPrueba3.jpeg","src/Imagenes/desarrolladores/stivenPrueba4.jpeg" ]
+        ["src/Imagenes/desarrolladores/arango1.png", "src/Imagenes/desarrolladores/arango2.png", "src/Imagenes/desarrolladores/arango3.png", "src/Imagenes/desarrolladores/arango4.png"],
+        ["src/Imagenes/desarrolladores/colorado1.png", "src/Imagenes/desarrolladores/colorado2.png", "src/Imagenes/desarrolladores/colorado3.png", "src/Imagenes/desarrolladores/colorado4.png"],
+        ["src/Imagenes/desarrolladores/stiven1.png", "src/Imagenes/desarrolladores/stiven2.png", "src/Imagenes/desarrolladores/stiven3.png","src/Imagenes/desarrolladores/stiven4.png"]
     ]
     #boton_right_top.config(text=cvs[contador_clicks_cv][0])
     # Actualizar las rutas de las imágenes de acuerdo al contador de clics
@@ -2652,7 +2636,7 @@ def cambiar_img_restaurante(event):
 
     lb_top_size = [frame_lb_top.winfo_width(), frame_lb_top.winfo_height()]
 
-    rutas = ["src/Imagenes/restaurante/restaurante1.png", "src/Imagenes/restaurante/restaurante2.png", "src/Imagenes/restaurante/restaurante3.png", "src/Imagenes/restaurante/restaurante4.png", "src/Imagenes/restaurante/restaurante5.png"]
+    rutas = ["src/Imagenes/sistema/sistema1.png", "src/Imagenes/sistema/sistema2.png", "src/Imagenes/sistema/sistema3.png", "src/Imagenes/sistema/sistema4.png", "src/Imagenes/sistema/sistema5.png"]
     
     ruta = rutas[contador_pasa_img_res % 5]
 
@@ -2805,7 +2789,7 @@ frame_right_top.pack(side = TOP, fill = BOTH, expand = True, padx=10, pady = 10)
 frame_right_top.pack_propagate(False)
 
 #Descripción CV
-right_top = Label(frame_right_top, text = "Hoja de Vida de los desarrolladores", bg = "#545454", fg="#fff")
+right_top = Label(frame_right_top, bg = "#545454", fg="#fff", justify="left")
 right_top.bind("<Button-1>", cambiar_cv)
 right_top.bind("<Configure>", lambda event: tamano_texto(event, right_top))
 right_top.pack(expand = True, fill = BOTH, padx = 10, pady = 10)
