@@ -53,3 +53,15 @@ class ExcepcionCedulasRepetidas(ExcepcionDatosEntry):
         self.mensaje_error = f"Hay cédulas de acompañantes repetidas: Cédula de número {cedula_repetida}"
         messagebox.showerror("Error: Selección Vacía", self.mensaje_error)
         super().__init__(self.mensaje_error)
+
+class ExcepcionNombreInvalido(ExcepcionDatosEntry):
+    def __init__(self, nombre_invalido):
+        self.mensaje_error = f"El nombre ingresado es inválido: {nombre_invalido}"
+        messagebox.showerror("Error: Nombre Inválido", self.mensaje_error)
+        super().__init__(self.mensaje_error)
+
+class ExcepcionPlacaVehiculoInvalida(ExcepcionDatosEntry):
+    def __init__(self, placa_invalida):
+        self.mensaje_error = f"La placa del vehículo es inválida: {placa_invalida}"
+        messagebox.showerror("Error: Placa Inválida", self.mensaje_error)
+        super().__init__(self.mensaje_error)
