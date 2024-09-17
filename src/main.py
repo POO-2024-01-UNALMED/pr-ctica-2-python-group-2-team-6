@@ -25,7 +25,7 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import random
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, Button
 from PIL import Image, ImageTk
 
 contador_clicks_cv = 0
@@ -2307,16 +2307,16 @@ def recomendar_torta(cantidad_invitados):
 
 def cata_vinos_champagne(cantidad_proletariado):
     global label_procesos_bottom, label_procesos_mid, EstadoGlobal
-    # vino1 = Plato("Vino Catenna Deluxe", 128000, porciones=6, cantidad_de_plato=10)
-    # vino2 = Plato("Vino Bourgon Le Pin", 188000, porciones=6, cantidad_de_plato=10)
-    # vino3 = Plato("Vino del D1", 78000, porciones=8, cantidad_de_plato=10)
-    # vinos = [vino1, vino2, vino3]
-    # champagna1 = Plato("Champagna Mariscal G", 105000, porciones=6, cantidad_de_plato=10)
-    # champagna2 = Plato("Champagna Pierre Mersault", 112000, porciones=6, cantidad_de_plato=10)
-    # champagna3 = Plato("Champagna Cariñosa", 60000, porciones=6, cantidad_de_plato=10)
-    # champagna = [champagna1, champagna2, champagna3]
-    # Plato.vinos_champanas_meeting.append(vinos)
-    # Plato.vinos_champanas_meeting.append(champagna)
+    vino1 = Plato("Vino Catenna Deluxe", 128000, porciones=6, cantidad_de_plato=10)
+    vino2 = Plato("Vino Bourgon Le Pin", 188000, porciones=6, cantidad_de_plato=10)
+    vino3 = Plato("Vino del D1", 78000, porciones=8, cantidad_de_plato=10)
+    vinos = [vino1, vino2, vino3]
+    champagna1 = Plato("Champagna Mariscal G", 105000, porciones=6, cantidad_de_plato=10)
+    champagna2 = Plato("Champagna Pierre Mersault", 112000, porciones=6, cantidad_de_plato=10)
+    champagna3 = Plato("Champagna Cariñosa", 60000, porciones=6, cantidad_de_plato=10)
+    champagna = [champagna1, champagna2, champagna3]
+    Plato.vinos_champanas_meeting.append(vinos)
+    Plato.vinos_champanas_meeting.append(champagna)
 
     def acepta_recomendacion():
         global label_procesos_bottom, label_procesos_mid
