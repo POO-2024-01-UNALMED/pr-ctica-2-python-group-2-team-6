@@ -1145,7 +1145,7 @@ def establecer_menu_y_encargos(restaurante):
         menu_transitorio_nombres.append(plato.get_nombre())
     
     if menu_transitorio_nombres == []:
-        menu_transitorio_nombres = "Menú vacío. Elegir Sí"
+        menu_transitorio_nombres = "Menú vacío. Elegir No"
 
     def f4_i3_adoptar_o_crear():
         global label_procesos_bottom
@@ -1207,7 +1207,7 @@ def establecer_menu_y_encargos(restaurante):
                             plato_retorno.set_tipo(tipo_plato)
 
                             def f4_i3_establecer_ingredientes_plato():
-                                global label_procesos_bottom
+                                global label_procesos_bottom, contador_ingredientes
                                 try:
                                     precio_plato = int(label_procesos_bottom.valores[0])
                                 except:
@@ -1222,6 +1222,7 @@ def establecer_menu_y_encargos(restaurante):
 
                                 ingredientes_plato = []
                                 cantidad_ingredientes = []
+                                contador_ingredientes = 1
                                 def f4_i3_recursiva():
                                     global label_procesos_bottom
                                 # for i in range(num_ingredientes):
@@ -1249,14 +1250,19 @@ def establecer_menu_y_encargos(restaurante):
                                         cantidad_ingredientes.append([ingrediente.get_nombre(), str(cantidad_ingrediente)])
 
                                         def f4_i3_definir_plato_retorno(nombre, precio, ingredientes, cantidad):
+                                            print("Se accede a definir plato retorno")
                                             restaurante.get_menu().append(Plato(nombre, precio, ingredientes, cantidad))
                                             f4_i3_crear_platos()
 
                                         if contador_ingredientes == num_ingredientes:
-                                            f4_i3_definir_plato_retorno(nombre_ingrediente, precio_ingrediente, ingredientes_plato, cantidad_ingredientes)
-                                        else:
+                                            f4_i3_definir_plato_retorno(nombre, precio_plato, ingredientes_plato, cantidad_ingredientes)
+                                        
+                                        if contador_ingredientes < num_ingredientes:
+                                            print("Antes de sumar", contador_ingredientes)
                                             contador_ingredientes += 1
-                                            f4_i3_crear_platos()
+                                            print("Despues de sumar", contador_ingredientes)
+                                            f4_i3_recursiva()
+                                            # f4_i3_definir_plato_retorno(nombre_ingrediente, precio_ingrediente, ingredientes_plato, cantidad_ingredientes)
                                     
                                     label_procesos_mid.config(text="Ingrese los datos del ingrediente.")
                                     label_procesos_bottom.destroy()
@@ -1290,8 +1296,6 @@ def establecer_menu_y_encargos(restaurante):
             label_procesos_bottom.destroy()
             label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Cantidad de Platos"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True], comandoContinuar=f4_i3_crear_platos)
             label_procesos_bottom.grid(sticky="nsew")
-
-            restaurante.set_menu(menu_transitorio)
     
     label_procesos_mid.config(text="Menú generado por orden de calificación de los platos.\nSeleccione sí o no.")
     label_procesos_bottom.destroy()
@@ -1299,13 +1303,26 @@ def establecer_menu_y_encargos(restaurante):
     label_procesos_bottom.grid(sticky="nsew")
 
 def cargamento(restaurante):
+    print(len(restaurante.get_menu()), restaurante.get_menu())
+    for plato in restaurante.get_menu():
+        print(plato)
+    global label_procesos_bottom
     cargamento = Cargamento()
 
     def f4_i3_establecer_parametros():
         global label_procesos_bottom
-        cantidad_ingredientes_encargo = label_procesos_bottom.valores[0]
-        cantidad_utilidades = label_procesos_bottom.valores[1]
-        frecuencia_dias = label_procesos_bottom.valores[2]
+        try:
+            cantidad_ingredientes_encargo = label_procesos_bottom.valores[0]
+        except:
+            raise ExcepcionDatosErroneos("Cantidad de ingredientes a encargar")
+        try:
+            cantidad_utilidades = label_procesos_bottom.valores[1]
+        except:
+            raise ExcepcionDatosErroneos("Cantidad de utilidades a encargar")
+        try:
+            frecuencia_dias = label_procesos_bottom.valores[2]
+        except:
+            raise ExcepcionDatosErroneos("¿Cada cuántos días quiere que venga el cargamento?")
 
         for plato in restaurante.get_menu():
             for cantidad_ingredientes in plato.get_cantidad_ingredientes():
@@ -1325,7 +1342,7 @@ def cargamento(restaurante):
         funcionalidad_0()
     
     label_procesos_bottom.destroy()
-    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["cantidad de ingredientes a encargar", "cantidad de utilidades a encargar", "¿Cada cuántos días quiere que venga el cargamento?"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True, True], comandoContinuar=f4_i3_establecer_parametros)
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Cantidad de ingredientes a encargar", "Cantidad de utilidades a encargar", "¿Cada cuántos días quiere que venga el cargamento?"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True, True], comandoContinuar=f4_i3_establecer_parametros)
     label_procesos_bottom.grid(sticky="nsew")
 
 ###Parte de FUNCIONALIDAD 5
