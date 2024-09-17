@@ -1,4 +1,4 @@
-from src.uiMain.utilidad import *
+from uiMain.utilidad import *
 from collections import OrderedDict
 import pickle
 def combinar_listas(lista1, lista2):
