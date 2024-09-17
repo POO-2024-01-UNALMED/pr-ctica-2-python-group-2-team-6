@@ -2584,7 +2584,7 @@ def cambiar_cv(event):
 
     # Listas de rutas de imágenes
     cvs = [
-        ["Juan José Arango Marín\nTeléfono: 304 386 4396\nEdad: 19\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Algo, Otro algo\nAlgo más: mimimimi"],
+        ["Juan José Arango Marín\nTeléfono: 304 386 4396\nEdad: 19\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, Cáida libre, AntiJudio 卐卐卐卐卐\nAlgo más: Mueran todos los negros"],
         ["Samuel Colorado Castrillon\nTeléfono: 305 224 6361\nEdad: 18\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, Python\nHabilidades: Aprendizaje rápido, resolución de problemas"],
         ["Stiven Saldarriaga Mayorga\nTeléfono: 322 778 1217\nEdad: 18\nPregrado: Ingeniería en Sistemas e Informática\nConocimientos: Java, ColdFusion, Metafísica pura\nExperiencia: Five Pack Alliance"]
     ]
