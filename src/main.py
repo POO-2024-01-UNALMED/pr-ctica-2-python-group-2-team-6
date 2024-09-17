@@ -1145,7 +1145,7 @@ def establecer_menu_y_encargos(restaurante):
         menu_transitorio_nombres.append(plato.get_nombre())
     
     if menu_transitorio_nombres == []:
-        menu_transitorio_nombres = "Menú vacío. Elegir No"
+        menu_transitorio_nombres = "Menú vacío. Elegir Sí"
 
     def f4_i3_adoptar_o_crear():
         global label_procesos_bottom
@@ -1207,7 +1207,7 @@ def establecer_menu_y_encargos(restaurante):
                             plato_retorno.set_tipo(tipo_plato)
 
                             def f4_i3_establecer_ingredientes_plato():
-                                global label_procesos_bottom, contador_ingredientes
+                                global label_procesos_bottom
                                 try:
                                     precio_plato = int(label_procesos_bottom.valores[0])
                                 except:
@@ -1222,7 +1222,6 @@ def establecer_menu_y_encargos(restaurante):
 
                                 ingredientes_plato = []
                                 cantidad_ingredientes = []
-                                contador_ingredientes = 1
                                 def f4_i3_recursiva():
                                     global label_procesos_bottom
                                 # for i in range(num_ingredientes):
@@ -1250,19 +1249,14 @@ def establecer_menu_y_encargos(restaurante):
                                         cantidad_ingredientes.append([ingrediente.get_nombre(), str(cantidad_ingrediente)])
 
                                         def f4_i3_definir_plato_retorno(nombre, precio, ingredientes, cantidad):
-                                            print("Se accede a definir plato retorno")
                                             restaurante.get_menu().append(Plato(nombre, precio, ingredientes, cantidad))
                                             f4_i3_crear_platos()
 
                                         if contador_ingredientes == num_ingredientes:
-                                            f4_i3_definir_plato_retorno(nombre, precio_plato, ingredientes_plato, cantidad_ingredientes)
-                                        
-                                        if contador_ingredientes < num_ingredientes:
-                                            print("Antes de sumar", contador_ingredientes)
+                                            f4_i3_definir_plato_retorno(nombre_ingrediente, precio_ingrediente, ingredientes_plato, cantidad_ingredientes)
+                                        else:
                                             contador_ingredientes += 1
-                                            print("Despues de sumar", contador_ingredientes)
-                                            f4_i3_recursiva()
-                                            # f4_i3_definir_plato_retorno(nombre_ingrediente, precio_ingrediente, ingredientes_plato, cantidad_ingredientes)
+                                            f4_i3_crear_platos()
                                     
                                     label_procesos_mid.config(text="Ingrese los datos del ingrediente.")
                                     label_procesos_bottom.destroy()
@@ -1296,6 +1290,8 @@ def establecer_menu_y_encargos(restaurante):
             label_procesos_bottom.destroy()
             label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Cantidad de Platos"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True], comandoContinuar=f4_i3_crear_platos)
             label_procesos_bottom.grid(sticky="nsew")
+
+            restaurante.set_menu(menu_transitorio)
     
     label_procesos_mid.config(text="Menú generado por orden de calificación de los platos.\nSeleccione sí o no.")
     label_procesos_bottom.destroy()
@@ -1303,26 +1299,13 @@ def establecer_menu_y_encargos(restaurante):
     label_procesos_bottom.grid(sticky="nsew")
 
 def cargamento(restaurante):
-    print(len(restaurante.get_menu()), restaurante.get_menu())
-    for plato in restaurante.get_menu():
-        print(plato)
-    global label_procesos_bottom
     cargamento = Cargamento()
 
     def f4_i3_establecer_parametros():
         global label_procesos_bottom
-        try:
-            cantidad_ingredientes_encargo = label_procesos_bottom.valores[0]
-        except:
-            raise ExcepcionDatosErroneos("Cantidad de ingredientes a encargar")
-        try:
-            cantidad_utilidades = label_procesos_bottom.valores[1]
-        except:
-            raise ExcepcionDatosErroneos("Cantidad de utilidades a encargar")
-        try:
-            frecuencia_dias = label_procesos_bottom.valores[2]
-        except:
-            raise ExcepcionDatosErroneos("¿Cada cuántos días quiere que venga el cargamento?")
+        cantidad_ingredientes_encargo = label_procesos_bottom.valores[0]
+        cantidad_utilidades = label_procesos_bottom.valores[1]
+        frecuencia_dias = label_procesos_bottom.valores[2]
 
         for plato in restaurante.get_menu():
             for cantidad_ingredientes in plato.get_cantidad_ingredientes():
@@ -1342,7 +1325,7 @@ def cargamento(restaurante):
         funcionalidad_0()
     
     label_procesos_bottom.destroy()
-    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["Cantidad de ingredientes a encargar", "Cantidad de utilidades a encargar", "¿Cada cuántos días quiere que venga el cargamento?"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True, True], comandoContinuar=f4_i3_establecer_parametros)
+    label_procesos_bottom = FieldFrame(frame_procesos_bottom, tituloCriterios = "Dato", criterios = ["cantidad de ingredientes a encargar", "cantidad de utilidades a encargar", "¿Cada cuántos días quiere que venga el cargamento?"], tituloValores = "Valor ingresado", tipo = 0, habilitado = [True, True, True], comandoContinuar=f4_i3_establecer_parametros)
     label_procesos_bottom.grid(sticky="nsew")
 
 ###Parte de FUNCIONALIDAD 5
@@ -1355,32 +1338,36 @@ class EstadoGlobal:
 
 def crearEvento():
     global label_procesos_bottom, label_procesos_mid
-    Ciudad.get_ciudades().clear()
-    Zona.get_zonas().clear()
+    # Ciudad.get_ciudades().clear()
+    # Zona.get_zonas().clear()
 
-    # Crear ciudades y zonas
-    comala = Ciudad("Comala")
-    medellin = Ciudad("Medellin")
-    zona_centro = Zona(14, "Centro", comala)
-    zona_centro1 = Zona(14, "CentroMede", medellin)
-    comala.agregar_zona(zona_centro)
-    medellin.agregar_zona(zona_centro1)
+    # # Crear ciudades y zonas
+    # comala = Ciudad("Comala")
+    # medellin = Ciudad("Medellin")
+    # zona_centro = Zona(14, "Centro", comala)
+    # zona_centro1 = Zona(14, "CentroMede", medellin)
+    # comala.agregar_zona(zona_centro)
+    # medellin.agregar_zona(zona_centro1)
 
-    # Crear restaurantes
-    restaurantes_comala = [
-        Restaurante(10, "Casa Stiven", [], comala, zona_centro, False),
-        Restaurante(12, "Casa Stiven2", [], comala, zona_centro, False),
-        Restaurante(13, "Casa Stiven3", [], comala, zona_centro, False),
-        Restaurante(14, "Casa Stiven4", [], comala, zona_centro, False)
-    ]
-    for restaurante in restaurantes_comala:
-        zona_centro.get_restaurantes().append(restaurante)
+    # # Crear restaurantes
+    # restaurantes_comala = [
+    #     Restaurante(10, "Casa Stiven", [], comala, zona_centro, False),
+    #     Restaurante(12, "Casa Stiven2", [], comala, zona_centro, False),
+    #     Restaurante(13, "Casa Stiven3", [], comala, zona_centro, False),
+    #     Restaurante(14, "Casa Stiven4", [], comala, zona_centro, False)
+    # ]
+    # for restaurante in restaurantes_comala:
+    #     zona_centro.get_restaurantes().append(restaurante)
 
-    restaurantes_medellin = [
-        Restaurante(10, "Casa Stiven1", [], medellin, zona_centro1, False)
-    ]
-    for restaurante in restaurantes_medellin:
-        zona_centro1.get_restaurantes().append(restaurante)
+    # restaurantes_medellin = [
+    #     Restaurante(10, "Casa Stiven1", [], medellin, zona_centro1, False)
+    # ]
+    # for restaurante in restaurantes_medellin:
+    #     zona_centro1.get_restaurantes().append(restaurante)
+
+    # Ciudad.get_ciudades().append(comala)
+    # Ciudad.get_ciudades().append(medellin)
+
 
     # Llamar la primera interacción
     interaccion1_ciudad()
@@ -1454,9 +1441,6 @@ def llamar_interacciones():
     while EstadoGlobal.factura_final is None:
         frame_procesos_bottom.update()
 
-    print(EstadoGlobal.factura_final.get_evento().get_platos()[0].get_nombre())
-    print(EstadoGlobal.factura_final.get_evento().get_coste())
-    print(EstadoGlobal.factura_final.get_evento().get_descripcion())
     hora_reserva_funcion()
     while EstadoGlobal.hora_reserva is None:
         frame_procesos_bottom.update()
@@ -1652,7 +1636,7 @@ def interaccion2_recomendarEvento():
 
     def opcion_meetings():
         global label_procesos_bottom, label_procesos_mid
-        label_procesos_mid.config(text="El evento de meetings tiene un coste de 410.000%")
+        label_procesos_mid.config(text="El evento de meetings tiene un coste de 410.000$")
         
         def opcion_meetings_si():
             global label_procesos_bottom, label_procesos_mid
@@ -1682,7 +1666,7 @@ def interaccion2_recomendarEvento():
                 except ValueError:
                     messagebox.showerror("Error de Formato", "El número de acompañantes debe ser un número entero válido.")               
                 
-            mensaje_meeting = ("Ningún mejor lugar para tus esclavos laborales que este\n"
+            mensaje_meeting = ("Ningún mejor lugar para tus laborales que este\n"
                                 "Somos felices de tenerlos en el restaurante 😈.\n"
                                 "Por favor, danos los siguientes datos de la empresa:")
     
@@ -1826,16 +1810,16 @@ def recomendar_torta(cantidad_invitados):
 
 def cata_vinos_champagne(cantidad_proletariado):
     global label_procesos_bottom, label_procesos_mid, EstadoGlobal
-    vino1 = Plato("Vino Catenna Deluxe", 128000, porciones=6, cantidad_de_plato=10)
-    vino2 = Plato("Vino Bourgon Le Pin", 188000, porciones=6, cantidad_de_plato=10)
-    vino3 = Plato("Vino del D1", 78000, porciones=8, cantidad_de_plato=10)
-    vinos = [vino1, vino2, vino3]
-    champagna1 = Plato("Champagna Mariscal G", 105000, porciones=6, cantidad_de_plato=10)
-    champagna2 = Plato("Champagna Pierre Mersault", 112000, porciones=6, cantidad_de_plato=10)
-    champagna3 = Plato("Champagna Cariñosa", 60000, porciones=6, cantidad_de_plato=10)
-    champagna = [champagna1, champagna2, champagna3]
-    Plato.vinos_champanas_meeting.append(vinos)
-    Plato.vinos_champanas_meeting.append(champagna)
+    # vino1 = Plato("Vino Catenna Deluxe", 128000, porciones=6, cantidad_de_plato=10)
+    # vino2 = Plato("Vino Bourgon Le Pin", 188000, porciones=6, cantidad_de_plato=10)
+    # vino3 = Plato("Vino del D1", 78000, porciones=8, cantidad_de_plato=10)
+    # vinos = [vino1, vino2, vino3]
+    # champagna1 = Plato("Champagna Mariscal G", 105000, porciones=6, cantidad_de_plato=10)
+    # champagna2 = Plato("Champagna Pierre Mersault", 112000, porciones=6, cantidad_de_plato=10)
+    # champagna3 = Plato("Champagna Cariñosa", 60000, porciones=6, cantidad_de_plato=10)
+    # champagna = [champagna1, champagna2, champagna3]
+    # Plato.vinos_champanas_meeting.append(vinos)
+    # Plato.vinos_champanas_meeting.append(champagna)
 
     def acepta_recomendacion():
         global label_procesos_bottom, label_procesos_mid
@@ -2239,87 +2223,87 @@ def cata_vinos_champagne(cantidad_proletariado):
 
 def gastronomias_semi_final(gastrononomia):
     global label_procesos_bottom, label_procesos_mid
-    trabajador_italiano = Trabajador("Mario Guissepe", 876543, "Italiana", 2300000)
-    trabajador_japones = Trabajador("Rika Miyuka", 575288, "Japonesa", 2300000)
-    trabajador_marroqui = Trabajador("Hakin Hasan Ibrahim", 8428257, "Marroquí", 2300000)
-    trabajador_frances = Trabajador("Emmanuel Macrom", 95175, "Francesa", 2300000)
+    # trabajador_italiano = Trabajador("Mario Guissepe", 876543, "Italiana", 2300000)
+    # trabajador_japones = Trabajador("Rika Miyuka", 575288, "Japonesa", 2300000)
+    # trabajador_marroqui = Trabajador("Hakin Hasan Ibrahim", 8428257, "Marroquí", 2300000)
+    # trabajador_frances = Trabajador("Emmanuel Macrom", 95175, "Francesa", 2300000)
 
 
-    # Añadiendo cocineros
-    Trabajador.get_cocineros().append(trabajador_italiano)
-    Trabajador.get_cocineros().append(trabajador_japones)
-    Trabajador.get_cocineros().append(trabajador_marroqui)
-    Trabajador.get_cocineros().append(trabajador_frances)
+    # # Añadiendo cocineros
+    # Trabajador.cocineros.append(trabajador_italiano)
+    # Trabajador.get_cocineros().append(trabajador_japones)
+    # Trabajador.get_cocineros().append(trabajador_marroqui)
+    # Trabajador.get_cocineros().append(trabajador_frances)
 
-    # Creación de platos varios
-    bagget = Plato("Bagget", 2000, 100, "Meetings")
-    queso = Plato("Queso mediterraneo", 50000, 100, "Meetings")
-    mochi = Plato("Mochi", 4300, 100, "Japonesa")
-    postre_napolitano = Plato("Postre Napolitano", 4300, 100, "Italiana")
-    magrud = Plato("Maqrud", 4300, 100, "Marroquí")
-    macarons = Plato("Macarons", 4300, 100, "Francesa")
+    # # Creación de platos varios
+    # bagget = Plato("Bagget", 2000, 100, "Meetings")
+    # queso = Plato("Queso mediterraneo", 50000, 100, "Meetings")
+    # mochi = Plato("Mochi", 4300, 100, "Japonesa")
+    # postre_napolitano = Plato("Postre Napolitano", 4300, 100, "Italiana")
+    # magrud = Plato("Maqrud", 4300, 100, "Marroquí")
+    # macarons = Plato("Macarons", 4300, 100, "Francesa")
 
-    # Añadiendo platos varios
-    Plato.get_platos_varios().append(bagget)
-    Plato.get_platos_varios().append(queso)
-    Plato.get_platos_varios().append(mochi)
-    Plato.get_platos_varios().append(postre_napolitano)
-    Plato.get_platos_varios().append(magrud)
-    Plato.get_platos_varios().append(macarons)
+    # # Añadiendo platos varios
+    # Plato.get_platos_varios().append(bagget)
+    # Plato.get_platos_varios().append(queso)
+    # Plato.get_platos_varios().append(mochi)
+    # Plato.get_platos_varios().append(postre_napolitano)
+    # Plato.get_platos_varios().append(magrud)
+    # Plato.get_platos_varios().append(macarons)
 
-    # Creación de platos italianos
-    sopa_minestrone = Plato("Sopa Minnestrone", 54000, 5, "Italiana")
-    ensalada_caprese = Plato("Ensalada Caprese", 35300, 8, "Italiana")
-    carpaccio = Plato("Carpaccio", 44000, 1, "Italiana")
-    vitello_tonnatoe = Plato("Vitello Tonnatoe", 74000, 4, "Italiana")
+    # # Creación de platos italianos
+    # sopa_minestrone = Plato("Sopa Minnestrone", 54000, 5, "Italiana")
+    # ensalada_caprese = Plato("Ensalada Caprese", 35300, 8, "Italiana")
+    # carpaccio = Plato("Carpaccio", 44000, 1, "Italiana")
+    # vitello_tonnatoe = Plato("Vitello Tonnatoe", 74000, 4, "Italiana")
 
-    # Añadiendo platos italianos
-    Plato.get_gastronomias_italiana().append(sopa_minestrone)
-    Plato.get_gastronomias_italiana().append(ensalada_caprese)
-    Plato.get_gastronomias_italiana().append(carpaccio)
-    Plato.get_gastronomias_italiana().append(vitello_tonnatoe)
+    # # Añadiendo platos italianos
+    # Plato.get_gastronomias_italiana().append(sopa_minestrone)
+    # Plato.get_gastronomias_italiana().append(ensalada_caprese)
+    # Plato.get_gastronomias_italiana().append(carpaccio)
+    # Plato.get_gastronomias_italiana().append(vitello_tonnatoe)
 
-    # Creación de platos japoneses
-    sushi = Plato("Sushi Yarigato", 54000, 5, "Japonesa")
-    tempura = Plato("Tempura Ora Ora", 35300, 8, "Japonesa")
-    katsudon = Plato("Katsudon Primaveral", 44000, 3, "Japonesa")
-    kaisedon = Plato("Kaisedon Hokkaido", 74000, 4, "Japonesa")
+    # # Creación de platos japoneses
+    # sushi = Plato("Sushi Yarigato", 54000, 5, "Japonesa")
+    # tempura = Plato("Tempura Ora Ora", 35300, 8, "Japonesa")
+    # katsudon = Plato("Katsudon Primaveral", 44000, 3, "Japonesa")
+    # kaisedon = Plato("Kaisedon Hokkaido", 74000, 4, "Japonesa")
 
-    # Añadiendo platos japoneses
-    Plato.get_gastronomias_japonesa().append(sushi)
-    Plato.get_gastronomias_japonesa().append(tempura)
-    Plato.get_gastronomias_japonesa().append(katsudon)
-    Plato.get_gastronomias_japonesa().append(kaisedon)
+    # # Añadiendo platos japoneses
+    # Plato.get_gastronomias_japonesa().append(sushi)
+    # Plato.get_gastronomias_japonesa().append(tempura)
+    # Plato.get_gastronomias_japonesa().append(katsudon)
+    # Plato.get_gastronomias_japonesa().append(kaisedon)
 
-    # Creación de platos marroquíes
-    tajin = Plato("Tajín Avepus", 54000, 5, "Marroquí")
-    cuscus = Plato("Cuscús Adriático", 35300, 8, "Marroquí")
-    harira = Plato("Harira Candente", 44000, 3, "Marroquí")
-    briouat = Plato("Briouat Sur", 74000, 4, "Marroquí")
+    # # Creación de platos marroquíes
+    # tajin = Plato("Tajín Avepus", 54000, 5, "Marroquí")
+    # cuscus = Plato("Cuscús Adriático", 35300, 8, "Marroquí")
+    # harira = Plato("Harira Candente", 44000, 3, "Marroquí")
+    # briouat = Plato("Briouat Sur", 74000, 4, "Marroquí")
 
-    # Añadiendo platos marroquíes
-    Plato.get_gastronomias_marroqui().append(tajin)
-    Plato.get_gastronomias_marroqui().append(cuscus)
-    Plato.get_gastronomias_marroqui().append(harira)
-    Plato.get_gastronomias_marroqui().append(briouat)
+    # # Añadiendo platos marroquíes
+    # Plato.get_gastronomias_marroqui().append(tajin)
+    # Plato.get_gastronomias_marroqui().append(cuscus)
+    # Plato.get_gastronomias_marroqui().append(harira)
+    # Plato.get_gastronomias_marroqui().append(briouat)
 
-    # Creación de platos franceses
-    ratatouille = Plato("Ratatouille Avignon", 54000, 5, "Francesa")
-    escargots = Plato("Escargots D' Bourgogne", 35300, 8, "Francesa")
-    fricase = Plato("Fricasé Le Mans", 44000, 1, "Francesa")
-    gratin = Plato("Le gratin dauphinois", 74000, 1, "Francesa")
+    # # Creación de platos franceses
+    # ratatouille = Plato("Ratatouille Avignon", 54000, 5, "Francesa")
+    # escargots = Plato("Escargots D' Bourgogne", 35300, 8, "Francesa")
+    # fricase = Plato("Fricasé Le Mans", 44000, 1, "Francesa")
+    # gratin = Plato("Le gratin dauphinois", 74000, 1, "Francesa")
 
-    # Añadiendo platos franceses
-    Plato.get_gastronomias_francesa().append(ratatouille)
-    Plato.get_gastronomias_francesa().append(escargots)
-    Plato.get_gastronomias_francesa().append(fricase)
-    Plato.get_gastronomias_francesa().append(gratin)
+    # # Añadiendo platos franceses
+    # Plato.get_gastronomias_francesa().append(ratatouille)
+    # Plato.get_gastronomias_francesa().append(escargots)
+    # Plato.get_gastronomias_francesa().append(fricase)
+    # Plato.get_gastronomias_francesa().append(gratin)
 
-    # Añadiendo gastronomías al conjunto de platos
-    Plato.get_platos_gastronomias().append(Plato.get_gastronomias_francesa())
-    Plato.get_platos_gastronomias().append(Plato.get_gastronomias_italiana())
-    Plato.get_platos_gastronomias().append(Plato.get_gastronomias_marroqui())
-    Plato.get_platos_gastronomias().append(Plato.get_gastronomias_japonesa())
+    # # Añadiendo gastronomías al conjunto de platos
+    # Plato.get_platos_gastronomias().append(Plato.get_gastronomias_francesa())
+    # Plato.get_platos_gastronomias().append(Plato.get_gastronomias_italiana())
+    # Plato.get_platos_gastronomias().append(Plato.get_gastronomias_marroqui())
+    # Plato.get_platos_gastronomias().append(Plato.get_gastronomias_japonesa())
 
     if gastrononomia == "Japonesa":
         comida_japonesa()
@@ -2454,7 +2438,7 @@ def comida_japonesa():
     frame_procesos_bottom,
     tituloCriterios="Platos Japoneses Disponibles",
     criterios=["Nombre"],
-    tituloValores="El que usted desea mi rey",
+    tituloValores="El que usted desee",
     valores=[nombre_platos],
     tipo=2,
     comandoContinuar=cantidad_de_los_platos,
@@ -2652,9 +2636,16 @@ def diseno_de_factura(evento, cliente, horario):
     cliente1 = cliente
     horario1 = horario
 
-    
-    plato = evento1.get_platos()[0]
-    cantidad = plato.get_veces_pedido()
+    if evento1.get_nombre() == "Feliz Cumpleaños":
+        plato = evento1.get_platos()
+    else:
+        plato = evento1.get_platos()[0]
+
+    if evento1.get_nombre() == "Feliz Cumpleaños":
+        cantidad = plato.get_veces_pedido()[0]
+    else:
+        cantidad = plato.get_veces_pedido()
+
     cantidad_a_pagar = (cantidad * plato.get_precio()) + evento1.get_coste()
 
     if int(horario1) > 20:
